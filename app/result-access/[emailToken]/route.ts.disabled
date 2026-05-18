@@ -1,0 +1,57 @@
+import { findOrCreateUserFromVerifiedEmail } from "@/lib/auth";
+import { getResultEmailLink } from "@/lib/result-email-links";
+import { NextResponse } from "next/server";
+
+type ResultAccessRouteProps = {
+  params: Promise<{
+    emailToken: string;
+  }>;
+};
+
+const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+export async function GET(request: Request, { params }: ResultAccessRouteProps) {
+  const { emailToken } = await params;
+  const link = await getResultEmailLink(emailToken);
+
+  if (!link) {
+    return new NextResponse(
+      "<!doctype html><html><body><h1>Lien invalide</h1><p>Ce lien de resultat est introuvable ou expire.</p></body></html>",
+      {
+        status: 404,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      }
+    );
+  }
+
+  const account = await findOrCreateUserFromVerifiedEmail(link.email, link.resultType, link.resultToken);
+
+  if (!account.user) {
+    return new NextResponse(
+      `<!doctype html><html><body><h1>Impossible d'ouvrir le resultat</h1><p>${account.error ?? "Veuillez reessayer plus tard."}</p></body></html>`,
+      {
+        status: 400,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+        },
+      }
+    );
+  }
+
+  const redirectUrl =
+    link.resultType === "iq"
+      ? new URL(`/iq/results/${encodeURIComponent(link.resultToken)}`, request.url)
+      : new URL(`/results/${encodeURIComponent(link.resultToken)}`, request.url);
+  const response = NextResponse.redirect(redirectUrl);
+
+  response.cookies.set("quizhub_user_id", String(account.user.id), {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: AUTH_COOKIE_MAX_AGE,
+    path: "/",
+  });
+
+  return response;
+}

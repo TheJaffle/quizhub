@@ -1,0 +1,39 @@
+import { loginUser } from "@/lib/auth";
+import { NextResponse } from "next/server";
+
+const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json().catch(() => null);
+
+    if (!body) {
+      return NextResponse.json({ error: "Impossible de se connecter pour le moment." }, { status: 400 });
+    }
+
+    const resultToken = typeof body.resultToken === "string" ? body.resultToken : null;
+    const attemptToken = typeof body.attemptToken === "string" ? body.attemptToken : null;
+    const result = await loginUser(typeof body.email === "string" ? body.email : "", typeof body.password === "string" ? body.password : "", resultToken, attemptToken);
+
+    if (result.error || !result.user) {
+      return NextResponse.json({ error: result.error ?? "Email ou mot de passe incorrect." }, { status: 401 });
+    }
+
+    const nextUrl = attemptToken
+      ? `/iq/results/${encodeURIComponent(attemptToken)}`
+      : resultToken
+        ? `/results/${encodeURIComponent(resultToken)}`
+        : "/";
+    const response = NextResponse.json({ user: result.user, nextUrl });
+    response.cookies.set("quizhub_user_id", String(result.user.id), {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: AUTH_COOKIE_MAX_AGE,
+      path: "/",
+    });
+
+    return response;
+  } catch {
+    return NextResponse.json({ error: "Impossible de se connecter pour le moment." }, { status: 500 });
+  }
+}
