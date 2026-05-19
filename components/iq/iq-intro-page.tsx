@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { AlertTriangle, Brain, Clock, Loader2, Play, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqIntroPageProps = {
@@ -36,10 +36,15 @@ const GENDER_OPTIONS = [
 export function IqIntroPage({ test, error }: IqIntroPageProps) {
   const router = useRouter();
   useBlockTestBackNavigation();
+  const [isMounted, setIsMounted] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
   const [birthYear, setBirthYear] = useState("");
   const [gender, setGender] = useState("");
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleStart = async () => {
     if (!test) return;
@@ -89,6 +94,17 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
           <AlertTriangle className="h-5 w-5" />
           <AlertTitle>Test de logique indisponible</AlertTitle>
           <AlertDescription>{error || "Ce test de logique est introuvable."}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  if (!isMounted) {
+    return (
+      <div className="mx-auto max-w-3xl py-10">
+        <Alert>
+          <AlertTitle>Chargement du test</AlertTitle>
+          <AlertDescription>Preparation de l&apos;ecran de demarrage...</AlertDescription>
         </Alert>
       </div>
     );
