@@ -67,7 +67,9 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
             <Eye className="h-5 w-5" />
             <span className="font-medium">Stimulus a memoriser</span>
           </div>
-          <span className="rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-700">{timeRemaining} sec</span>
+          <span className="min-w-[5.75rem] whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-center text-sm font-medium tabular-nums text-violet-700">
+            {timeRemaining} sec
+          </span>
         </div>
 
         {data.question.questionText ? (

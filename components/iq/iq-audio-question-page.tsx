@@ -201,8 +201,8 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
               ) : null}
             </div>
           ) : (
-            <div className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-4">
+              <div className="grid gap-3">
                 {data.options.map((option) => {
                   const isSelected = selectedOptionKey === option.key;
                   const isPlaying = playingOptionKey === option.key;
@@ -210,47 +210,37 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
                   return (
                     <div
                       key={option.key}
-                      className={`rounded-2xl border bg-background p-5 text-left shadow-sm transition-all ${
+                      className={`rounded-2xl border bg-background p-3 shadow-sm transition-all ${
                         isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20" : ""
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-100 font-semibold text-indigo-700">
-                            {option.key}
-                          </span>
-                          <div>
-                            <p className="font-medium text-slate-950">Proposition {option.key}</p>
-                            <p className="text-sm text-muted-foreground">Ecoutez la sequence puis validez si c&apos;est votre choix</p>
-                          </div>
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex min-w-0 flex-1 flex-col gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="w-full justify-center"
+                            onClick={() => void playOption(option.key, option.audioUrl)}
+                          >
+                            {isPlaying ? <Radio className="mr-2 h-4 w-4 animate-pulse" /> : <Play className="mr-2 h-4 w-4" />}
+                            Ecouter
+                          </Button>
+                          <Button
+                            type="button"
+                            className="w-full justify-center"
+                            variant={isSelected ? "default" : "secondary"}
+                            onClick={() => {
+                              setSelectedOptionKey(option.key);
+                              setPhase("answered");
+                            }}
+                          >
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Choisir
+                          </Button>
                         </div>
-                        <div className="text-indigo-600">
-                          {isPlaying ? <Radio className="h-5 w-5 animate-pulse" /> : <Play className="h-5 w-5" />}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="flex-1"
-                          onClick={() => void playOption(option.key, option.audioUrl)}
-                        >
-                          <Play className="mr-2 h-4 w-4" />
-                          Ecouter
-                        </Button>
-                        <Button
-                          type="button"
-                          className="flex-1"
-                          variant={isSelected ? "default" : "secondary"}
-                          onClick={() => {
-                            setSelectedOptionKey(option.key);
-                            setPhase("answered");
-                          }}
-                        >
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Choisir {option.key}
-                        </Button>
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700 md:h-14 md:w-14 md:text-xl">
+                          {option.key}
+                        </span>
                       </div>
                     </div>
                   );
