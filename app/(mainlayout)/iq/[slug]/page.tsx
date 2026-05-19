@@ -1,5 +1,21 @@
-import { IqIntroPage } from "@/components/iq/iq-intro-page";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import nextDynamic from "next/dynamic";
 import { getIqTestIntroBySlug } from "@/lib/iq-tests";
+
+const IqIntroPage = nextDynamic(
+  () => import("@/components/iq/iq-intro-page").then((module) => module.IqIntroPage),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="mx-auto max-w-3xl py-10">
+        <Alert>
+          <AlertTitle>Chargement du test</AlertTitle>
+          <AlertDescription>Preparation de l&apos;ecran de demarrage...</AlertDescription>
+        </Alert>
+      </div>
+    ),
+  }
+);
 
 export const dynamic = "force-dynamic";
 
