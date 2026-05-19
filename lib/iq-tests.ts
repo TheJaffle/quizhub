@@ -42,6 +42,7 @@ export type IqPhaseOption = {
   key: string;
   text: string | null;
   imageUrl: string | null;
+  audioUrl: string | null;
   position: number;
 };
 
@@ -51,6 +52,7 @@ export type IqPhaseQuestion = {
   sectionKey: string;
   sectionTitle: string;
   questionText: string | null;
+  answerPromptText: string | null;
   stimulusText: string | null;
   format: string;
   imageUrl: string | null;
@@ -63,6 +65,11 @@ export type IqPhaseQuestion = {
     answerCount: number;
     gridColumns: number;
     gridRows: number;
+  } | null;
+  audio: {
+    promptAudioUrl: string;
+    maxStimulusPlays: number;
+    transitionDelayMs: number;
   } | null;
   options: IqPhaseOption[];
 };
@@ -77,8 +84,9 @@ export type IqAttemptPhase = {
     testTitle: string;
     testSlug: string;
   };
-  phase: "main" | "memory" | "speed";
+  phase: "main" | "memory" | "audio" | "speed";
   phaseTimeLimitSeconds: number | null;
+  nextUrl: string | null;
   questions: IqPhaseQuestion[];
 };
 
@@ -131,6 +139,60 @@ export type IqMemoryIntroResult =
   | { data: IqMemoryIntro; error?: undefined }
   | { data: null; error: string };
 
+export type IqLongMemoryIntro = {
+  attempt: {
+    id: number;
+    token: string;
+    status: string;
+    userId: number | null;
+    testId: number;
+    testTitle: string;
+  };
+  introTitle: string;
+  introText: string;
+  itemCount: number;
+  nextUrl: string;
+};
+
+export type IqLongMemoryIntroResult =
+  | { data: IqLongMemoryIntro; error?: undefined }
+  | { data: null; error: string };
+
+export type IqLongMemoryExposure = {
+  attempt: {
+    id: number;
+    token: string;
+    status: string;
+    userId: number | null;
+    testId: number;
+    testTitle: string;
+  };
+  question: IqPhaseQuestion;
+  displayTimeSeconds: number;
+  returnToUrl: string;
+};
+
+export type IqLongMemoryExposureResult =
+  | { data: IqLongMemoryExposure; error?: undefined }
+  | { data: null; error: string };
+
+export type IqLongMemoryAnswer = {
+  attempt: {
+    id: number;
+    token: string;
+    status: string;
+    userId: number | null;
+    testId: number;
+    testTitle: string;
+  };
+  question: IqPhaseQuestion;
+  returnToUrl: string;
+};
+
+export type IqLongMemoryAnswerResult =
+  | { data: IqLongMemoryAnswer; error?: undefined }
+  | { data: null; error: string };
+
 export type IqSpeedIntro = {
   attempt: {
     id: number;
@@ -153,6 +215,30 @@ export type IqSpeedIntro = {
 
 export type IqSpeedIntroResult =
   | { data: IqSpeedIntro; error?: undefined }
+  | { data: null; error: string };
+
+export type IqAudioIntro = {
+  attempt: {
+    id: number;
+    token: string;
+    status: string;
+    userId: number | null;
+    testId: number;
+    testTitle: string;
+  };
+  section: {
+    id: number;
+    key: string;
+    title: string;
+    description: string | null;
+    questionCount: number;
+    maxStimulusPlays: number;
+  };
+  nextUrl: string;
+};
+
+export type IqAudioIntroResult =
+  | { data: IqAudioIntro; error?: undefined }
   | { data: null; error: string };
 
 export type CompleteIqAttemptResult =
@@ -197,6 +283,9 @@ export type IqResult = {
   memoryScore: number | null;
   verbalScore: number | null;
   logicScore: number | null;
+  quantitativeScore: number | null;
+  audioMemoryScore: number | null;
+  longMemoryScore: number | null;
   spatialScore: number | null;
   averageResponseTimeMs: number | null;
   sectionBreakdown: IqResultSectionBreakdown[];
@@ -221,6 +310,15 @@ type IqTestRow = {
   description: string | null;
   image_url: string | null;
   total_time_limit_seconds: number | null;
+  sequence_definition: string | null;
+  question_bank_test_id: number | null;
+};
+
+export type IqTestLaunchItem = {
+  title: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
 };
 
 type IqSectionRow = {
@@ -252,6 +350,7 @@ type IqQuestionRow = {
   section_key: string;
   section_title: string;
   question_text: string | null;
+  answer_prompt_text: string | null;
   stimulus_text: string | null;
   question_format: string;
   question_image_url: string | null;
@@ -265,6 +364,9 @@ type IqQuestionRow = {
   answer_count: string | number | null;
   grid_columns: number | null;
   grid_rows: number | null;
+  prompt_audio_url: string | null;
+  max_stimulus_plays: number | null;
+  transition_delay_ms: number | null;
 };
 
 type IqOptionRow = {
@@ -316,6 +418,30 @@ type IqMemoryIntroRow = {
   question_count: number;
 };
 
+type IqAudioIntroRow = {
+  attempt_id: number;
+  attempt_token: string;
+  status: string;
+  user_id: number | null;
+  test_id: number;
+  test_title: string;
+  section_id: number;
+  section_key: string;
+  section_title: string;
+  section_description: string | null;
+  question_count: number;
+  max_stimulus_plays: number | null;
+};
+
+type IqLongMemoryRouteRow = {
+  attempt_id: number;
+  attempt_token: string;
+  status: string;
+  user_id: number | null;
+  test_id: number;
+  test_title: string;
+};
+
 type IqSpeedIntroRow = {
   attempt_id: number;
   attempt_token: string;
@@ -332,6 +458,7 @@ type IqSpeedIntroRow = {
 };
 
 type IqResultRow = {
+  id: number;
   attempt_token: string;
   test_id: number;
   test_title: string;
@@ -348,6 +475,9 @@ type IqResultRow = {
   memory_score: string | number | null;
   verbal_score: string | number | null;
   logic_score: string | number | null;
+  quantitative_score: string | number | null;
+  audio_memory_score: string | number | null;
+  long_memory_score: string | number | null;
   spatial_score: string | number | null;
   average_response_time_ms: number | null;
 };
@@ -355,7 +485,116 @@ type IqResultRow = {
 type IqSectionBreakdownRow = {
   section_key: string;
   section_title: string;
-  max_score: string | number;
+};
+
+type TestSequenceQuestionChoice = {
+  questionKey: string;
+  weight: number;
+};
+
+type TestSequenceLongMemoryItem = {
+  questionKey: string;
+  displayTimeSeconds: number;
+  minDelaySeconds: number;
+};
+
+type TestSequenceLongMemoryConfig = {
+  enabled: boolean;
+  introTitle?: string;
+  introText?: string;
+  flushPendingBeforeSpeed?: boolean;
+  items: TestSequenceLongMemoryItem[];
+};
+
+type TestSequenceQuestionStep =
+  | {
+      type: "question";
+      questionKey: string;
+    }
+  | {
+      type: "question";
+      choices: TestSequenceQuestionChoice[];
+    };
+
+type ResolvedTestSequenceQuestionStep = {
+  type: "question";
+  questionKey: string;
+};
+
+type TestSequenceMemoryStep = {
+  type: "memory";
+  questionKeys?: string[];
+};
+
+type TestSequenceSpeedStep = {
+  type: "speed";
+  questionKeys?: string[];
+  timeLimitSeconds?: number;
+};
+
+type TestSequenceAudioMemoryStep = {
+  type: "audio_memory";
+  questionKeys?: string[];
+};
+
+type TestSequenceSpecialStep = TestSequenceMemoryStep | TestSequenceAudioMemoryStep | TestSequenceSpeedStep;
+
+type TestSequenceStep = TestSequenceQuestionStep | TestSequenceSpecialStep;
+type ResolvedTestSequenceStep = ResolvedTestSequenceQuestionStep | TestSequenceSpecialStep;
+
+type TestSequenceDefinition = {
+  version: number;
+  longMemory?: TestSequenceLongMemoryConfig;
+  steps: TestSequenceStep[];
+};
+
+type ResolvedTestSequenceDefinition = {
+  version: number;
+  longMemory?: TestSequenceLongMemoryConfig;
+  steps: ResolvedTestSequenceStep[];
+};
+
+type LongMemoryAttemptState = {
+  enabled: boolean;
+  introTitle: string;
+  introText: string;
+  flushPendingBeforeSpeed: boolean;
+  items: TestSequenceLongMemoryItem[];
+  currentIndex: number;
+  activeQuestionKey: string | null;
+  shownAt: string | null;
+  status: "pending_intro" | "awaiting_exposure" | "waiting_delay" | "awaiting_answer" | "completed";
+};
+
+type SequenceEntry =
+  | { type: "block"; blockIndex: number; questionKeys: string[] }
+  | { type: "memory"; questionKeys: string[] | null }
+  | { type: "audio_memory"; questionKeys: string[] | null }
+  | { type: "speed"; questionKeys: string[] | null; timeLimitSeconds: number | null };
+
+type SequencePlan = {
+  blocks: Array<{
+    blockIndex: number;
+    questionKeys: string[];
+  }>;
+  entries: SequenceEntry[];
+  memoryEntryIndex: number | null;
+  audioMemoryEntryIndex: number | null;
+  speedEntryIndex: number | null;
+};
+
+type SequenceQuestionLookupRow = {
+  question_key: string;
+  section_key: string;
+};
+
+type SequenceResolvedQuestions = {
+  questionSectionByKey: Map<string, string>;
+  specialQuestionKeysByType: {
+    memory: string[] | null;
+    audio_memory: string[] | null;
+    speed: string[] | null;
+  };
 };
 
 function normalizeOverlayNumber(value: string | number | null | undefined, fallback: number) {
@@ -379,10 +618,9 @@ const dbConfig = {
 };
 
 const MAIN_SECTION_KEYS = ["verbal", "logic", "spatial"];
-const LATER_SECTION_KEYS = ["memory", "speed"];
+const LATER_SECTION_KEYS = ["memory", "audio_memory", "speed"];
 const ABANDONED_ATTEMPT_CLEANUP_HOURS = 48;
 const CLEANUP_ABANDONED_ATTEMPT_STATUSES = ["started", "abandoned"];
-
 function mapSection(row: IqSectionRow): IqIntroSection {
   return {
     id: row.id,
@@ -394,6 +632,1210 @@ function mapSection(row: IqSectionRow): IqIntroSection {
   };
 }
 
+function parseTestSequenceDefinition(sequenceDefinition: string | null | undefined): TestSequenceDefinition {
+  if (!sequenceDefinition) {
+    throw new Error("Aucune sequence n'est definie pour ce test.");
+  }
+
+  const parsed = JSON.parse(sequenceDefinition) as Partial<TestSequenceDefinition>;
+  const rawSteps = Array.isArray(parsed.steps) ? parsed.steps : [];
+  const steps: TestSequenceStep[] = [];
+  let memoryCount = 0;
+  let audioMemoryCount = 0;
+  let speedCount = 0;
+  let longMemory: TestSequenceLongMemoryConfig | undefined;
+
+  if (parsed.longMemory !== undefined) {
+    const rawLongMemory = parsed.longMemory;
+
+    if (!rawLongMemory || typeof rawLongMemory !== "object") {
+      throw new Error("La definition longMemory est invalide.");
+    }
+
+    const enabled = Boolean((rawLongMemory as { enabled?: unknown }).enabled);
+    const introTitle =
+      typeof (rawLongMemory as { introTitle?: unknown }).introTitle === "string"
+        ? (rawLongMemory as { introTitle: string }).introTitle.trim()
+        : "";
+    const introText =
+      typeof (rawLongMemory as { introText?: unknown }).introText === "string"
+        ? (rawLongMemory as { introText: string }).introText.trim()
+        : "";
+    const flushPendingBeforeSpeed =
+      typeof (rawLongMemory as { flushPendingBeforeSpeed?: unknown }).flushPendingBeforeSpeed === "boolean"
+        ? (rawLongMemory as { flushPendingBeforeSpeed: boolean }).flushPendingBeforeSpeed
+        : true;
+    const rawItems = Array.isArray((rawLongMemory as { items?: unknown }).items) ? (rawLongMemory as { items: unknown[] }).items : [];
+
+    if (enabled && rawItems.length === 0) {
+      throw new Error("longMemory active doit contenir au moins un item.");
+    }
+
+    const items = rawItems.map((item) => {
+      if (!item || typeof item !== "object") {
+        throw new Error("Un item longMemory est invalide.");
+      }
+
+      const questionKey = typeof (item as { questionKey?: unknown }).questionKey === "string" ? (item as { questionKey: string }).questionKey.trim() : "";
+      const displayTimeSeconds =
+        typeof (item as { displayTimeSeconds?: unknown }).displayTimeSeconds === "number"
+          ? Number((item as { displayTimeSeconds: number }).displayTimeSeconds)
+          : NaN;
+      const minDelaySeconds =
+        typeof (item as { minDelaySeconds?: unknown }).minDelaySeconds === "number"
+          ? Number((item as { minDelaySeconds: number }).minDelaySeconds)
+          : NaN;
+
+      if (!questionKey) {
+        throw new Error("Chaque item longMemory doit definir questionKey.");
+      }
+
+      if (!Number.isInteger(displayTimeSeconds) || displayTimeSeconds <= 0) {
+        throw new Error("Chaque item longMemory doit definir displayTimeSeconds comme entier positif.");
+      }
+
+      if (!Number.isInteger(minDelaySeconds) || minDelaySeconds <= 0) {
+        throw new Error("Chaque item longMemory doit definir minDelaySeconds comme entier positif.");
+      }
+
+      return {
+        questionKey,
+        displayTimeSeconds,
+        minDelaySeconds,
+      };
+    });
+    const uniqueLongMemoryKeys = new Set(items.map((item) => item.questionKey));
+
+    if (uniqueLongMemoryKeys.size !== items.length) {
+      throw new Error("Les questionKey longMemory doivent etre uniques.");
+    }
+
+    longMemory = {
+      enabled,
+      introTitle: introTitle || undefined,
+      introText: introText || undefined,
+      flushPendingBeforeSpeed,
+      items,
+    };
+  }
+
+  for (const rawStep of rawSteps) {
+    if (!rawStep || typeof rawStep !== "object") {
+      throw new Error("Etape de sequence invalide.");
+    }
+
+    if ((rawStep as { type?: unknown }).type === "question") {
+      const questionKey = typeof (rawStep as { questionKey?: unknown }).questionKey === "string" ? (rawStep as { questionKey: string }).questionKey.trim() : "";
+      const rawChoices = Array.isArray((rawStep as { choices?: unknown }).choices) ? (rawStep as { choices: unknown[] }).choices : null;
+
+      if (questionKey && rawChoices) {
+        throw new Error("Une etape question ne peut pas definir questionKey et choices en meme temps.");
+      }
+
+      if (questionKey) {
+        steps.push({ type: "question", questionKey });
+        continue;
+      }
+
+      if (!rawChoices) {
+        throw new Error("Une etape question doit definir questionKey ou choices.");
+      }
+
+      if (rawChoices.length < 2 || rawChoices.length > 3) {
+        throw new Error("Une etape question avec choices doit definir entre 2 et 3 possibilites.");
+      }
+
+      const choices = rawChoices.map((choice) => {
+        if (!choice || typeof choice !== "object") {
+          throw new Error("Une option de choix de question est invalide.");
+        }
+
+        const choiceQuestionKey = typeof (choice as { questionKey?: unknown }).questionKey === "string" ? (choice as { questionKey: string }).questionKey.trim() : "";
+        const choiceWeight = typeof (choice as { weight?: unknown }).weight === "number" ? (choice as { weight: number }).weight : NaN;
+
+        if (!choiceQuestionKey) {
+          throw new Error("Chaque choix de question doit definir questionKey.");
+        }
+
+        if (!Number.isInteger(choiceWeight) || choiceWeight <= 0) {
+          throw new Error("Chaque choix de question doit definir un poids entier positif.");
+        }
+
+        return {
+          questionKey: choiceQuestionKey,
+          weight: choiceWeight,
+        };
+      });
+      const uniqueChoiceKeys = new Set(choices.map((choice) => choice.questionKey));
+
+      if (uniqueChoiceKeys.size !== choices.length) {
+        throw new Error("Les questionKey d'une etape choices doivent etre uniques.");
+      }
+
+      const totalWeight = choices.reduce((total, choice) => total + choice.weight, 0);
+
+      if (totalWeight !== 100) {
+        throw new Error("La somme des poids d'une etape choices doit etre egale a 100.");
+      }
+
+      steps.push({ type: "question", choices });
+      continue;
+    }
+
+    if ((rawStep as { type?: unknown }).type === "memory") {
+      memoryCount += 1;
+      const questionKeys = Array.isArray((rawStep as { questionKeys?: unknown }).questionKeys)
+        ? (rawStep as { questionKeys: unknown[] }).questionKeys
+            .filter((questionKey): questionKey is string => typeof questionKey === "string")
+            .map((questionKey) => questionKey.trim())
+            .filter(Boolean)
+        : undefined;
+
+      if (Array.isArray((rawStep as { questionKeys?: unknown }).questionKeys) && (!questionKeys || questionKeys.length === 0)) {
+        throw new Error("Une etape memory avec questionKeys doit contenir au moins une cle.");
+      }
+
+      steps.push({ type: "memory", questionKeys });
+      continue;
+    }
+
+    if (
+      (rawStep as { type?: unknown }).type === "audioMemory" ||
+      (rawStep as { type?: unknown }).type === "audio_memory" ||
+      (rawStep as { type?: unknown }).type === "audio"
+    ) {
+      audioMemoryCount += 1;
+      const questionKeys = Array.isArray((rawStep as { questionKeys?: unknown }).questionKeys)
+        ? (rawStep as { questionKeys: unknown[] }).questionKeys
+            .filter((questionKey): questionKey is string => typeof questionKey === "string")
+            .map((questionKey) => questionKey.trim())
+            .filter(Boolean)
+        : undefined;
+
+      if (Array.isArray((rawStep as { questionKeys?: unknown }).questionKeys) && (!questionKeys || questionKeys.length === 0)) {
+        throw new Error("Une etape audioMemory avec questionKeys doit contenir au moins une cle.");
+      }
+
+      steps.push({ type: "audio_memory", questionKeys });
+      continue;
+    }
+
+    if ((rawStep as { type?: unknown }).type === "speed") {
+      speedCount += 1;
+      const questionKeys = Array.isArray((rawStep as { questionKeys?: unknown }).questionKeys)
+        ? (rawStep as { questionKeys: unknown[] }).questionKeys
+            .filter((questionKey): questionKey is string => typeof questionKey === "string")
+            .map((questionKey) => questionKey.trim())
+            .filter(Boolean)
+        : undefined;
+
+      if (Array.isArray((rawStep as { questionKeys?: unknown }).questionKeys) && (!questionKeys || questionKeys.length === 0)) {
+        throw new Error("Une etape speed avec questionKeys doit contenir au moins une cle.");
+      }
+
+      const timeLimitSecondsValue = (rawStep as { timeLimitSeconds?: unknown }).timeLimitSeconds;
+      const timeLimitSeconds =
+        typeof timeLimitSecondsValue === "number" && Number.isInteger(timeLimitSecondsValue) && timeLimitSecondsValue > 0
+          ? timeLimitSecondsValue
+          : undefined;
+
+      if (timeLimitSecondsValue !== undefined && timeLimitSeconds === undefined) {
+        throw new Error("Une etape speed avec timeLimitSeconds doit definir un entier positif.");
+      }
+
+      steps.push({ type: "speed", questionKeys, timeLimitSeconds });
+      continue;
+    }
+
+    throw new Error("Type d'etape de sequence invalide.");
+  }
+
+  if (memoryCount > 1) {
+    throw new Error("La sequence ne peut contenir qu'une seule etape memory.");
+  }
+
+  if (audioMemoryCount > 1) {
+    throw new Error("La sequence ne peut contenir qu'une seule etape audioMemory.");
+  }
+
+  if (speedCount > 1) {
+    throw new Error("La sequence ne peut contenir qu'une seule etape speed.");
+  }
+
+  if (steps.length === 0) {
+    throw new Error("La sequence du test ne contient aucune etape.");
+  }
+
+  return {
+    version: Number(parsed.version ?? 1),
+    longMemory,
+    steps,
+  };
+}
+
+function getQuestionStepReferenceKey(step: TestSequenceQuestionStep | ResolvedTestSequenceQuestionStep) {
+  return "questionKey" in step ? step.questionKey : step.choices[0].questionKey;
+}
+
+function pickWeightedQuestionKey(choices: TestSequenceQuestionChoice[]) {
+  const randomValue = Math.random() * 100;
+  let cumulativeWeight = 0;
+
+  for (const choice of choices) {
+    cumulativeWeight += choice.weight;
+
+    if (randomValue < cumulativeWeight) {
+      return choice.questionKey;
+    }
+  }
+
+  return choices[choices.length - 1].questionKey;
+}
+
+function resolveTestSequenceDefinition(sequence: TestSequenceDefinition): ResolvedTestSequenceDefinition {
+  return {
+    version: sequence.version,
+    longMemory: sequence.longMemory,
+    steps: sequence.steps.map((step) => {
+      if (step.type !== "question") {
+        return step;
+      }
+
+      if ("questionKey" in step) {
+        return step;
+      }
+
+      return {
+        type: "question",
+        questionKey: pickWeightedQuestionKey(step.choices),
+      };
+    }),
+  };
+}
+
+async function loadTestSequenceDefinitionByTestId(connection: mysql.Connection, testId: number) {
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT sequence_definition
+     FROM iq_tests
+     WHERE id = ?
+     LIMIT 1`,
+    [testId]
+  );
+  const row = (rows as Array<{ sequence_definition: string | null }>)[0];
+
+  if (!row) {
+    throw new Error("Test introuvable pour charger la sequence.");
+  }
+
+  return parseTestSequenceDefinition(row.sequence_definition);
+}
+
+async function loadResolvedAttemptSequenceDefinitionByAttemptId(connection: mysql.Connection, attemptId: number) {
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT resolved_sequence_definition, test_id
+     FROM iq_attempts
+     WHERE id = ?
+     LIMIT 1`,
+    [attemptId]
+  );
+  const row = (rows as Array<{ resolved_sequence_definition: string | null; test_id: number }>)[0];
+
+  if (!row) {
+    throw new Error("Tentative introuvable pour charger la sequence resolue.");
+  }
+
+  if (row.resolved_sequence_definition) {
+    return parseTestSequenceDefinition(row.resolved_sequence_definition) as ResolvedTestSequenceDefinition;
+  }
+
+  return resolveTestSequenceDefinition(await loadTestSequenceDefinitionByTestId(connection, row.test_id));
+}
+
+async function loadQuestionBankTestIdByTestId(connection: mysql.Connection, testId: number) {
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT id, question_bank_test_id
+     FROM iq_tests
+     WHERE id = ?
+     LIMIT 1`,
+    [testId]
+  );
+  const row = (rows as Array<{ id: number; question_bank_test_id: number | null }>)[0];
+
+  if (!row) {
+    throw new Error("Test introuvable pour charger la banque de questions.");
+  }
+
+  return row.question_bank_test_id ?? row.id;
+}
+
+function createInitialLongMemoryState(sequence: ResolvedTestSequenceDefinition): LongMemoryAttemptState | null {
+  if (!sequence.longMemory?.enabled || sequence.longMemory.items.length === 0) {
+    return null;
+  }
+
+  return {
+    enabled: true,
+    introTitle: sequence.longMemory.introTitle || "Memoire longue",
+    introText: sequence.longMemory.introText || "Nous allons en particulier tester votre memoire longue.",
+    flushPendingBeforeSpeed: sequence.longMemory.flushPendingBeforeSpeed ?? true,
+    items: sequence.longMemory.items,
+    currentIndex: 0,
+    activeQuestionKey: sequence.longMemory.items[0].questionKey,
+    shownAt: null,
+    status: "pending_intro",
+  };
+}
+
+function getEnabledLongMemoryItems(sequence: TestSequenceDefinition | ResolvedTestSequenceDefinition) {
+  return sequence.longMemory?.enabled ? sequence.longMemory.items : [];
+}
+
+async function validateLongMemoryItems(
+  connection: mysql.Connection,
+  testId: number,
+  sequence: TestSequenceDefinition | ResolvedTestSequenceDefinition
+) {
+  const items = getEnabledLongMemoryItems(sequence);
+
+  if (items.length === 0) {
+    return;
+  }
+
+  const questionKeys = items.map((item) => item.questionKey);
+  const placeholders = questionKeys.map(() => "?").join(", ");
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT q.question_key, s.section_key
+     FROM iq_questions q
+     INNER JOIN iq_sections s ON s.id = q.section_id
+     WHERE q.test_id = ?
+       AND q.is_active = 1
+       AND s.is_active = 1
+       AND q.question_key IN (${placeholders})`,
+    [testId, ...questionKeys]
+  );
+  const questionSectionByKey = new Map<string, string>();
+
+  for (const row of rows as SequenceQuestionLookupRow[]) {
+    questionSectionByKey.set(row.question_key, row.section_key);
+  }
+
+  const missingQuestionKeys = questionKeys.filter((questionKey) => !questionSectionByKey.has(questionKey));
+
+  if (missingQuestionKeys.length > 0) {
+    throw new Error(`Question(s) long-memory introuvable(s) : ${missingQuestionKeys.join(", ")}`);
+  }
+
+  const invalidLongMemoryKeys = questionKeys.filter((questionKey) => questionSectionByKey.get(questionKey) !== "long_memory");
+
+  if (invalidLongMemoryKeys.length > 0) {
+    throw new Error(`Les questionKey longMemory doivent appartenir a la section long_memory : ${invalidLongMemoryKeys.join(", ")}`);
+  }
+}
+
+async function loadLongMemoryStateByAttemptId(connection: mysql.Connection, attemptId: number) {
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT long_memory_state
+     FROM iq_attempts
+     WHERE id = ?
+     LIMIT 1`,
+    [attemptId]
+  );
+  const row = (rows as Array<{ long_memory_state: string | null }>)[0];
+
+  if (!row?.long_memory_state) {
+    return null;
+  }
+
+  return JSON.parse(row.long_memory_state) as LongMemoryAttemptState;
+}
+
+async function updateLongMemoryStateByAttemptId(connection: mysql.Connection, attemptId: number, state: LongMemoryAttemptState | null) {
+  await connection.execute(
+    `UPDATE iq_attempts
+     SET long_memory_state = ?, updated_at = NOW()
+     WHERE id = ?`,
+    [state ? JSON.stringify(state) : null, attemptId]
+  );
+}
+
+function buildLongMemoryExposureUrl(token: string, returnToUrl: string) {
+  return `/iq/attempt/${token}/long-memory/exposure?returnTo=${encodeURIComponent(returnToUrl)}`;
+}
+
+function buildLongMemoryAnswerUrl(token: string, returnToUrl: string) {
+  return `/iq/attempt/${token}/long-memory/answer?returnTo=${encodeURIComponent(returnToUrl)}`;
+}
+
+function shouldLongMemoryInterrupt(state: LongMemoryAttemptState, force = false) {
+  if (!state.enabled || state.status !== "waiting_delay" || !state.shownAt) {
+    return false;
+  }
+
+  const currentItem = state.items[state.currentIndex];
+
+  if (!currentItem) {
+    return false;
+  }
+
+  if (force) {
+    return true;
+  }
+
+  return Date.now() >= new Date(state.shownAt).getTime() + currentItem.minDelaySeconds * 1000;
+}
+
+function buildSequencePlan(sequence: TestSequenceDefinition | ResolvedTestSequenceDefinition): SequencePlan {
+  const blocks: SequencePlan["blocks"] = [];
+  const entries: SequenceEntry[] = [];
+  let questionBuffer: string[] = [];
+  let blockIndex = 0;
+
+  const flushQuestionBuffer = () => {
+    if (questionBuffer.length === 0) return;
+
+    const currentBlock = {
+      blockIndex,
+      questionKeys: questionBuffer,
+    };
+    blocks.push(currentBlock);
+    entries.push({
+      type: "block",
+      blockIndex,
+      questionKeys: questionBuffer,
+    });
+    questionBuffer = [];
+    blockIndex += 1;
+  };
+
+  for (const step of sequence.steps) {
+    if (step.type === "question") {
+      questionBuffer.push(getQuestionStepReferenceKey(step));
+      continue;
+    }
+
+    flushQuestionBuffer();
+    if (step.type === "memory") {
+      entries.push({ type: "memory", questionKeys: step.questionKeys ?? null });
+      continue;
+    }
+
+    if (step.type === "audio_memory") {
+      entries.push({ type: "audio_memory", questionKeys: step.questionKeys ?? null });
+      continue;
+    }
+
+    entries.push({
+      type: "speed",
+      questionKeys: step.questionKeys ?? null,
+      timeLimitSeconds: step.timeLimitSeconds ?? null,
+    });
+  }
+
+  flushQuestionBuffer();
+
+  const memoryEntryIndex = entries.findIndex((entry) => entry.type === "memory");
+  const audioMemoryEntryIndex = entries.findIndex((entry) => entry.type === "audio_memory");
+  const speedEntryIndex = entries.findIndex((entry) => entry.type === "speed");
+
+  return {
+    blocks,
+    entries,
+    memoryEntryIndex: memoryEntryIndex >= 0 ? memoryEntryIndex : null,
+    audioMemoryEntryIndex: audioMemoryEntryIndex >= 0 ? audioMemoryEntryIndex : null,
+    speedEntryIndex: speedEntryIndex >= 0 ? speedEntryIndex : null,
+  };
+}
+
+function getEntryIndexAfterQuestionBlock(plan: SequencePlan, blockIndex: number) {
+  return plan.entries.findIndex((entry) => entry.type === "block" && entry.blockIndex === blockIndex) + 1;
+}
+
+function getNextUrlForEntry(token: string, plan: SequencePlan, entryIndex: number): string | null {
+  const nextEntry = plan.entries[entryIndex];
+
+  if (!nextEntry) {
+    return null;
+  }
+
+  if (nextEntry.type === "block") {
+    return `/iq/attempt/${token}/phase/main?block=${nextEntry.blockIndex}`;
+  }
+
+  if (nextEntry.type === "memory") {
+    return `/iq/attempt/${token}/memory-intro`;
+  }
+
+  if (nextEntry.type === "audio_memory") {
+    return `/iq/attempt/${token}/audio-intro`;
+  }
+
+  if (nextEntry.type === "speed") {
+    return `/iq/attempt/${token}/speed-intro`;
+  }
+
+  return null;
+}
+
+function getNextUrlAfterQuestionBlock(token: string, plan: SequencePlan, blockIndex: number) {
+  return getNextUrlForEntry(token, plan, getEntryIndexAfterQuestionBlock(plan, blockIndex));
+}
+
+function getNextUrlAfterSpecial(token: string, plan: SequencePlan, specialType: "memory" | "audio_memory" | "speed") {
+  const specialEntryIndex = plan.entries.findIndex((entry) => entry.type === specialType);
+
+  if (specialEntryIndex < 0) {
+    return null;
+  }
+
+  return getNextUrlForEntry(token, plan, specialEntryIndex + 1);
+}
+
+async function resolveSequenceQuestionSections(
+  connection: mysql.Connection,
+  testId: number,
+  plan: SequencePlan
+) : Promise<SequenceResolvedQuestions> {
+  const allQuestionKeys = [
+    ...plan.blocks.flatMap((block) => block.questionKeys),
+    ...plan.entries.flatMap((entry) => (entry.type === "block" ? [] : entry.questionKeys ?? [])),
+  ];
+  const uniqueQuestionKeys = [...new Set(allQuestionKeys)];
+
+  if (uniqueQuestionKeys.length !== allQuestionKeys.length) {
+    throw new Error("La sequence du test contient des questionKey dupliquees.");
+  }
+
+  if (uniqueQuestionKeys.length === 0) {
+    return {
+      questionSectionByKey: new Map<string, string>(),
+      specialQuestionKeysByType: {
+        memory: null,
+        audio_memory: null,
+        speed: null,
+      },
+    };
+  }
+
+  const placeholders = uniqueQuestionKeys.map(() => "?").join(", ");
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT q.question_key, s.section_key
+     FROM iq_questions q
+     INNER JOIN iq_sections s ON s.id = q.section_id
+     WHERE q.test_id = ?
+       AND q.is_active = 1
+       AND s.is_active = 1
+       AND q.question_key IN (${placeholders})`,
+    [testId, ...uniqueQuestionKeys]
+  );
+  const questionSectionByKey = new Map<string, string>();
+
+  for (const row of rows as SequenceQuestionLookupRow[]) {
+    questionSectionByKey.set(row.question_key, row.section_key);
+  }
+
+  const missingQuestionKeys = uniqueQuestionKeys.filter((questionKey) => !questionSectionByKey.has(questionKey));
+
+  if (missingQuestionKeys.length > 0) {
+    throw new Error(`Question(s) introuvable(s) dans la sequence du test : ${missingQuestionKeys.join(", ")}`);
+  }
+
+  const memoryEntry = plan.entries.find((entry): entry is Extract<SequenceEntry, { type: "memory" }> => entry.type === "memory");
+  const audioMemoryEntry = plan.entries.find((entry): entry is Extract<SequenceEntry, { type: "audio_memory" }> => entry.type === "audio_memory");
+  const speedEntry = plan.entries.find((entry): entry is Extract<SequenceEntry, { type: "speed" }> => entry.type === "speed");
+
+  if (memoryEntry?.questionKeys) {
+    const invalidMemoryQuestionKeys = memoryEntry.questionKeys.filter((questionKey) => questionSectionByKey.get(questionKey) !== "memory");
+
+    if (invalidMemoryQuestionKeys.length > 0) {
+      throw new Error(`Les questionKey memory doivent appartenir a la section memory : ${invalidMemoryQuestionKeys.join(", ")}`);
+    }
+  }
+
+  if (speedEntry?.questionKeys) {
+    const invalidSpeedQuestionKeys = speedEntry.questionKeys.filter((questionKey) => questionSectionByKey.get(questionKey) !== "speed");
+
+    if (invalidSpeedQuestionKeys.length > 0) {
+      throw new Error(`Les questionKey speed doivent appartenir a la section speed : ${invalidSpeedQuestionKeys.join(", ")}`);
+    }
+  }
+
+  if (audioMemoryEntry?.questionKeys) {
+    const invalidAudioQuestionKeys = audioMemoryEntry.questionKeys.filter((questionKey) => questionSectionByKey.get(questionKey) !== "audio_memory");
+
+    if (invalidAudioQuestionKeys.length > 0) {
+      throw new Error(`Les questionKey audioMemory doivent appartenir a la section audio_memory : ${invalidAudioQuestionKeys.join(", ")}`);
+    }
+  }
+
+  return {
+    questionSectionByKey,
+    specialQuestionKeysByType: {
+      memory: memoryEntry?.questionKeys ?? null,
+      audio_memory: audioMemoryEntry?.questionKeys ?? null,
+      speed: speedEntry?.questionKeys ?? null,
+    },
+  };
+}
+
+function getOrderedSequenceSectionKeys(
+  plan: SequencePlan,
+  questionSectionByKey: Map<string, string>,
+  longMemoryItems?: TestSequenceLongMemoryItem[]
+) {
+  const orderedSectionKeys: string[] = [];
+  const seenSectionKeys = new Set<string>();
+
+  if (longMemoryItems && longMemoryItems.length > 0) {
+    seenSectionKeys.add("long_memory");
+    orderedSectionKeys.push("long_memory");
+  }
+
+  for (const entry of plan.entries) {
+    if (entry.type === "block") {
+      for (const questionKey of entry.questionKeys) {
+        const sectionKey = questionSectionByKey.get(questionKey);
+
+        if (!sectionKey || seenSectionKeys.has(sectionKey)) {
+          continue;
+        }
+
+        seenSectionKeys.add(sectionKey);
+        orderedSectionKeys.push(sectionKey);
+      }
+
+      continue;
+    }
+
+    if (!seenSectionKeys.has(entry.type)) {
+      seenSectionKeys.add(entry.type);
+      orderedSectionKeys.push(entry.type);
+    }
+  }
+
+  return orderedSectionKeys;
+}
+
+async function getSequenceQuestionCounts(
+  connection: mysql.Connection,
+  testId: number,
+  plan: SequencePlan,
+  longMemoryItems?: TestSequenceLongMemoryItem[]
+) {
+  const resolvedQuestions = await resolveSequenceQuestionSections(connection, testId, plan);
+  const explicitQuestionCount = plan.blocks.reduce((total, block) => total + block.questionKeys.length, 0);
+  const longMemoryQuestionCount = longMemoryItems?.length ?? 0;
+  const includedSections = [
+    plan.memoryEntryIndex !== null ? "memory" : null,
+    plan.audioMemoryEntryIndex !== null ? "audio_memory" : null,
+    plan.speedEntryIndex !== null ? "speed" : null,
+  ].filter((value): value is "memory" | "audio_memory" | "speed" => Boolean(value));
+
+  if (includedSections.length === 0) {
+    return {
+      totalQuestions: explicitQuestionCount + longMemoryQuestionCount,
+      sectionCounts: new Map<string, number>(),
+    };
+  }
+
+  const placeholders = includedSections.map(() => "?").join(", ");
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT s.section_key, COUNT(q.id) AS question_count
+     FROM iq_sections s
+     LEFT JOIN iq_questions q ON q.section_id = s.id AND q.is_active = 1
+     WHERE s.test_id = ?
+       AND s.is_active = 1
+       AND s.section_key IN (${placeholders})
+     GROUP BY s.section_key`,
+    [testId, ...includedSections]
+  );
+  const sectionCounts = new Map<string, number>();
+
+  for (const row of rows as Array<{ section_key: string; question_count: number }>) {
+    sectionCounts.set(row.section_key, Number(row.question_count ?? 0));
+  }
+
+  const selectedSpecialQuestionCount = includedSections.reduce((total, sectionKey) => {
+    const selectedQuestionKeys = resolvedQuestions.specialQuestionKeysByType[sectionKey];
+
+    if (!selectedQuestionKeys) {
+      return total + (sectionCounts.get(sectionKey) ?? 0);
+    }
+
+    return total + selectedQuestionKeys.length;
+  }, 0);
+
+  return {
+    totalQuestions: explicitQuestionCount + selectedSpecialQuestionCount + longMemoryQuestionCount,
+    sectionCounts,
+  };
+}
+
+async function getSequenceSectionMaxScores(
+  connection: mysql.Connection,
+  testId: number,
+  plan: SequencePlan,
+  longMemoryItems?: TestSequenceLongMemoryItem[]
+) {
+  const resolvedQuestions = await resolveSequenceQuestionSections(connection, testId, plan);
+  const explicitQuestionKeys = plan.blocks.flatMap((block) => block.questionKeys);
+  const includedSpecialSections = [
+    plan.memoryEntryIndex !== null ? "memory" : null,
+    plan.audioMemoryEntryIndex !== null ? "audio_memory" : null,
+    plan.speedEntryIndex !== null ? "speed" : null,
+  ].filter((value): value is "memory" | "audio_memory" | "speed" => Boolean(value));
+  const maxScores = new Map<string, number>();
+
+  if (explicitQuestionKeys.length > 0) {
+    const placeholders = explicitQuestionKeys.map(() => "?").join(", ");
+    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT s.section_key, COALESCE(SUM(q.weight), 0) AS max_score
+       FROM iq_questions q
+       INNER JOIN iq_sections s ON s.id = q.section_id
+       WHERE q.test_id = ?
+         AND q.is_active = 1
+         AND s.is_active = 1
+         AND q.question_key IN (${placeholders})
+       GROUP BY s.section_key`,
+      [testId, ...explicitQuestionKeys]
+    );
+
+    for (const row of rows as Array<{ section_key: string; max_score: number | string }>) {
+      maxScores.set(row.section_key, Number(row.max_score ?? 0));
+    }
+  }
+
+  if (includedSpecialSections.length > 0) {
+    for (const sectionKey of includedSpecialSections) {
+      const selectedQuestionKeys = resolvedQuestions.specialQuestionKeysByType[sectionKey];
+
+      if (!selectedQuestionKeys) {
+        const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+          `SELECT s.section_key, COALESCE(SUM(q.weight), 0) AS max_score
+           FROM iq_sections s
+           LEFT JOIN iq_questions q ON q.section_id = s.id AND q.is_active = 1
+           WHERE s.test_id = ?
+             AND s.is_active = 1
+             AND s.section_key = ?
+           GROUP BY s.section_key`,
+          [testId, sectionKey]
+        );
+
+        for (const row of rows as Array<{ section_key: string; max_score: number | string }>) {
+          maxScores.set(row.section_key, Number(row.max_score ?? 0));
+        }
+
+        continue;
+      }
+
+      const placeholders = selectedQuestionKeys.map(() => "?").join(", ");
+      const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+        `SELECT s.section_key, COALESCE(SUM(q.weight), 0) AS max_score
+         FROM iq_questions q
+         INNER JOIN iq_sections s ON s.id = q.section_id
+         WHERE q.test_id = ?
+           AND q.is_active = 1
+           AND s.is_active = 1
+           AND s.section_key = ?
+           AND q.question_key IN (${placeholders})
+         GROUP BY s.section_key`,
+        [testId, sectionKey, ...selectedQuestionKeys]
+      );
+
+      for (const row of rows as Array<{ section_key: string; max_score: number | string }>) {
+        maxScores.set(row.section_key, Number(row.max_score ?? 0));
+      }
+
+      if (!maxScores.has(sectionKey)) {
+        maxScores.set(sectionKey, 0);
+      }
+    }
+  }
+
+  if (longMemoryItems && longMemoryItems.length > 0) {
+    const longMemoryQuestionKeys = longMemoryItems.map((item) => item.questionKey);
+    const placeholders = longMemoryQuestionKeys.map(() => "?").join(", ");
+    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT s.section_key, COALESCE(SUM(q.weight), 0) AS max_score
+       FROM iq_questions q
+       INNER JOIN iq_sections s ON s.id = q.section_id
+       WHERE q.test_id = ?
+         AND q.is_active = 1
+         AND s.is_active = 1
+         AND s.section_key = 'long_memory'
+         AND q.question_key IN (${placeholders})
+       GROUP BY s.section_key`,
+      [testId, ...longMemoryQuestionKeys]
+    );
+
+    for (const row of rows as Array<{ section_key: string; max_score: number | string }>) {
+      maxScores.set(row.section_key, Number(row.max_score ?? 0));
+    }
+
+    if (!maxScores.has("long_memory")) {
+      maxScores.set("long_memory", 0);
+    }
+  }
+
+  return maxScores;
+}
+
+async function loadPhaseQuestionByKey(connection: mysql.Connection, testId: number, questionKey: string): Promise<IqPhaseQuestion | null> {
+  const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT q.id, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.answer_prompt_text, q.stimulus_text,
+            q.question_format, COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url, q.difficulty_level, q.weight,
+            q.display_time_seconds, s.display_time_seconds AS section_display_time_seconds,
+            s.time_limit_seconds AS section_time_limit_seconds, q.position,
+            overlay.answers_image_url, overlay.answer_count, overlay.grid_columns, overlay.grid_rows,
+            audio.prompt_audio_url, audio.max_stimulus_plays, audio.transition_delay_ms
+     FROM iq_questions q
+     INNER JOIN iq_sections s ON s.id = q.section_id
+     LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
+     LEFT JOIN iq_audio_memory_questions audio ON audio.question_id = q.id
+     WHERE q.test_id = ?
+       AND q.question_key = ?
+       AND q.is_active = 1
+       AND s.is_active = 1
+     LIMIT 1`,
+    [testId, questionKey]
+  );
+  const question = (questionRows as IqQuestionRow[])[0];
+
+  if (!question) {
+    return null;
+  }
+
+  const [optionRows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT id, question_id, option_key, option_text, option_image_url, position
+     FROM iq_question_options
+     WHERE is_active = 1 AND question_id = ?
+     ORDER BY position ASC`,
+    [question.id]
+  );
+  const isOverlayQuestion = question.question_format === "visual_overlay" || question.question_format === "spatial_overlay";
+  const answerCount = normalizeOverlayNumber(question.answer_count, 4);
+  const gridColumns = normalizeOverlayNumber(question.grid_columns, answerCount === 6 ? 3 : 2);
+  const gridRows = normalizeOverlayNumber(question.grid_rows, 2);
+
+  return {
+    id: question.id,
+    sectionId: question.section_id,
+    sectionKey: question.section_key,
+    sectionTitle: question.section_title,
+    questionText: question.question_text,
+    answerPromptText: question.answer_prompt_text,
+    stimulusText: question.stimulus_text,
+    format: question.question_format,
+    imageUrl: question.question_image_url,
+    difficultyLevel: question.difficulty_level,
+    weight: Number(question.weight),
+    displayTimeSeconds: question.display_time_seconds ?? question.section_display_time_seconds ?? null,
+    position: question.position,
+    overlay:
+      isOverlayQuestion && question.answers_image_url
+        ? {
+            answersImageUrl: question.answers_image_url,
+            answerCount,
+            gridColumns,
+            gridRows,
+          }
+        : null,
+    audio:
+      question.section_key === "audio_memory" && question.prompt_audio_url
+        ? {
+            promptAudioUrl: question.prompt_audio_url,
+            maxStimulusPlays: normalizeOverlayNumber(question.max_stimulus_plays, 1),
+            transitionDelayMs: normalizeOverlayNumber(question.transition_delay_ms, 1800),
+          }
+        : null,
+    options: isOverlayQuestion
+      ? []
+      : (optionRows as IqOptionRow[]).map((option) => ({
+          id: option.id,
+          key: option.option_key,
+          text: option.option_text,
+          imageUrl: option.option_image_url,
+          audioUrl: option.option_image_url,
+          position: option.position,
+        })),
+  };
+}
+
+async function getAttemptAndQuestionBank(connection: mysql.Connection, token: string) {
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT a.id AS attempt_id, a.attempt_token, a.status, a.user_id, a.test_id, t.title AS test_title
+     FROM iq_attempts a
+     INNER JOIN iq_tests t ON t.id = a.test_id
+     WHERE a.attempt_token = ?
+     LIMIT 1`,
+    [token]
+  );
+  const row = (rows as IqLongMemoryRouteRow[])[0];
+
+  if (!row) {
+    return null;
+  }
+
+  const questionBankTestId = await loadQuestionBankTestIdByTestId(connection, row.test_id);
+
+  return {
+    row,
+    questionBankTestId,
+  };
+}
+
+export async function getIqLongMemoryIntroByAttemptToken(token: string): Promise<IqLongMemoryIntroResult> {
+  let connection: mysql.Connection | undefined;
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+    const attemptData = await getAttemptAndQuestionBank(connection, token);
+
+    if (!attemptData) {
+      return { data: null, error: "Introduction memoire longue introuvable pour cette tentative." };
+    }
+
+    const state = await loadLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id);
+
+    if (!state?.enabled || state.items.length === 0) {
+      return { data: null, error: "Cette tentative ne contient pas de memoire longue." };
+    }
+
+    const sequencePlan = buildSequencePlan(await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, attemptData.row.attempt_id));
+    const firstStandardUrl = getNextUrlForEntry(attemptData.row.attempt_token, sequencePlan, 0);
+
+    if (!firstStandardUrl) {
+      return { data: null, error: "Impossible de determiner la suite du test." };
+    }
+
+    return {
+      data: {
+        attempt: {
+          id: attemptData.row.attempt_id,
+          token: attemptData.row.attempt_token,
+          status: attemptData.row.status,
+          userId: attemptData.row.user_id,
+          testId: attemptData.row.test_id,
+          testTitle: attemptData.row.test_title,
+        },
+        introTitle: state.introTitle,
+        introText: state.introText,
+        itemCount: state.items.length,
+        nextUrl: buildLongMemoryExposureUrl(attemptData.row.attempt_token, firstStandardUrl),
+      },
+    };
+  } catch (error) {
+    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
+
+    return {
+      data: null,
+      error:
+        process.env.NODE_ENV === "development"
+          ? `Impossible de charger l'introduction memoire longue depuis MySQL : ${message}`
+          : "Impossible de charger l'introduction memoire longue pour le moment.",
+    };
+  } finally {
+    await connection?.end();
+  }
+}
+
+export async function getIqLongMemoryExposureByAttemptToken(token: string, returnToUrl: string): Promise<IqLongMemoryExposureResult> {
+  let connection: mysql.Connection | undefined;
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+    const attemptData = await getAttemptAndQuestionBank(connection, token);
+
+    if (!attemptData) {
+      return { data: null, error: "Phase d'exposition memoire longue introuvable." };
+    }
+
+    const state = await loadLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id);
+
+    if (!state?.enabled || !state.activeQuestionKey) {
+      return { data: null, error: "Aucune question de memoire longue a exposer." };
+    }
+
+    const currentItem = state.items[state.currentIndex];
+
+    if (!currentItem || currentItem.questionKey !== state.activeQuestionKey) {
+      return { data: null, error: "Etat memoire longue incoherent." };
+    }
+
+    const question = await loadPhaseQuestionByKey(connection, attemptData.questionBankTestId, state.activeQuestionKey);
+
+    if (!question) {
+      return { data: null, error: "Question de memoire longue introuvable." };
+    }
+
+    state.status = "waiting_delay";
+    state.shownAt = new Date().toISOString();
+    await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
+
+    return {
+      data: {
+        attempt: {
+          id: attemptData.row.attempt_id,
+          token: attemptData.row.attempt_token,
+          status: attemptData.row.status,
+          userId: attemptData.row.user_id,
+          testId: attemptData.row.test_id,
+          testTitle: attemptData.row.test_title,
+        },
+        question,
+        displayTimeSeconds: currentItem.displayTimeSeconds,
+        returnToUrl,
+      },
+    };
+  } catch (error) {
+    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
+
+    return {
+      data: null,
+      error:
+        process.env.NODE_ENV === "development"
+          ? `Impossible de charger l'exposition memoire longue depuis MySQL : ${message}`
+          : "Impossible de charger l'exposition memoire longue pour le moment.",
+    };
+  } finally {
+    await connection?.end();
+  }
+}
+
+export async function getIqLongMemoryAnswerByAttemptToken(token: string, returnToUrl: string): Promise<IqLongMemoryAnswerResult> {
+  let connection: mysql.Connection | undefined;
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+    const attemptData = await getAttemptAndQuestionBank(connection, token);
+
+    if (!attemptData) {
+      return { data: null, error: "Phase de reponse memoire longue introuvable." };
+    }
+
+    const state = await loadLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id);
+
+    if (!state?.enabled || state.status !== "awaiting_answer" || !state.activeQuestionKey) {
+      return { data: null, error: "Aucune reponse de memoire longue en attente." };
+    }
+
+    const question = await loadPhaseQuestionByKey(connection, attemptData.questionBankTestId, state.activeQuestionKey);
+
+    if (!question) {
+      return { data: null, error: "Question de memoire longue introuvable." };
+    }
+
+    return {
+      data: {
+        attempt: {
+          id: attemptData.row.attempt_id,
+          token: attemptData.row.attempt_token,
+          status: attemptData.row.status,
+          userId: attemptData.row.user_id,
+          testId: attemptData.row.test_id,
+          testTitle: attemptData.row.test_title,
+        },
+        question,
+        returnToUrl,
+      },
+    };
+  } catch (error) {
+    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
+
+    return {
+      data: null,
+      error:
+        process.env.NODE_ENV === "development"
+          ? `Impossible de charger la reponse memoire longue depuis MySQL : ${message}`
+          : "Impossible de charger la reponse memoire longue pour le moment.",
+    };
+  } finally {
+    await connection?.end();
+  }
+}
+
+export async function getIqLongMemoryInterruptUrl(
+  token: string,
+  resumeUrl: string,
+  options?: { force?: boolean }
+): Promise<string | null> {
+  let connection: mysql.Connection | undefined;
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+    const attemptData = await getAttemptAndQuestionBank(connection, token);
+
+    if (!attemptData) {
+      return null;
+    }
+
+    const state = await loadLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id);
+
+    if (!state) {
+      return null;
+    }
+
+    if (state.status === "awaiting_answer") {
+      return buildLongMemoryAnswerUrl(token, resumeUrl);
+    }
+
+    if (!shouldLongMemoryInterrupt(state, options?.force ?? false)) {
+      return null;
+    }
+
+    state.status = "awaiting_answer";
+    await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
+
+    return buildLongMemoryAnswerUrl(token, resumeUrl);
+  } catch {
+    return null;
+  } finally {
+    await connection?.end();
+  }
+}
+
+export async function advanceIqLongMemoryAfterAnswer(token: string, returnToUrl: string): Promise<string | null> {
+  let connection: mysql.Connection | undefined;
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+    const attemptData = await getAttemptAndQuestionBank(connection, token);
+
+    if (!attemptData) {
+      return returnToUrl;
+    }
+
+    const state = await loadLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id);
+
+    if (!state?.enabled) {
+      return returnToUrl;
+    }
+
+    const nextIndex = state.currentIndex + 1;
+    const nextItem = state.items[nextIndex] ?? null;
+
+    if (!nextItem) {
+      state.currentIndex = state.items.length;
+      state.activeQuestionKey = null;
+      state.shownAt = null;
+      state.status = "completed";
+      await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
+      return returnToUrl;
+    }
+
+    state.currentIndex = nextIndex;
+    state.activeQuestionKey = nextItem.questionKey;
+    state.shownAt = null;
+    state.status = "awaiting_exposure";
+    await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
+
+    return buildLongMemoryExposureUrl(token, returnToUrl);
+  } catch {
+    return returnToUrl;
+  } finally {
+    await connection?.end();
+  }
+}
+
 export async function getIqTestIntroBySlug(slug: string): Promise<IqTestIntroResult> {
   let connection: mysql.Connection | undefined;
 
@@ -401,7 +1843,7 @@ export async function getIqTestIntroBySlug(slug: string): Promise<IqTestIntroRes
     connection = await mysql.createConnection(dbConfig);
 
     const [testRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT id, title, slug, description, image_url, total_time_limit_seconds
+      `SELECT id, title, slug, description, image_url, total_time_limit_seconds, sequence_definition, question_bank_test_id
        FROM iq_tests
        WHERE slug = ? AND is_active = 1
        LIMIT 1`,
@@ -413,19 +1855,52 @@ export async function getIqTestIntroBySlug(slug: string): Promise<IqTestIntroRes
       return { test: null, error: "Test de logique introuvable." };
     }
 
+    const questionBankTestId = test.question_bank_test_id ?? test.id;
+    const sequencePlan = buildSequencePlan(parseTestSequenceDefinition(test.sequence_definition));
+
     const [sectionRows] = await connection.execute<mysql.RowDataPacket[]>(
       `SELECT s.id, s.section_key, s.title, s.description, s.time_limit_seconds, COUNT(q.id) AS question_count
        FROM iq_sections s
        LEFT JOIN iq_questions q ON q.section_id = s.id AND q.is_active = 1
        WHERE s.test_id = ? AND s.is_active = 1
        GROUP BY s.id, s.section_key, s.title, s.description, s.time_limit_seconds, s.position
-       ORDER BY FIELD(s.section_key, 'verbal', 'logic', 'spatial', 'memory', 'speed'), s.position ASC`,
-      [test.id]
+       ORDER BY s.position ASC`,
+      [questionBankTestId]
     );
 
     const sections = (sectionRows as IqSectionRow[]).map(mapSection);
-    const mainSections = sections.filter((section) => MAIN_SECTION_KEYS.includes(section.key));
-    const laterSections = sections.filter((section) => LATER_SECTION_KEYS.includes(section.key));
+    const firstQuestionBlock = sequencePlan.blocks[0];
+    const resolvedQuestions = await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan);
+    const questionSectionByKey = resolvedQuestions.questionSectionByKey;
+    const orderedSectionKeys = getOrderedSequenceSectionKeys(sequencePlan, questionSectionByKey);
+    const firstQuestionSectionKeys = new Set(
+      firstQuestionBlock?.questionKeys.map((questionKey) => questionSectionByKey.get(questionKey)).filter((sectionKey): sectionKey is string => Boolean(sectionKey)) ?? []
+    );
+    const orderedLaterSectionKeys = orderedSectionKeys.filter(
+      (sectionKey) => sectionKey === "memory" || sectionKey === "audio_memory" || sectionKey === "speed"
+    );
+    const sectionsByKey = new Map(sections.map((section) => [section.key, section]));
+    const mainSections = orderedSectionKeys
+      .filter((sectionKey) => firstQuestionSectionKeys.has(sectionKey))
+      .map((sectionKey) => sectionsByKey.get(sectionKey))
+      .filter((section): section is IqIntroSection => Boolean(section));
+    const laterSections = orderedLaterSectionKeys
+      .map((sectionKey) => {
+        const section = sectionsByKey.get(sectionKey);
+
+        if (!section) {
+          return null;
+        }
+
+        const selectedQuestionKeys = resolvedQuestions.specialQuestionKeysByType[sectionKey];
+
+        return {
+          ...section,
+          questionCount: selectedQuestionKeys ? selectedQuestionKeys.length : section.questionCount,
+        };
+      })
+      .filter((section): section is IqIntroSection => Boolean(section));
+    const firstQuestionBlockCount = firstQuestionBlock?.questionKeys.length ?? 0;
 
     return {
       test: {
@@ -435,8 +1910,8 @@ export async function getIqTestIntroBySlug(slug: string): Promise<IqTestIntroRes
         description: test.description,
         imageUrl: test.image_url,
         totalTimeLimitSeconds: test.total_time_limit_seconds,
-        mainQuestionCount: mainSections.reduce((total, section) => total + section.questionCount, 0),
-        mainTimeLimitSeconds: mainSections.reduce((total, section) => total + (section.timeLimitSeconds ?? 0), 0),
+        mainQuestionCount: firstQuestionBlockCount,
+        mainTimeLimitSeconds: firstQuestionBlockCount * 15,
         sections: mainSections,
         laterSections,
       },
@@ -467,7 +1942,7 @@ function isValidBirthDate(value: string) {
   return Number.isInteger(year) && year >= 1900 && year <= currentYear;
 }
 
-export async function getCompletedIqAttemptByToken(attemptToken: string): Promise<CompletedIqAttemptLookup> {
+export async function getCompletedIqAttemptByToken(attemptToken: string, slug?: string): Promise<CompletedIqAttemptLookup> {
   let connection: mysql.Connection | undefined;
 
   try {
@@ -477,11 +1952,14 @@ export async function getCompletedIqAttemptByToken(attemptToken: string): Promis
 
     connection = await mysql.createConnection(dbConfig);
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT attempt_token
-       FROM iq_attempts
-       WHERE attempt_token = ? AND status = 'completed'
+      `SELECT a.attempt_token
+       FROM iq_attempts a
+       INNER JOIN iq_tests t ON t.id = a.test_id
+       WHERE a.attempt_token = ?
+         AND a.status = 'completed'
+         AND (? IS NULL OR t.slug = ?)
        LIMIT 1`,
-      [attemptToken]
+      [attemptToken, slug ?? null, slug ?? null]
     );
     const row = (rows as { attempt_token: string }[])[0];
 
@@ -500,7 +1978,7 @@ export async function getCompletedIqAttemptByToken(attemptToken: string): Promis
   }
 }
 
-export async function getCompletedIqAttemptForUser(userId: number): Promise<CompletedIqAttemptLookup> {
+export async function getCompletedIqAttemptForUser(userId: number, slug?: string): Promise<CompletedIqAttemptLookup> {
   let connection: mysql.Connection | undefined;
 
   try {
@@ -510,12 +1988,15 @@ export async function getCompletedIqAttemptForUser(userId: number): Promise<Comp
 
     connection = await mysql.createConnection(dbConfig);
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT attempt_token
-       FROM iq_attempts
-       WHERE user_id = ? AND status = 'completed'
-       ORDER BY completed_at ASC, id ASC
+      `SELECT a.attempt_token
+       FROM iq_attempts a
+       INNER JOIN iq_tests t ON t.id = a.test_id
+       WHERE a.user_id = ?
+         AND a.status = 'completed'
+         AND (? IS NULL OR t.slug = ?)
+       ORDER BY a.completed_at ASC, a.id ASC
        LIMIT 1`,
-      [userId]
+      [userId, slug ?? null, slug ?? null]
     );
     const row = (rows as { attempt_token: string }[])[0];
 
@@ -552,27 +2033,41 @@ export async function createIqAttempt(
     connection = await mysql.createConnection(dbConfig);
 
     const [testRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT id
+      `SELECT id, sequence_definition, question_bank_test_id
        FROM iq_tests
        WHERE slug = ? AND is_active = 1
        LIMIT 1`,
       [slug]
     );
-    const test = (testRows as { id: number }[])[0];
+    const test = (testRows as Array<{ id: number; sequence_definition: string | null; question_bank_test_id: number | null }>)[0];
 
     if (!test) {
       return { attemptToken: null, nextUrl: null, error: "Test de logique introuvable." };
     }
 
-    const [countRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT COUNT(*) AS count
-       FROM iq_questions q
-       INNER JOIN iq_sections s ON s.id = q.section_id
-       WHERE q.test_id = ? AND q.is_active = 1 AND s.is_active = 1`,
-      [test.id]
-    );
-    const totalQuestions = (countRows as CountRow[])[0]?.count ?? 0;
+    const questionBankTestId = test.question_bank_test_id ?? test.id;
     const attemptToken = crypto.randomUUID();
+    const resolvedSequenceDefinition = resolveTestSequenceDefinition(parseTestSequenceDefinition(test.sequence_definition));
+    const initialLongMemoryState = createInitialLongMemoryState(resolvedSequenceDefinition);
+    const sequencePlan = buildSequencePlan(resolvedSequenceDefinition);
+    await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan);
+    await validateLongMemoryItems(connection, questionBankTestId, resolvedSequenceDefinition);
+    const { totalQuestions } = await getSequenceQuestionCounts(
+      connection,
+      questionBankTestId,
+      sequencePlan,
+      getEnabledLongMemoryItems(resolvedSequenceDefinition)
+    );
+    const firstStandardUrl = getNextUrlForEntry(attemptToken, sequencePlan, 0);
+    const nextUrl =
+      initialLongMemoryState && firstStandardUrl
+        ? `/iq/attempt/${attemptToken}/long-memory-intro`
+        : firstStandardUrl;
+
+    if (!nextUrl) {
+      return { attemptToken: null, nextUrl: null, error: "La sequence du test ne contient aucune etape exploitable." };
+    }
+
     let safeUserId: number | null = null;
 
     if (Number.isInteger(userId) && Number(userId) > 0) {
@@ -603,14 +2098,34 @@ export async function createIqAttempt(
     }
 
     await connection.execute(
-      `INSERT INTO iq_attempts (test_id, user_id, birth_date, gender, attempt_token, status, started_at, total_questions)
-       VALUES (?, ?, ?, ?, ?, 'started', NOW(), ?)`,
-      [test.id, safeUserId, birthDate, gender, attemptToken, totalQuestions]
+      `INSERT INTO iq_attempts (
+         test_id,
+         user_id,
+         birth_date,
+         gender,
+         attempt_token,
+         resolved_sequence_definition,
+         long_memory_state,
+         status,
+         started_at,
+         total_questions
+       )
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'started', NOW(), ?)`,
+      [
+        test.id,
+        safeUserId,
+        birthDate,
+        gender,
+        attemptToken,
+        JSON.stringify(resolvedSequenceDefinition),
+        initialLongMemoryState ? JSON.stringify(initialLongMemoryState) : null,
+        totalQuestions,
+      ]
     );
 
     return {
       attemptToken,
-      nextUrl: `/iq/attempt/${attemptToken}/phase/main`,
+      nextUrl,
     };
   } catch (error) {
     const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
@@ -640,10 +2155,36 @@ export async function createIqAttempt(
   }
 }
 
-export async function getIqAttemptPhase(token: string, phase: "main" | "memory" | "speed"): Promise<IqAttemptPhaseResult> {
+export async function getIqTestLaunchItems(): Promise<IqTestLaunchItem[]> {
   let connection: mysql.Connection | undefined;
 
-  if (phase !== "main" && phase !== "memory" && phase !== "speed") {
+  try {
+    connection = await mysql.createConnection(dbConfig);
+    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT title, slug, description, image_url
+       FROM iq_tests
+       WHERE is_active = 1
+         AND sequence_definition IS NOT NULL
+       ORDER BY FIELD(slug, 'test-qi-complet', 'sondage'), id ASC`
+    );
+
+    return (rows as Array<{ title: string; slug: string; description: string | null; image_url: string | null }>).map((row) => ({
+      title: row.title,
+      slug: row.slug,
+      description: row.description,
+      imageUrl: row.image_url,
+    }));
+  } catch {
+    return [];
+  } finally {
+    await connection?.end();
+  }
+}
+
+export async function getIqAttemptPhase(token: string, phase: "main" | "memory" | "audio" | "speed", blockIndex = 0): Promise<IqAttemptPhaseResult> {
+  let connection: mysql.Connection | undefined;
+
+  if (phase !== "main" && phase !== "memory" && phase !== "audio" && phase !== "speed") {
     return { data: null, error: "Phase de test indisponible." };
   }
 
@@ -664,36 +2205,104 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
       return { data: null, error: "Tentative de test de logique introuvable." };
     }
 
-    const sectionFilter =
-      phase === "main"
-        ? "s.section_key IN ('verbal', 'logic', 'spatial')"
-        : phase === "memory"
-          ? "s.section_key = 'memory'"
-          : "s.section_key = 'speed'";
+    const questionBankTestId = await loadQuestionBankTestIdByTestId(connection, attempt.test_id);
+    const sequencePlan = buildSequencePlan(await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, attempt.id));
+    const resolvedQuestions = await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan);
+    const questionSectionByKey = resolvedQuestions.questionSectionByKey;
+    const currentQuestionBlock = phase === "main" ? sequencePlan.blocks[blockIndex] : null;
+    const selectedSpecialQuestionKeys = phase === "memory" || phase === "audio" || phase === "speed"
+      ? resolvedQuestions.specialQuestionKeysByType[phase === "audio" ? "audio_memory" : phase]
+      : null;
+    const speedEntry = phase === "speed"
+      ? sequencePlan.entries.find((entry): entry is Extract<SequenceEntry, { type: "speed" }> => entry.type === "speed") ?? null
+      : null;
+
+    if (phase === "main" && !currentQuestionBlock) {
+      return { data: null, error: "Bloc de questions introuvable dans la sequence du test." };
+    }
+
+    if (phase === "memory" && sequencePlan.memoryEntryIndex === null) {
+      return { data: null, error: "La sequence du test ne contient pas de phase memoire." };
+    }
+
+    if (phase === "audio" && sequencePlan.audioMemoryEntryIndex === null) {
+      return { data: null, error: "La sequence du test ne contient pas de phase sonore." };
+    }
+
+    if (phase === "speed" && sequencePlan.speedEntryIndex === null) {
+      return { data: null, error: "La sequence du test ne contient pas de phase rapidite." };
+    }
+
+    const whereClauses = ["q.test_id = ?", "q.is_active = 1", "s.is_active = 1"];
+    const queryParams: Array<string | number> = [questionBankTestId];
+
+    if (phase === "main" && currentQuestionBlock) {
+      for (const questionKey of currentQuestionBlock.questionKeys) {
+        if (!questionSectionByKey.has(questionKey)) {
+          return { data: null, error: `Question introuvable dans la sequence du test : ${questionKey}` };
+        }
+      }
+
+      const questionKeyPlaceholders = currentQuestionBlock.questionKeys.map(() => "?").join(", ");
+      whereClauses.push(`q.question_key IN (${questionKeyPlaceholders})`);
+      queryParams.push(...currentQuestionBlock.questionKeys);
+    } else if (phase === "memory") {
+      whereClauses.push("s.section_key = 'memory'");
+      if (selectedSpecialQuestionKeys) {
+        const questionKeyPlaceholders = selectedSpecialQuestionKeys.map(() => "?").join(", ");
+        whereClauses.push(`q.question_key IN (${questionKeyPlaceholders})`);
+        queryParams.push(...selectedSpecialQuestionKeys);
+      }
+    } else if (phase === "audio") {
+      whereClauses.push("s.section_key = 'audio_memory'");
+      if (selectedSpecialQuestionKeys) {
+        const questionKeyPlaceholders = selectedSpecialQuestionKeys.map(() => "?").join(", ");
+        whereClauses.push(`q.question_key IN (${questionKeyPlaceholders})`);
+        queryParams.push(...selectedSpecialQuestionKeys);
+      }
+    } else {
+      whereClauses.push("s.section_key = 'speed'");
+      if (selectedSpecialQuestionKeys) {
+        const questionKeyPlaceholders = selectedSpecialQuestionKeys.map(() => "?").join(", ");
+        whereClauses.push(`q.question_key IN (${questionKeyPlaceholders})`);
+        queryParams.push(...selectedSpecialQuestionKeys);
+      }
+    }
+
+    whereClauses.push(
+      `NOT EXISTS (
+         SELECT 1
+         FROM iq_attempt_answers aa
+         WHERE aa.attempt_id = ? AND aa.question_id = q.id
+       )`
+    );
+    queryParams.push(attempt.id);
+
     const orderBy =
-      phase === "main"
-        ? "MD5(CONCAT(?, '-', q.id)) ASC"
+      phase === "main" && currentQuestionBlock
+        ? `FIELD(q.question_key, ${currentQuestionBlock.questionKeys.map(() => "?").join(", ")}) ASC`
+        : (phase === "memory" || phase === "audio" || phase === "speed") && selectedSpecialQuestionKeys
+          ? `FIELD(q.question_key, ${selectedSpecialQuestionKeys.map(() => "?").join(", ")}) ASC`
         : "q.position ASC";
-    const queryParams = phase === "main" ? [attempt.test_id, attempt.id, token] : [attempt.test_id, attempt.id];
+
+    if (phase === "main" && currentQuestionBlock) {
+      queryParams.push(...currentQuestionBlock.questionKeys);
+    } else if ((phase === "memory" || phase === "audio" || phase === "speed") && selectedSpecialQuestionKeys) {
+      queryParams.push(...selectedSpecialQuestionKeys);
+    }
 
     const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.id, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.stimulus_text,
+      `SELECT q.id, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.answer_prompt_text, q.stimulus_text,
               q.question_format, COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url, q.difficulty_level, q.weight,
               q.display_time_seconds, s.display_time_seconds AS section_display_time_seconds,
               s.time_limit_seconds AS section_time_limit_seconds, q.position,
-              overlay.answers_image_url, overlay.answer_count, overlay.grid_columns, overlay.grid_rows
+              overlay.answers_image_url, overlay.answer_count, overlay.grid_columns, overlay.grid_rows,
+              audio.prompt_audio_url, audio.max_stimulus_plays, audio.transition_delay_ms
        FROM iq_questions q
        INNER JOIN iq_sections s ON s.id = q.section_id
        LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
-       WHERE q.test_id = ?
-         AND q.is_active = 1
-         AND s.is_active = 1
-         AND ${sectionFilter}
-         AND NOT EXISTS (
-           SELECT 1
-           FROM iq_attempt_answers aa
-           WHERE aa.attempt_id = ? AND aa.question_id = q.id
-         )
+       LEFT JOIN iq_audio_memory_questions audio ON audio.question_id = q.id
+       WHERE ${whereClauses.join("\n         AND ")}
        ORDER BY ${orderBy}`,
       queryParams
     );
@@ -721,6 +2330,7 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
         key: option.option_key,
         text: option.option_text,
         imageUrl: option.option_image_url,
+        audioUrl: option.option_image_url,
         position: option.position,
       });
       optionsByQuestion.set(option.question_id, list);
@@ -738,7 +2348,16 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
           testSlug: attempt.test_slug,
         },
         phase,
-        phaseTimeLimitSeconds: questions[0] ? questions[0].section_time_limit_seconds ?? null : null,
+        phaseTimeLimitSeconds:
+          phase === "speed"
+            ? speedEntry?.timeLimitSeconds ?? (questions[0] ? questions[0].section_time_limit_seconds ?? null : null)
+            : questions[0]
+              ? questions[0].section_time_limit_seconds ?? null
+              : null,
+        nextUrl:
+          phase === "main"
+            ? getNextUrlAfterQuestionBlock(attempt.attempt_token, sequencePlan, blockIndex)
+            : getNextUrlAfterSpecial(attempt.attempt_token, sequencePlan, phase === "audio" ? "audio_memory" : phase),
         questions: questions.map((question) => {
           const isOverlayQuestion =
             question.question_format === "visual_overlay" || question.question_format === "spatial_overlay";
@@ -752,6 +2371,7 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
             sectionKey: question.section_key,
             sectionTitle: question.section_title,
             questionText: question.question_text,
+            answerPromptText: question.answer_prompt_text,
             stimulusText: question.stimulus_text,
             format: question.question_format,
             imageUrl: question.question_image_url,
@@ -766,6 +2386,14 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
                     answerCount,
                     gridColumns,
                     gridRows,
+                  }
+                : null,
+            audio:
+              question.section_key === "audio_memory" && question.prompt_audio_url
+                ? {
+                    promptAudioUrl: question.prompt_audio_url,
+                    maxStimulusPlays: normalizeOverlayNumber(question.max_stimulus_plays, 1),
+                    transitionDelayMs: normalizeOverlayNumber(question.transition_delay_ms, 1800),
                   }
                 : null,
             options: isOverlayQuestion ? [] : optionsByQuestion.get(question.id) ?? [],
@@ -810,7 +2438,8 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
                               overlay.correct_position AS overlay_correct_position,
                               overlay.answer_count AS overlay_answer_count
                        FROM iq_attempts a
-                       INNER JOIN iq_questions q ON q.test_id = a.test_id
+                       INNER JOIN iq_tests t ON t.id = a.test_id
+                       INNER JOIN iq_questions q ON q.test_id = COALESCE(t.question_bank_test_id, a.test_id)
                        INNER JOIN iq_sections s ON s.id = q.section_id
                        LEFT JOIN iq_question_options selected ON selected.question_id = q.id AND selected.id = ? AND selected.is_active = 1
                        LEFT JOIN iq_question_options correct ON correct.question_id = q.id AND correct.is_correct = 1 AND correct.is_active = 1
@@ -820,7 +2449,7 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
                          AND q.id = ?
                          AND q.is_active = 1
                          AND s.is_active = 1
-                         AND s.section_key IN ('verbal', 'logic', 'spatial', 'memory', 'speed')
+                         AND s.section_key IN ('verbal', 'logic', 'quantitative', 'spatial', 'memory', 'audio_memory', 'long_memory', 'speed')
                        LIMIT 1`;
     const [answerRows] = await connection.execute<mysql.RowDataPacket[]>(baseQuery, [
       hasSelectedOption ? Number(payload.selectedOptionId) : null,
@@ -834,7 +2463,11 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
     const selectedPosition = hasSelectedPosition ? Number(payload.selectedPosition) : rawAnswerData?.selected_position ?? null;
     const isTimedOut = !hasSelectedOption && !hasSelectedPosition;
     const isMainSection =
-      rawAnswerData?.section_key === "verbal" || rawAnswerData?.section_key === "logic" || rawAnswerData?.section_key === "spatial";
+      rawAnswerData?.section_key === "verbal" ||
+      rawAnswerData?.section_key === "logic" ||
+      rawAnswerData?.section_key === "quantitative" ||
+      rawAnswerData?.section_key === "long_memory" ||
+      rawAnswerData?.section_key === "spatial";
     const allowsTimeoutAnswer = isMainSection || rawAnswerData?.section_key === "memory";
     const answerCount = rawAnswerData?.overlay_answer_count ? Number(rawAnswerData.overlay_answer_count) : null;
 
@@ -997,7 +2630,7 @@ export async function getIqMemoryIntroByAttemptToken(token: string): Promise<IqM
               s.display_time_seconds, s.time_limit_seconds, COUNT(q.id) AS question_count
        FROM iq_attempts a
        INNER JOIN iq_tests t ON t.id = a.test_id
-       INNER JOIN iq_sections s ON s.test_id = a.test_id
+       INNER JOIN iq_sections s ON s.test_id = COALESCE(t.question_bank_test_id, a.test_id)
        LEFT JOIN iq_questions q ON q.section_id = s.id AND q.is_active = 1
        WHERE a.attempt_token = ?
          AND s.section_key = 'memory'
@@ -1008,6 +2641,13 @@ export async function getIqMemoryIntroByAttemptToken(token: string): Promise<IqM
       [token]
     );
     const row = (rows as IqMemoryIntroRow[])[0];
+    const questionBankTestId = row ? await loadQuestionBankTestIdByTestId(connection, row.test_id) : null;
+    const sequencePlan = row ? buildSequencePlan(await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, row.attempt_id)) : null;
+    if (row && sequencePlan && sequencePlan.memoryEntryIndex === null) {
+      return { data: null, error: "La sequence du test ne contient pas de phase memoire." };
+    }
+    const resolvedQuestions = row && sequencePlan && questionBankTestId ? await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan) : null;
+    const memoryQuestionKeys = resolvedQuestions?.specialQuestionKeysByType.memory ?? null;
 
     if (!row) {
       return { data: null, error: "Introduction mémoire introuvable pour cette tentative." };
@@ -1028,7 +2668,7 @@ export async function getIqMemoryIntroByAttemptToken(token: string): Promise<IqM
           key: row.section_key,
           title: row.section_title,
           description: row.section_description,
-          questionCount: row.question_count,
+          questionCount: memoryQuestionKeys ? memoryQuestionKeys.length : row.question_count,
           displayTimeSeconds: row.display_time_seconds ?? 10,
           timeLimitSeconds: row.time_limit_seconds,
         },
@@ -1050,7 +2690,7 @@ export async function getIqMemoryIntroByAttemptToken(token: string): Promise<IqM
   }
 }
 
-export async function getIqSpeedIntroByAttemptToken(token: string): Promise<IqSpeedIntroResult> {
+export async function getIqAudioIntroByAttemptToken(token: string): Promise<IqAudioIntroResult> {
   let connection: mysql.Connection | undefined;
 
   try {
@@ -1059,23 +2699,31 @@ export async function getIqSpeedIntroByAttemptToken(token: string): Promise<IqSp
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
       `SELECT a.id AS attempt_id, a.attempt_token, a.status, a.user_id, a.test_id, t.title AS test_title,
               s.id AS section_id, s.section_key, s.title AS section_title, s.description AS section_description,
-              s.time_limit_seconds, COUNT(q.id) AS question_count
+              COUNT(q.id) AS question_count, MAX(audio.max_stimulus_plays) AS max_stimulus_plays
        FROM iq_attempts a
        INNER JOIN iq_tests t ON t.id = a.test_id
-       INNER JOIN iq_sections s ON s.test_id = a.test_id
+       INNER JOIN iq_sections s ON s.test_id = COALESCE(t.question_bank_test_id, t.id)
        LEFT JOIN iq_questions q ON q.section_id = s.id AND q.is_active = 1
+       LEFT JOIN iq_audio_memory_questions audio ON audio.question_id = q.id
        WHERE a.attempt_token = ?
-         AND s.section_key = 'speed'
+         AND s.section_key = 'audio_memory'
          AND s.is_active = 1
-       GROUP BY a.id, a.attempt_token, a.status, a.user_id, a.test_id, t.title,
-                s.id, s.section_key, s.title, s.description, s.time_limit_seconds
+       GROUP BY a.id, a.attempt_token, a.status, a.user_id, a.test_id, t.title, s.id, s.section_key, s.title, s.description
        LIMIT 1`,
       [token]
     );
-    const row = (rows as IqSpeedIntroRow[])[0];
+    const row = (rows as IqAudioIntroRow[])[0];
+
+    const questionBankTestId = row ? await loadQuestionBankTestIdByTestId(connection, row.test_id) : null;
+    const sequencePlan = row ? buildSequencePlan(await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, row.attempt_id)) : null;
+    if (row && sequencePlan && sequencePlan.audioMemoryEntryIndex === null) {
+      return { data: null, error: "La sequence du test ne contient pas de phase sonore." };
+    }
+    const resolvedQuestions = row && sequencePlan && questionBankTestId ? await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan) : null;
+    const audioQuestionKeys = resolvedQuestions?.specialQuestionKeysByType.audio_memory ?? null;
 
     if (!row) {
-      return { data: null, error: "Introduction rapidite introuvable pour cette tentative." };
+      return { data: null, error: "Introduction sonore introuvable pour cette tentative." };
     }
 
     return {
@@ -1093,10 +2741,97 @@ export async function getIqSpeedIntroByAttemptToken(token: string): Promise<IqSp
           key: row.section_key,
           title: row.section_title,
           description: row.section_description,
-          questionCount: row.question_count,
-          timeLimitSeconds: row.time_limit_seconds ?? 120,
+          questionCount: audioQuestionKeys ? audioQuestionKeys.length : row.question_count,
+          maxStimulusPlays: Math.max(Number(row.max_stimulus_plays ?? 1), 1),
         },
-        nextUrl: `/iq/attempt/${row.attempt_token}/phase/speed`,
+        nextUrl: `/iq/attempt/${row.attempt_token}/phase/audio`,
+      },
+    };
+  } catch (error) {
+    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
+
+    return {
+      data: null,
+      error:
+        process.env.NODE_ENV === "development"
+          ? `Impossible de charger l'introduction sonore depuis MySQL : ${message}`
+          : "Impossible de charger l'introduction sonore pour le moment.",
+    };
+  } finally {
+    await connection?.end();
+  }
+}
+
+export async function getIqSpeedIntroByAttemptToken(token: string): Promise<IqSpeedIntroResult> {
+  let connection: mysql.Connection | undefined;
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+
+    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT a.id AS attempt_id, a.attempt_token, a.status, a.user_id, a.test_id, t.title AS test_title,
+              s.id AS section_id, s.section_key, s.title AS section_title, s.description AS section_description,
+              s.time_limit_seconds, COUNT(q.id) AS question_count
+       FROM iq_attempts a
+       INNER JOIN iq_tests t ON t.id = a.test_id
+       INNER JOIN iq_sections s ON s.test_id = COALESCE(t.question_bank_test_id, a.test_id)
+       LEFT JOIN iq_questions q ON q.section_id = s.id AND q.is_active = 1
+       WHERE a.attempt_token = ?
+         AND s.section_key = 'speed'
+         AND s.is_active = 1
+       GROUP BY a.id, a.attempt_token, a.status, a.user_id, a.test_id, t.title,
+                s.id, s.section_key, s.title, s.description, s.time_limit_seconds
+       LIMIT 1`,
+      [token]
+    );
+    const row = (rows as IqSpeedIntroRow[])[0];
+    const questionBankTestId = row ? await loadQuestionBankTestIdByTestId(connection, row.test_id) : null;
+    const sequencePlan = row ? buildSequencePlan(await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, row.attempt_id)) : null;
+    if (row && sequencePlan && sequencePlan.speedEntryIndex === null) {
+      return { data: null, error: "La sequence du test ne contient pas de phase rapidite." };
+    }
+    const resolvedQuestions = row && sequencePlan && questionBankTestId ? await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan) : null;
+    const speedQuestionKeys = resolvedQuestions?.specialQuestionKeysByType.speed ?? null;
+    const speedEntry = sequencePlan?.entries.find((entry): entry is Extract<SequenceEntry, { type: "speed" }> => entry.type === "speed") ?? null;
+    const longMemoryState = row ? await loadLongMemoryStateByAttemptId(connection, row.attempt_id) : null;
+
+    if (!row) {
+      return { data: null, error: "Introduction rapidite introuvable pour cette tentative." };
+    }
+
+    if (
+      longMemoryState?.enabled &&
+      longMemoryState.flushPendingBeforeSpeed &&
+      longMemoryState.status === "waiting_delay"
+    ) {
+      longMemoryState.status = "awaiting_answer";
+      await updateLongMemoryStateByAttemptId(connection, row.attempt_id, longMemoryState);
+    }
+
+    return {
+      data: {
+        attempt: {
+          id: row.attempt_id,
+          token: row.attempt_token,
+          status: row.status,
+          userId: row.user_id,
+          testId: row.test_id,
+          testTitle: row.test_title,
+        },
+        section: {
+          id: row.section_id,
+          key: row.section_key,
+          title: row.section_title,
+          description: row.section_description,
+          questionCount: speedQuestionKeys ? speedQuestionKeys.length : row.question_count,
+          timeLimitSeconds: speedEntry?.timeLimitSeconds ?? row.time_limit_seconds ?? 120,
+        },
+        nextUrl:
+          longMemoryState?.enabled &&
+          longMemoryState.flushPendingBeforeSpeed &&
+          (longMemoryState.status === "awaiting_answer" || longMemoryState.status === "waiting_delay")
+            ? buildLongMemoryAnswerUrl(row.attempt_token, `/iq/attempt/${row.attempt_token}/phase/speed`)
+            : `/iq/attempt/${row.attempt_token}/phase/speed`,
       },
     };
   } catch (error) {
@@ -1133,14 +2868,15 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
       return { completion: null, error: "Tentative de test de logique introuvable." };
     }
 
-    const [totalRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT COUNT(*) AS count
-       FROM iq_questions q
-       INNER JOIN iq_sections s ON s.id = q.section_id
-       WHERE q.test_id = ? AND q.is_active = 1 AND s.is_active = 1`,
-      [attempt.test_id]
+    const questionBankTestId = await loadQuestionBankTestIdByTestId(connection, attempt.test_id);
+    const resolvedSequence = await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, attempt.id);
+    const sequencePlan = buildSequencePlan(resolvedSequence);
+    const { totalQuestions } = await getSequenceQuestionCounts(
+      connection,
+      questionBankTestId,
+      sequencePlan,
+      getEnabledLongMemoryItems(resolvedSequence)
     );
-    const totalQuestions = (totalRows as CountRow[])[0]?.count ?? 0;
 
     const [aggregateRows] = await connection.execute<mysql.RowDataPacket[]>(
       `SELECT
@@ -1152,6 +2888,9 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
           COALESCE(SUM(CASE WHEN s.section_key = 'memory' THEN aa.points_earned ELSE 0 END), 0) AS memory_score,
           COALESCE(SUM(CASE WHEN s.section_key = 'verbal' THEN aa.points_earned ELSE 0 END), 0) AS verbal_score,
           COALESCE(SUM(CASE WHEN s.section_key = 'logic' THEN aa.points_earned ELSE 0 END), 0) AS logic_score,
+          COALESCE(SUM(CASE WHEN s.section_key = 'quantitative' THEN aa.points_earned ELSE 0 END), 0) AS quantitative_score,
+          COALESCE(SUM(CASE WHEN s.section_key = 'audio_memory' THEN aa.points_earned ELSE 0 END), 0) AS audio_memory_score,
+          COALESCE(SUM(CASE WHEN s.section_key = 'long_memory' THEN aa.points_earned ELSE 0 END), 0) AS long_memory_score,
           COALESCE(SUM(CASE WHEN s.section_key = 'spatial' THEN aa.points_earned ELSE 0 END), 0) AS spatial_score
        FROM iq_attempt_answers aa
        INNER JOIN iq_sections s ON s.id = aa.section_id
@@ -1167,6 +2906,9 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
       memory_score: string | number;
       verbal_score: string | number;
       logic_score: string | number;
+      quantitative_score: string | number;
+      audio_memory_score: string | number;
+      long_memory_score: string | number;
       spatial_score: string | number;
     };
 
@@ -1183,6 +2925,9 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
            memory_score = ?,
            verbal_score = ?,
            logic_score = ?,
+           quantitative_score = ?,
+           audio_memory_score = ?,
+           long_memory_score = ?,
            spatial_score = ?,
            average_response_time_ms = ?,
            updated_at = NOW()
@@ -1196,6 +2941,9 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
         Number(aggregates.memory_score ?? 0),
         Number(aggregates.verbal_score ?? 0),
         Number(aggregates.logic_score ?? 0),
+        Number(aggregates.quantitative_score ?? 0),
+        Number(aggregates.audio_memory_score ?? 0),
+        Number(aggregates.long_memory_score ?? 0),
         Number(aggregates.spatial_score ?? 0),
         aggregates.average_response_time_ms ?? null,
         attempt.id,
@@ -1284,14 +3032,14 @@ export async function getIqResultByToken(token: string, userId: number): Promise
     connection = await mysql.createConnection(dbConfig);
 
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT a.attempt_token, a.test_id, t.title AS test_title, a.status, a.user_id, a.started_at, a.completed_at,
+      `SELECT a.id, a.attempt_token, a.test_id, t.title AS test_title, a.status, a.user_id, a.started_at, a.completed_at,
               a.total_questions, a.answered_questions, a.raw_score, a.weighted_score, a.estimated_iq_score,
-              a.speed_score, a.memory_score, a.verbal_score, a.logic_score, a.spatial_score,
+              a.speed_score, a.memory_score, a.verbal_score, a.logic_score, a.quantitative_score, a.audio_memory_score, a.long_memory_score, a.spatial_score,
               a.average_response_time_ms
        FROM iq_attempts a
        INNER JOIN iq_tests t ON t.id = a.test_id
        WHERE a.attempt_token = ?
-       LIMIT 1`,
+      LIMIT 1`,
       [token]
     );
     const row = (rows as IqResultRow[])[0];
@@ -1308,27 +3056,48 @@ export async function getIqResultByToken(token: string, userId: number): Promise
       return { result: null, error: "forbidden" };
     }
 
+    const questionBankTestId = await loadQuestionBankTestIdByTestId(connection, row.test_id);
+    const resolvedSequence = await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, row.id);
+    const sequencePlan = buildSequencePlan(resolvedSequence);
+    const resolvedQuestions = await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan);
+    const orderedSectionKeys = getOrderedSequenceSectionKeys(
+      sequencePlan,
+      resolvedQuestions.questionSectionByKey,
+      getEnabledLongMemoryItems(resolvedSequence)
+    );
     const [sectionRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT s.section_key, s.title AS section_title, COALESCE(SUM(q.weight), 0) AS max_score
+      `SELECT s.section_key, s.title AS section_title
        FROM iq_sections s
-       LEFT JOIN iq_questions q ON q.section_id = s.id AND q.is_active = 1
        WHERE s.test_id = ?
-         AND s.is_active = 1
-         AND s.section_key IN ('verbal', 'logic', 'spatial', 'memory', 'speed')
-       GROUP BY s.section_key, s.title, s.position
-       ORDER BY s.position ASC`,
-      [row.test_id]
+         AND s.is_active = 1`,
+      [questionBankTestId]
+    );
+    const maxScoreBySection = await getSequenceSectionMaxScores(
+      connection,
+      questionBankTestId,
+      sequencePlan,
+      getEnabledLongMemoryItems(resolvedSequence)
     );
     const sectionScoreByKey = {
       verbal: row.verbal_score === null ? 0 : Number(row.verbal_score),
       logic: row.logic_score === null ? 0 : Number(row.logic_score),
+      quantitative: row.quantitative_score === null ? 0 : Number(row.quantitative_score),
+      audio_memory: row.audio_memory_score === null ? 0 : Number(row.audio_memory_score),
+      long_memory: row.long_memory_score === null ? 0 : Number(row.long_memory_score),
       spatial: row.spatial_score === null ? 0 : Number(row.spatial_score),
       memory: row.memory_score === null ? 0 : Number(row.memory_score),
       speed: row.speed_score === null ? 0 : Number(row.speed_score),
     };
-    const sectionBreakdown = (sectionRows as IqSectionBreakdownRow[]).map((section) => {
+    const sectionRowsByKey = new Map((sectionRows as IqSectionBreakdownRow[]).map((section) => [section.section_key, section]));
+    const sectionBreakdown = orderedSectionKeys.map((sectionKey) => {
+      const section = sectionRowsByKey.get(sectionKey);
+
+      if (!section) {
+        return null;
+      }
+
       const key = section.section_key as keyof typeof sectionScoreByKey;
-      const maxScore = Number(section.max_score);
+      const maxScore = maxScoreBySection.get(section.section_key) ?? 0;
       const score = sectionScoreByKey[key] ?? 0;
 
       return {
@@ -1338,7 +3107,7 @@ export async function getIqResultByToken(token: string, userId: number): Promise
         maxScore,
         percentage: maxScore > 0 ? clampPercentage((score / maxScore) * 100) : 0,
       };
-    });
+    }).filter((section): section is IqResultSectionBreakdown => Boolean(section));
 
     return {
       result: {
@@ -1357,6 +3126,9 @@ export async function getIqResultByToken(token: string, userId: number): Promise
         memoryScore: row.memory_score === null ? null : Number(row.memory_score),
         verbalScore: row.verbal_score === null ? null : Number(row.verbal_score),
         logicScore: row.logic_score === null ? null : Number(row.logic_score),
+        quantitativeScore: row.quantitative_score === null ? null : Number(row.quantitative_score),
+        audioMemoryScore: row.audio_memory_score === null ? null : Number(row.audio_memory_score),
+        longMemoryScore: row.long_memory_score === null ? null : Number(row.long_memory_score),
         spatialScore: row.spatial_score === null ? null : Number(row.spatial_score),
         averageResponseTimeMs: row.average_response_time_ms,
         sectionBreakdown,
@@ -1376,9 +3148,9 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
     connection = await mysql.createConnection(dbConfig);
 
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT a.attempt_token, a.test_id, t.title AS test_title, a.status, a.user_id, a.started_at, a.completed_at,
+      `SELECT a.id, a.attempt_token, a.test_id, t.title AS test_title, a.status, a.user_id, a.started_at, a.completed_at,
               a.total_questions, a.answered_questions, a.raw_score, a.weighted_score, a.estimated_iq_score,
-              a.speed_score, a.memory_score, a.verbal_score, a.logic_score, a.spatial_score,
+              a.speed_score, a.memory_score, a.verbal_score, a.logic_score, a.quantitative_score, a.audio_memory_score, a.long_memory_score, a.spatial_score,
               a.average_response_time_ms
        FROM iq_attempts a
        INNER JOIN iq_tests t ON t.id = a.test_id
@@ -1393,27 +3165,48 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
       return { result: null, error: "not-found" };
     }
 
+    const questionBankTestId = await loadQuestionBankTestIdByTestId(connection, row.test_id);
+    const resolvedSequence = await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, row.id);
+    const sequencePlan = buildSequencePlan(resolvedSequence);
+    const resolvedQuestions = await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan);
+    const orderedSectionKeys = getOrderedSequenceSectionKeys(
+      sequencePlan,
+      resolvedQuestions.questionSectionByKey,
+      getEnabledLongMemoryItems(resolvedSequence)
+    );
     const [sectionRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT s.section_key, s.title AS section_title, COALESCE(SUM(q.weight), 0) AS max_score
+      `SELECT s.section_key, s.title AS section_title
        FROM iq_sections s
-       LEFT JOIN iq_questions q ON q.section_id = s.id AND q.is_active = 1
        WHERE s.test_id = ?
-         AND s.is_active = 1
-         AND s.section_key IN ('verbal', 'logic', 'spatial', 'memory', 'speed')
-       GROUP BY s.section_key, s.title, s.position
-       ORDER BY s.position ASC`,
-      [row.test_id]
+         AND s.is_active = 1`,
+      [questionBankTestId]
+    );
+    const maxScoreBySection = await getSequenceSectionMaxScores(
+      connection,
+      questionBankTestId,
+      sequencePlan,
+      getEnabledLongMemoryItems(resolvedSequence)
     );
     const sectionScoreByKey = {
       verbal: row.verbal_score === null ? 0 : Number(row.verbal_score),
       logic: row.logic_score === null ? 0 : Number(row.logic_score),
+      quantitative: row.quantitative_score === null ? 0 : Number(row.quantitative_score),
+      audio_memory: row.audio_memory_score === null ? 0 : Number(row.audio_memory_score),
+      long_memory: row.long_memory_score === null ? 0 : Number(row.long_memory_score),
       spatial: row.spatial_score === null ? 0 : Number(row.spatial_score),
       memory: row.memory_score === null ? 0 : Number(row.memory_score),
       speed: row.speed_score === null ? 0 : Number(row.speed_score),
     };
-    const sectionBreakdown = (sectionRows as IqSectionBreakdownRow[]).map((section) => {
+    const sectionRowsByKey = new Map((sectionRows as IqSectionBreakdownRow[]).map((section) => [section.section_key, section]));
+    const sectionBreakdown = orderedSectionKeys.map((sectionKey) => {
+      const section = sectionRowsByKey.get(sectionKey);
+
+      if (!section) {
+        return null;
+      }
+
       const key = section.section_key as keyof typeof sectionScoreByKey;
-      const maxScore = Number(section.max_score);
+      const maxScore = maxScoreBySection.get(section.section_key) ?? 0;
       const score = sectionScoreByKey[key] ?? 0;
 
       return {
@@ -1423,7 +3216,7 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
         maxScore,
         percentage: maxScore > 0 ? clampPercentage((score / maxScore) * 100) : 0,
       };
-    });
+    }).filter((section): section is IqResultSectionBreakdown => Boolean(section));
 
     return {
       result: {
@@ -1442,6 +3235,9 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
         memoryScore: row.memory_score === null ? null : Number(row.memory_score),
         verbalScore: row.verbal_score === null ? null : Number(row.verbal_score),
         logicScore: row.logic_score === null ? null : Number(row.logic_score),
+        quantitativeScore: row.quantitative_score === null ? null : Number(row.quantitative_score),
+        audioMemoryScore: row.audio_memory_score === null ? null : Number(row.audio_memory_score),
+        longMemoryScore: row.long_memory_score === null ? null : Number(row.long_memory_score),
         spatialScore: row.spatial_score === null ? null : Number(row.spatial_score),
         averageResponseTimeMs: row.average_response_time_ms,
         sectionBreakdown,

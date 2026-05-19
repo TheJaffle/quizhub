@@ -7,8 +7,9 @@ import { Card } from "@/components/ui/card";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
 import { AlertTriangle, Brain, CheckCircle, Loader2, Pause, Play, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqMemoryPhasePageProps = {
   data: IqAttemptPhase | null;
@@ -50,6 +51,9 @@ function PauseToggleButton({ isPaused, onClick }: { isPaused: boolean; onClick: 
 
 export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  useBlockTestBackNavigation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [mode, setMode] = useState<"memorize" | "answer">("memorize");
   const [timeRemaining, setTimeRemaining] = useState(DEFAULT_DISPLAY_SECONDS);
@@ -73,9 +77,9 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
   const stimulusText = currentQuestion?.stimulusText || currentQuestion?.questionText || "";
 
   useEffect(() => {
-    if (!data || questions.length > 0) return;
+    if (!data || questions.length > 0 || !data.nextUrl) return;
 
-    router.push(`/iq/attempt/${data.attempt.token}/speed-intro`);
+    router.push(data.nextUrl);
   }, [data, questions.length, router]);
 
   useEffect(() => {
@@ -162,6 +166,45 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
       }
     : null;
 
+  const currentResumeUrl = useMemo(() => {
+    const queryString = searchParams.toString();
+    return queryString ? `${pathname}?${queryString}` : pathname;
+  }, [pathname, searchParams]);
+
+  const continueAfterSave = async () => {
+    if (!data) return;
+
+    try {
+      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/long-memory/check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeUrl: currentResumeUrl,
+        }),
+      });
+      const payload = (await response.json().catch(() => null)) as { nextUrl?: string | null } | null;
+
+      if (response.ok && payload?.nextUrl) {
+        router.push(payload.nextUrl);
+        return;
+      }
+    } catch {
+      // If the long-memory check fails, continue with the normal memory flow.
+    }
+
+    if (isLastQuestion) {
+      if (data.nextUrl) {
+        router.push(data.nextUrl);
+      }
+      return;
+    }
+
+    setDirection(1);
+    setCurrentQuestionIndex((current) => current + 1);
+  };
+
   const saveAnswer = async (
     body: { questionId: number; selectedOptionId?: number | null; responseTimeMs?: number },
     options?: { feedbackDelayMs?: number }
@@ -200,13 +243,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
       }
 
       feedbackTimeoutRef.current = setTimeout(() => {
-        if (isLastQuestion) {
-          router.push(`/iq/attempt/${data.attempt.token}/speed-intro`);
-          return;
-        }
-
-        setDirection(1);
-        setCurrentQuestionIndex((current) => current + 1);
+        void continueAfterSave();
       }, options?.feedbackDelayMs ?? FEEDBACK_DELAY_MS);
     } catch (answerError) {
       isSubmittingRef.current = false;
@@ -289,7 +326,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
       {!currentQuestion ? (
         <Card className="p-8 text-center">
           <h2 className="mb-2 text-xl font-semibold">Phase memoire terminee</h2>
-          <p className="text-muted-foreground">Redirection vers l'introduction rapidite...</p>
+          <p className="text-muted-foreground">Redirection vers l'etape suivante...</p>
         </Card>
       ) : (
         <div className="relative">

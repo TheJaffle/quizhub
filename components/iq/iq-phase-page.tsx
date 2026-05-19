@@ -2,14 +2,14 @@
 
 import type { IqAttemptPhase } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
-import { AlertTriangle, Brain, CheckCircle, ImageIcon, Loader2, Pause, Play, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, ImageIcon, Loader2, Pause, Play, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqPhasePageProps = {
   data: IqAttemptPhase | null;
@@ -87,6 +87,9 @@ function PauseToggleButton({ isPaused, onClick }: { isPaused: boolean; onClick: 
 
 export function IqPhasePage({ data, error }: IqPhasePageProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  useBlockTestBackNavigation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
@@ -118,6 +121,12 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     setIsPaused(false);
     setIsPauseTimeoutPending(false);
   }, [currentQuestion?.id]);
+
+  useEffect(() => {
+    if (!currentQuestion && data?.nextUrl) {
+      router.push(data.nextUrl);
+    }
+  }, [currentQuestion, data?.nextUrl, router]);
 
   useEffect(() => {
     if (!isMainPhase || !currentQuestion || isSaving || savedAnswer) return;
@@ -175,6 +184,45 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
       }
     : null;
 
+  const currentResumeUrl = useMemo(() => {
+    const queryString = searchParams.toString();
+    return queryString ? `${pathname}?${queryString}` : pathname;
+  }, [pathname, searchParams]);
+
+  const continueAfterSave = async () => {
+    if (!data) return;
+
+    try {
+      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/long-memory/check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeUrl: currentResumeUrl,
+        }),
+      });
+      const payload = (await response.json().catch(() => null)) as { nextUrl?: string | null } | null;
+
+      if (response.ok && payload?.nextUrl) {
+        router.push(payload.nextUrl);
+        return;
+      }
+    } catch {
+      // If the long-memory check fails, continue with the normal question flow.
+    }
+
+    if (isLastQuestion) {
+      if (data.nextUrl) {
+        router.push(data.nextUrl);
+      }
+      return;
+    }
+
+    setDirection(1);
+    setCurrentQuestionIndex((current) => current + 1);
+  };
+
   const saveAnswer = async (
     body: { questionId: number; selectedOptionId?: number | null; selectedPosition?: number | null; responseTimeMs?: number },
     options?: { feedbackDelayMs?: number }
@@ -213,13 +261,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
       }
 
       feedbackTimeoutRef.current = setTimeout(() => {
-        if (isLastQuestion) {
-          router.push(`/iq/attempt/${data.attempt.token}/memory-intro`);
-          return;
-        }
-
-        setDirection(1);
-        setCurrentQuestionIndex((current) => current + 1);
+        void continueAfterSave();
       }, options?.feedbackDelayMs ?? FEEDBACK_DELAY_MS);
     } catch (answerError) {
       isSubmittingRef.current = false;
@@ -275,15 +317,6 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
-      <div className="hidden md:block md:mb-8">
-        <Badge className="mb-3 w-fit bg-indigo-500 text-white hover:bg-indigo-600">
-          <Brain className="mr-1 h-3.5 w-3.5" />
-          Test de logique
-        </Badge>
-        <h1 className="text-2xl font-bold md:text-3xl">{data.attempt.testTitle}</h1>
-        <p className="mt-2 text-muted-foreground">Phase principale : raisonnement verbal, logique et spatial.</p>
-      </div>
-
       <div className="mb-6">
         <div className="mb-2 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-3">
           <div className="text-sm font-medium">
@@ -300,8 +333,8 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
 
       {!currentQuestion ? (
         <Card className="p-8 text-center">
-          <h2 className="mb-2 text-xl font-semibold">Aucune question disponible</h2>
-          <p className="text-muted-foreground">Cette phase ne contient pas encore de question active.</p>
+          <h2 className="mb-2 text-xl font-semibold">Transition en cours</h2>
+          <p className="text-muted-foreground">Redirection vers l'etape suivante du test...</p>
         </Card>
       ) : (
         <div className="relative">

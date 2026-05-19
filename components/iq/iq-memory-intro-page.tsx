@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Brain, Clock3, Eye, Play, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqMemoryIntroPageProps = {
   data: IqMemoryIntro | null;
@@ -26,6 +27,7 @@ function formatTimeLimit(seconds: number | null) {
 
 export function IqMemoryIntroPage({ data, error }: IqMemoryIntroPageProps) {
   const router = useRouter();
+  useBlockTestBackNavigation();
 
   if (error || !data) {
     return (

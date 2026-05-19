@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "longMemory": {
+    "enabled": true,
+    "introTitle": "Memoire longue",
+    "introText": "Nous allons en particulier tester votre memoire longue.",
+    "flushPendingBeforeSpeed": true,
+    "items": [
+      {
+        "questionKey": "long-memory-001",
+        "displayTimeSeconds": 6,
+        "minDelaySeconds": 20
+      },
+      {
+        "questionKey": "long-memory-002",
+        "displayTimeSeconds": 6,
+        "minDelaySeconds": 20
+      },
+            {
+        "questionKey": "long-memory-003",
+        "displayTimeSeconds": 6,
+        "minDelaySeconds": 20
+      },
+      {
+        "questionKey": "long-memory-004",
+        "displayTimeSeconds": 6,
+        "minDelaySeconds": 20
+      },
+      {
+        "questionKey": "long-memory-005",
+        "displayTimeSeconds": 6,
+        "minDelaySeconds": 20
+      },
+      {
+        "questionKey": "long-memory-006",
+        "displayTimeSeconds": 6,
+        "minDelaySeconds": 20
+      }
+    ]
+  },
+  "steps": [
+    {
+      "type": "question",
+      "choices": [
+        { "questionKey": "verbal-001", "weight": 30 },
+        { "questionKey": "verbal-002", "weight": 40 },
+        { "questionKey": "verbal-003", "weight": 30 }
+      ]
+    },
+    { "type": "question", "questionKey": "quantitative-001" },
+    { "type": "question", "questionKey": "logic-001" },
+    { "type": "question", "questionKey": "spatial-001" },
+    { "type": "question", "questionKey": "verbal-004" },
+    { "type": "question", "questionKey": "quantitative-002" },
+    { "type": "question", "questionKey": "logic-002" },
+    { "type": "question", "questionKey": "spatial-002" },
+    { "type": "question", "questionKey": "verbal-005" },
+    {
+      "type": "memory",
+      "questionKeys": ["memory-001", "memory-002", "memory-003"]
+    },
+    {
+      "type": "speed",
+      "questionKeys": ["speed-001", "speed-004", "speed-010"],
+      "timeLimitSeconds": 20
+    },
+    {
+      "type": "audioMemory",
+      "questionKeys": ["audio-memory-001", "audio-memory-004", "audio-memory-007"]
+    }
+
+  ]
+}

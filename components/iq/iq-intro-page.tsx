@@ -10,6 +10,7 @@ import { AlertTriangle, Brain, Clock, Loader2, Play, Sparkles } from "lucide-rea
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqIntroPageProps = {
   test: IqTestIntro | null;
@@ -34,6 +35,7 @@ const GENDER_OPTIONS = [
 
 export function IqIntroPage({ test, error }: IqIntroPageProps) {
   const router = useRouter();
+  useBlockTestBackNavigation();
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
   const [birthYear, setBirthYear] = useState("");
@@ -133,7 +135,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p>Vous allez repondre a plusieurs series de questions.</p>
-                <p>Certaines questions evaluent le raisonnement verbal, logique et spatial.</p>
+                <p>Certaines questions evaluent le raisonnement verbal, logique, quantitatif et spatial.</p>
                 <p>Une partie memoire et une partie rapidite arriveront ensuite.</p>
                 <p>Repondez le plus precisement et rapidement possible.</p>
               </div>

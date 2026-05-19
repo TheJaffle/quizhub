@@ -13,7 +13,7 @@ export function HeroSection() {
           <p className="text-lg text-white/80">Un parcours de raisonnement indicatif pour évaluer votre logique, votre mémoire et votre rapidité. Le résultat reste informatif et n'a pas valeur d'évaluation psychologique officielle.</p>
           <div className="flex flex-wrap gap-4">
             <Button size="lg" className="bg-indigo-600 text-white duration-300 hover:bg-indigo-700" asChild>
-              <Link href="/iq/test-qi-complet">Je me lance !</Link>
+              <Link href="/iq">Je me lance !</Link>
             </Button>
           </div>
         </div>

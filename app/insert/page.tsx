@@ -262,7 +262,12 @@ export default function InsertIqQuestionPage() {
           <section className="grid gap-4 md:grid-cols-3">
             <label className="space-y-2">
               <span className="text-sm font-medium">Cle question optionnelle</span>
-              <input className="w-full rounded-lg border p-3" value={questionKey} onChange={(event) => setQuestionKey(event.target.value)} placeholder="auto si vide" />
+              <input
+                className="w-full rounded-lg border p-3"
+                value={questionKey}
+                onChange={(event) => setQuestionKey(event.target.value)}
+                placeholder="auto si vide, ex: logic-026"
+              />
             </label>
 
             <label className="space-y-2">

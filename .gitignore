@@ -18,6 +18,10 @@ yarn-error.log*
 
 # env files
 .env*
+!.env.example
+backup_quizhub_now.sql
+env.local.origine
+.env.local1.txt
 
 # vercel
 .vercel

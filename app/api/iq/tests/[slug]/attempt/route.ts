@@ -14,7 +14,7 @@ export async function POST(request: Request, { params }: CreateIqAttemptRoutePro
   const cookieStore = await cookies();
   const userId = Number(cookieStore.get("quizhub_user_id")?.value);
   const completedAttemptToken = cookieStore.get("qifree_iq_completed_token")?.value;
-  const completedFromCookie = completedAttemptToken ? await getCompletedIqAttemptByToken(completedAttemptToken) : null;
+  const completedFromCookie = completedAttemptToken ? await getCompletedIqAttemptByToken(completedAttemptToken, slug) : null;
 
   if (completedFromCookie?.attemptToken) {
     return NextResponse.json(
@@ -29,7 +29,7 @@ export async function POST(request: Request, { params }: CreateIqAttemptRoutePro
   const safeUserId = Number.isInteger(userId) && userId > 0 ? userId : null;
 
   if (safeUserId) {
-    const completedFromUser = await getCompletedIqAttemptForUser(safeUserId);
+    const completedFromUser = await getCompletedIqAttemptForUser(safeUserId, slug);
 
     if (completedFromUser.attemptToken) {
       return NextResponse.json(

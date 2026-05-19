@@ -6,7 +6,8 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sync:iq-content": "node scripts/sync-iq-content.mjs"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",

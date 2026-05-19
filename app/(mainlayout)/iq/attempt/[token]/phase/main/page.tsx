@@ -3,9 +3,17 @@ import { getIqAttemptPhase } from "@/lib/iq-tests";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ token: string }> }) {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams?: Promise<{ block?: string }>;
+}) {
   const { token } = await params;
-  const { data } = await getIqAttemptPhase(token, "main");
+  const resolvedSearchParams = await searchParams;
+  const blockIndex = Number(resolvedSearchParams?.block ?? "0");
+  const { data } = await getIqAttemptPhase(token, "main", Number.isInteger(blockIndex) && blockIndex >= 0 ? blockIndex : 0);
 
   if (!data) {
     return {
@@ -20,9 +28,17 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
   };
 }
 
-export default async function IqMainPhaseRoute({ params }: { params: Promise<{ token: string }> }) {
+export default async function IqMainPhaseRoute({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams?: Promise<{ block?: string }>;
+}) {
   const { token } = await params;
-  const { data, error } = await getIqAttemptPhase(token, "main");
+  const resolvedSearchParams = await searchParams;
+  const blockIndex = Number(resolvedSearchParams?.block ?? "0");
+  const { data, error } = await getIqAttemptPhase(token, "main", Number.isInteger(blockIndex) && blockIndex >= 0 ? blockIndex : 0);
 
   return <IqPhasePage data={data} error={error} />;
 }

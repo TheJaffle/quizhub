@@ -1,0 +1,200 @@
+[
+  {
+    "questionKey": "long-memory-001",
+    "questionText": "Memorisez cette sequence.",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "stimulusText": "7 2 9 4 1",
+    "questionImageUrl": null,
+    "explanation": "",
+    "answer_prompt_text": "Retrouvez la séquence qui vous a été proposée",
+    "options": [
+      { "key": "A", "text": "7 1 9 4 2", "isCorrect": false },
+      { "key": "B", "text": "7 2 9 1 4", "isCorrect": false },
+      { "key": "C", "text": "2 9 7 4 1", "isCorrect": false },
+      { "key": "D", "text": "7 2 9 4 1", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "long-memory-002",
+    "questionText": "Memorisez ces formes géométriques",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "explanation": "",
+    "answer_prompt_text": "Retrouvez le symbole présent dans l'image initiale",
+    "overlay": {
+      "questionImageUrl": "/iq/long-memory/long-memory-002-question.png",
+      "answersImageUrl": "/iq/long-memory/long-memory-002-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "long-memory-003",
+    "questionText": "Memorisez cette grille et la position des symboles",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "explanation": "",
+    "answer_prompt_text": "Retrouvez la grille poposée précédement",
+    "overlay": {
+      "questionImageUrl": "/iq/long-memory/long-memory-003-question.png",
+      "answersImageUrl": "/iq/long-memory/long-memory-003-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "long-memory-004",
+    "questionText": "Memorisez cette suite de symboles",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "explanation": "",
+    "answer_prompt_text": "Quel était le symbole en 3 eme position",
+    "overlay": {
+      "questionImageUrl": "/iq/long-memory/long-memory-004-question.png",
+      "answersImageUrl": "/iq/long-memory/long-memory-004-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "long-memory-005",
+    "questionText": "Memorisez cette sequence.",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 8,
+    "minDelaySeconds": 180,
+    "stimulusText": "LUMAR TENVO PRAXI DOVEN",
+    "questionImageUrl": null,
+    "explanation": "",
+    "answer_prompt_text": "Quel mot était présent",
+    "options": [
+      { "key": "A", "text": "PRAXI", "isCorrect": true },
+      { "key": "B", "text": "PRAXO", "isCorrect": false },
+      { "key": "C", "text": "PRAXE", "isCorrect": false },
+      { "key": "D", "text": "PRAXU", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "long-memory-006",
+    "questionText": "Memorisez ces objets",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "explanation": "",
+    "answer_prompt_text": "Quel est l'objet qui ne faisait pas partie de la question ?",
+    "overlay": {
+      "questionImageUrl": "/iq/long-memory/long-memory-006-question.png",
+      "answersImageUrl": "/iq/long-memory/long-memory-006-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "long-memory-007",
+    "questionText": "Memorisez cette grille",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "explanation": "",
+    "answer_prompt_text": "Quelle était l'image initiale",
+    "overlay": {
+      "questionImageUrl": "/iq/long-memory/long-memory-007-question.png",
+      "answersImageUrl": "/iq/long-memory/long-memory-007-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 4,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "long-memory-008",
+    "questionText": "Memorisez cet objet",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "explanation": "",
+    "answer_prompt_text": "Quelle est l'orientation initiale de l'objet ?",
+    "overlay": {
+      "questionImageUrl": "/iq/long-memory/long-memory-008-question.png",
+      "answersImageUrl": "/iq/long-memory/long-memory-008-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "long-memory-009",
+    "questionText": "Memorisez cette grille",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "explanation": "",
+    "answer_prompt_text": "Quelle etait la grille initiale ?",
+    "overlay": {
+      "questionImageUrl": "/iq/long-memory/long-memory-009-question.png",
+      "answersImageUrl": "/iq/long-memory/long-memory-009-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 4,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "long-memory-010",
+    "questionText": "Memorisez cette grille",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "displayTimeSeconds": 6,
+    "minDelaySeconds": 180,
+    "explanation": "",
+    "answer_prompt_text": "Quelle etait la grille initiale ?",
+    "overlay": {
+      "questionImageUrl": "/iq/long-memory/long-memory-010-question.png",
+      "answersImageUrl": "/iq/long-memory/long-memory-010-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 4,
+      "correctionText": ""
+    }
+  }
+]

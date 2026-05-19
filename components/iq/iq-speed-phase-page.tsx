@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqSpeedPhasePageProps = {
   data: IqAttemptPhase | null;
@@ -49,6 +50,7 @@ function PauseToggleButton({ isPaused, onClick }: { isPaused: boolean; onClick: 
 
 export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const router = useRouter();
+  useBlockTestBackNavigation();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -97,9 +99,14 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   useEffect(() => {
     if (!data || completionState || isCompleting) return;
     if (questions.length === 0) {
+      if (data.nextUrl) {
+        router.push(data.nextUrl);
+        return;
+      }
+
       void handleComplete();
     }
-  }, [completionState, data, isCompleting, questions.length]);
+  }, [completionState, data, isCompleting, questions.length, router]);
 
   const templateQuestion = useMemo(() => {
     if (!currentQuestion) return null;
@@ -180,6 +187,11 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
       }
 
       if (currentQuestionIndex >= questions.length - 1 || timeRemaining <= 0) {
+        if (data.nextUrl) {
+          router.push(data.nextUrl);
+          return;
+        }
+
         await handleComplete();
         return;
       }

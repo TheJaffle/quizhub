@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "steps": [
+    { "type": "question", "questionKey": "verbal-001" },
+    { "type": "question", "questionKey": "logic-001" },
+    { "type": "question", "questionKey": "spatial-001" },
+    { "type": "question", "questionKey": "verbal-002" },
+    { "type": "question", "questionKey": "logic-002" },
+    { "type": "question", "questionKey": "spatial-002" },
+    { "type": "question", "questionKey": "logic-003" },
+    { "type": "question", "questionKey": "verbal-003" },
+    { "type": "question", "questionKey": "verbal-004" },
+    { "type": "question", "questionKey": "logic-004" },
+    { "type": "question", "questionKey": "spatial-004" },
+    { "type": "question", "questionKey": "verbal-005" },
+    { "type": "question", "questionKey": "logic-007" },
+    { "type": "question", "questionKey": "spatial-012" },
+    { "type": "question", "questionKey": "logic-011" },
+    { "type": "question", "questionKey": "verbal-008" },
+     {
+      "type": "memory",
+      "questionKeys": ["memory-001", "memory-002", "memory-003"]
+    },
+    {
+      "type": "speed",
+      "questionKeys": ["speed-001", "speed-004", "speed-010"],
+      "timeLimitSeconds": 20
+    }
+  ]
+}

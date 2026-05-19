@@ -17,6 +17,9 @@ type IqResultPageProps = {
 const sectionScores = [
   { key: "verbal", label: "Verbal", color: "text-indigo-500" },
   { key: "logic", label: "Logique", color: "text-blue-500" },
+  { key: "quantitative", label: "Quantitatif", color: "text-fuchsia-500" },
+  { key: "audio_memory", label: "Sonore", color: "text-sky-500" },
+  { key: "long_memory", label: "Memoire longue", color: "text-violet-500" },
   { key: "spatial", label: "Spatial", color: "text-cyan-500" },
   { key: "memory", label: "Memoire", color: "text-emerald-500" },
   { key: "speed", label: "Rapidite", color: "text-amber-500" },
@@ -97,7 +100,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
             </Link>
           </Button>
           <Button asChild>
-            <Link href="/iq/test-qi-complet">
+            <Link href="/iq">
               <RotateCcw className="mr-2 h-4 w-4" />
               Recommencer le test de logique
             </Link>
@@ -164,7 +167,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
 
       <IqResultCategoryChart sections={result.sectionBreakdown} />
 
-      <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
         {sectionScores.map((section) => {
           const value = result.sectionBreakdown.find((item) => item.key === section.key);
 

@@ -80,8 +80,24 @@ function cleanNonNegativeInteger(value: unknown) {
   return Number.isInteger(numericValue) && numericValue >= 0 ? numericValue : null;
 }
 
-function makeQuestionKey(sectionKey: string) {
-  return `insert-${sectionKey}-${Date.now()}`;
+function escapeRegexLiteral(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+async function makeQuestionKey(connection: mysql.Connection, testId: number, sectionId: number, sectionKey: string) {
+  const normalizedSectionKey = sectionKey.trim().toLowerCase();
+  const keyPattern = `^${escapeRegexLiteral(normalizedSectionKey)}-[0-9]{3}$`;
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT COALESCE(MAX(CAST(SUBSTRING_INDEX(question_key, '-', -1) AS UNSIGNED)), 0) + 1 AS next_sequence
+     FROM iq_questions
+     WHERE test_id = ?
+       AND section_id = ?
+       AND question_key REGEXP ?`,
+    [testId, sectionId, keyPattern]
+  );
+  const nextSequence = Number((rows[0] as { next_sequence?: number | string } | undefined)?.next_sequence ?? 1);
+
+  return `${normalizedSectionKey}-${String(nextSequence).padStart(3, "0")}`;
 }
 
 function isOverlayFormat(format: string) {
@@ -219,7 +235,7 @@ export async function POST(request: Request) {
       [sectionId]
     );
     const nextPosition = ((positionRows as PositionRow[])[0]?.next_position ?? 1) || 1;
-    const questionKey = cleanText(payload.questionKey) ?? makeQuestionKey(section.section_key);
+    const questionKey = cleanText(payload.questionKey) ?? (await makeQuestionKey(connection, testId, sectionId, section.section_key));
 
     const [questionResult] = await connection.execute<mysql.ResultSetHeader>(
       `INSERT INTO iq_questions

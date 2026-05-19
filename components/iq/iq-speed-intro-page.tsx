@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Brain, Clock3, Play, Sparkles, TimerReset, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqSpeedIntroPageProps = {
   data: IqSpeedIntro | null;
@@ -14,12 +15,23 @@ type IqSpeedIntroPageProps = {
 };
 
 function formatTimeLimit(seconds: number) {
-  const minutes = Math.ceil(seconds / 60);
-  return `${minutes} min`;
+  if (seconds < 60) {
+    return `${seconds} sec`;
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  if (remainingSeconds === 0) {
+    return `${minutes} min`;
+  }
+
+  return `${minutes} min ${remainingSeconds} sec`;
 }
 
 export function IqSpeedIntroPage({ data, error }: IqSpeedIntroPageProps) {
   const router = useRouter();
+  useBlockTestBackNavigation();
 
   if (error || !data) {
     return (
@@ -70,7 +82,7 @@ export function IqSpeedIntroPage({ data, error }: IqSpeedIntroPageProps) {
                 <h2 className="text-xl font-semibold">Comment ca marche</h2>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p>Vous aurez 2 minutes pour repondre a un maximum de questions.</p>
+                <p>Vous aurez {formatTimeLimit(data.section.timeLimitSeconds)} pour repondre a un maximum de questions.</p>
                 <p>Repondez vite, mais essayez de rester precis.</p>
                 <p>Chaque reponse sera enregistree immediatement.</p>
                 <p>Lorsque le temps est ecoule, le test se termine automatiquement.</p>
