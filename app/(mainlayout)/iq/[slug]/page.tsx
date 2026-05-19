@@ -1,4 +1,4 @@
-import { IqIntroPage } from "@/components/iq/iq-intro-page";
+import { IqIntroPageNoSsr } from "@/components/iq/iq-intro-page-no-ssr";
 import { getIqTestIntroBySlug } from "@/lib/iq-tests";
 
 export const dynamic = "force-dynamic";
@@ -29,5 +29,5 @@ export default async function IqTestPage({ params }: IqTestPageProps) {
   const { slug } = await params;
   const { test, error } = await getIqTestIntroBySlug(slug);
 
-  return <IqIntroPage test={test} error={error} />;
+  return <IqIntroPageNoSsr test={test} error={error} />;
 }
