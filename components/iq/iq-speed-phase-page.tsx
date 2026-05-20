@@ -76,6 +76,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
   const questionTimeLimitSeconds = currentQuestion?.timeLimitSeconds ?? data?.phaseTimeLimitSeconds ?? 120;
+  const stimulusText = currentQuestion?.stimulusText?.trim() || "";
   const timeTotal = Math.max(questionTimeLimitSeconds, 1);
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / timeTotal) * 100));
 
@@ -341,6 +342,15 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
               transition={{ duration: 0.2 }}
               className="space-y-6 p-6"
             >
+              {stimulusText ? (
+                <div className="rounded-lg border bg-amber-50/70 px-4 py-4 text-center">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">Stimulus</p>
+                  <p className="mx-auto max-w-full break-words text-[clamp(1.15rem,4vw,1.7rem)] font-bold leading-tight text-foreground">
+                    {stimulusText}
+                  </p>
+                </div>
+              ) : null}
+
               {templateQuestion ? (
                 <QuizQuestion
                   question={templateQuestion}
