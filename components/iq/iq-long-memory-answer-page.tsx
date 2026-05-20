@@ -266,7 +266,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
       </div>
 
       <div className="mb-4 rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 text-center shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Rappel memoire longue</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Reponse memoire longue</p>
       </div>
 
       {pauseRequested && !isPaused && !savedAnswer ? (

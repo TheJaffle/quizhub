@@ -64,8 +64,8 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
       </div>
 
       <Card className="overflow-hidden border-violet-200 bg-white shadow-lg shadow-violet-100/60 p-6 md:p-8">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-violet-600">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center justify-center text-violet-600">
             <Eye className="h-5 w-5" />
           </div>
           <span className="min-w-[5.75rem] whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-center text-sm font-medium tabular-nums text-violet-700">
