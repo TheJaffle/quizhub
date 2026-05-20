@@ -896,6 +896,44 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
   };
 }
 
+function parseResolvedTestSequenceDefinition(sequenceDefinition: string | null | undefined): ResolvedTestSequenceDefinition {
+  if (!sequenceDefinition) {
+    throw new Error("Aucune sequence resolue n'est definie pour cette tentative.");
+  }
+
+  const parsed = JSON.parse(sequenceDefinition) as Partial<ResolvedTestSequenceDefinition> & {
+    steps?: Array<Record<string, unknown>>;
+  };
+
+  const normalizedSteps = Array.isArray(parsed.steps)
+    ? parsed.steps.map((step) => {
+        if (!step || typeof step !== "object" || step.type !== "memory") {
+          return step;
+        }
+
+        if (Array.isArray(step.questionKeys)) {
+          return {
+            type: "memory",
+            items: step.questionKeys
+              .filter((questionKey): questionKey is string => typeof questionKey === "string" && questionKey.trim().length > 0)
+              .map((questionKey) => ({ questionKey: questionKey.trim() })),
+          };
+        }
+
+        return step;
+      })
+    : [];
+
+  return resolveTestSequenceDefinition(
+    parseTestSequenceDefinition(
+      JSON.stringify({
+        ...parsed,
+        steps: normalizedSteps,
+      })
+    )
+  );
+}
+
 function getQuestionStepReferenceKey(step: TestSequenceQuestionStep | ResolvedTestSequenceQuestionStep) {
   return "questionKey" in step ? step.questionKey : step.choices[0].questionKey;
 }
@@ -1016,7 +1054,7 @@ async function loadResolvedAttemptSequenceDefinitionByAttemptId(connection: mysq
   }
 
   if (row.resolved_sequence_definition) {
-    return parseTestSequenceDefinition(row.resolved_sequence_definition) as ResolvedTestSequenceDefinition;
+    return parseResolvedTestSequenceDefinition(row.resolved_sequence_definition);
   }
 
   return resolveTestSequenceDefinition(await loadTestSequenceDefinitionByTestId(connection, row.test_id));
