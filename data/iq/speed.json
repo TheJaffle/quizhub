@@ -1,0 +1,810 @@
+[
+  {
+    "questionKey": "speed-001",
+    "questionText": "Résultat correct ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "4 + 3 = 7",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Vrai", "isCorrect": true },
+      { "key": "B", "text": "Faux", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-002",
+    "questionText": "Identique ou différent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔴▲ vs 🔴▲",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Identique", "isCorrect": true },
+      { "key": "B", "text": "Différent", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-003",
+    "questionText": "Nombre pair ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "8",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-004",
+    "questionText": "Même orientation ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "→ vs ←",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-005",
+    "questionText": "Suite croissante ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "9 8 7",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-006",
+    "questionText": "Quel est l’intrus ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔴 🔴 🔵 🔴",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "🔴", "isCorrect": false },
+      { "key": "B", "text": "🔵", "isCorrect": true },
+      { "key": "C", "text": "🟢", "isCorrect": false },
+      { "key": "D", "text": "🟡", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-007",
+    "questionText": "B = ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "A→1 B→2 C→3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "1", "isCorrect": false },
+      { "key": "B", "text": "2", "isCorrect": true },
+      { "key": "C", "text": "3", "isCorrect": false },
+      { "key": "D", "text": "4", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-008",
+    "questionText": "Résultat ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "9 − 5",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "3", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": true },
+      { "key": "C", "text": "5", "isCorrect": false },
+      { "key": "D", "text": "6", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-009",
+    "questionText": "Même ou différent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔵■ vs ■🔵",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Même", "isCorrect": false },
+      { "key": "B", "text": "Différent", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-010",
+    "questionText": "7 > 5 ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "7 et 5",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  
+  {
+    "questionKey": "speed-011",
+    "questionText": "Même orientation ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "↑ vs ↓",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-012",
+    "questionText": "Cible présente ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "cible ▲ → ▲ ■ ● ▲",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-013",
+    "questionText": "Quel est l’intrus ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "4 6 8 9",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "4", "isCorrect": false },
+      { "key": "B", "text": "6", "isCorrect": false },
+      { "key": "C", "text": "8", "isCorrect": false },
+      { "key": "D", "text": "9", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-014",
+    "questionText": "E = ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "A→1 B→2 C→3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "3", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": false },
+      { "key": "C", "text": "5", "isCorrect": true },
+      { "key": "D", "text": "6", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-015",
+    "questionText": "Résultat ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "6 + 2",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "6", "isCorrect": false },
+      { "key": "B", "text": "7", "isCorrect": false },
+      { "key": "C", "text": "8", "isCorrect": true },
+      { "key": "D", "text": "9", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-016",
+    "questionText": "Identique ou différent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🟢● vs 🟢●",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Identique", "isCorrect": true },
+      { "key": "B", "text": "Différent", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-017",
+    "questionText": "Multiple de 2 ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-018",
+    "questionText": "Même orientation ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "← vs ←",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-019",
+    "questionText": "Position de l’objet ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "■ → ● ■ ● ▲",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "1", "isCorrect": false },
+      { "key": "B", "text": "2", "isCorrect": true },
+      { "key": "C", "text": "3", "isCorrect": false },
+      { "key": "D", "text": "4", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-020",
+    "questionText": "Quel est l’intrus ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "A A B A",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "A", "isCorrect": false },
+      { "key": "B", "text": "B", "isCorrect": true }
+    ]
+  },
+  
+  {
+    "questionKey": "speed-021",
+    "questionText": "D = ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "A→1 B→2 C→3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "3", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": true },
+      { "key": "C", "text": "5", "isCorrect": false },
+      { "key": "D", "text": "6", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-022",
+    "questionText": "Résultat ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "8 − 3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "4", "isCorrect": false },
+      { "key": "B", "text": "5", "isCorrect": true },
+      { "key": "C", "text": "6", "isCorrect": false },
+      { "key": "D", "text": "7", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-023",
+    "questionText": "Identique ou différent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔴▲ vs ▲🔴",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Identique", "isCorrect": false },
+      { "key": "B", "text": "Différent", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-024",
+    "questionText": "9 < 4 ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "9 et 4",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-025",
+    "questionText": "Même orientation ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "↓ vs ↑",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-026",
+    "questionText": "Objet présent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "cible 🟢 → 🔴 🟢 🔴",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-027",
+    "questionText": "Ordre alphabétique ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "N M O",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-028",
+    "questionText": "B = ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "A→1 B→2 C→3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "1", "isCorrect": false },
+      { "key": "B", "text": "2", "isCorrect": true },
+      { "key": "C", "text": "3", "isCorrect": false },
+      { "key": "D", "text": "4", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-029",
+    "questionText": "Résultat ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "5 + 4",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "7", "isCorrect": false },
+      { "key": "B", "text": "8", "isCorrect": false },
+      { "key": "C", "text": "9", "isCorrect": true },
+      { "key": "D", "text": "10", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-030",
+    "questionText": "Identique ou différent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔵● vs 🔵■",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Identique", "isCorrect": false },
+      { "key": "B", "text": "Différent", "isCorrect": true }
+    ]
+  },
+  
+  {
+    "questionKey": "speed-031",
+    "questionText": "Nombre pair ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "6",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-032",
+    "questionText": "Même orientation ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "→ vs →",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-033",
+    "questionText": "Objet présent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "● → ■ ● ■ ● ■",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-034",
+    "questionText": "Suite croissante ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "2 6 8",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-035",
+    "questionText": "Z = ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "A→1 B→2 C→3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "24", "isCorrect": false },
+      { "key": "B", "text": "25", "isCorrect": false },
+      { "key": "C", "text": "26", "isCorrect": true },
+      { "key": "D", "text": "27", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-036",
+    "questionText": "Résultat ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "7 − 2",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "4", "isCorrect": false },
+      { "key": "B", "text": "5", "isCorrect": true },
+      { "key": "C", "text": "6", "isCorrect": false },
+      { "key": "D", "text": "7", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-037",
+    "questionText": "Identique ou différent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🟡■ vs 🟡■",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Identique", "isCorrect": true },
+      { "key": "B", "text": "Différent", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-038",
+    "questionText": "10 > 8 ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "10 et 8",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-039",
+    "questionText": "Quel est l’intrus ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "● ● ■ ●",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "●", "isCorrect": false },
+      { "key": "B", "text": "■", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-040",
+    "questionText": "Suite croissante ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "2 4 6",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  
+  {
+    "questionKey": "speed-041",
+    "questionText": "Ordre alphabétique ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "Q S T",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-043",
+    "questionText": "Résultat ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "3 + 6",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "7", "isCorrect": false },
+      { "key": "B", "text": "8", "isCorrect": false },
+      { "key": "C", "text": "9", "isCorrect": true },
+      { "key": "D", "text": "10", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-044",
+    "questionText": "Identique ou différent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔴● vs 🔴▲",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Identique", "isCorrect": false },
+      { "key": "B", "text": "Différent", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-045",
+    "questionText": "Multiple de 3 ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "5",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-046",
+    "questionText": "Même orientation ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "← vs →",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-047",
+    "questionText": "Cible présente ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "▲ → ■ ▲ ■ ■",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-048",
+    "questionText": "Quel est l’intrus ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "2 4 6 7",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "2", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": false },
+      { "key": "C", "text": "6", "isCorrect": false },
+      { "key": "D", "text": "7", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-049",
+    "questionText": "Y = ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "A→1 B→2 C→3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "23", "isCorrect": false },
+      { "key": "B", "text": "24", "isCorrect": false },
+      { "key": "C", "text": "25", "isCorrect": true },
+      { "key": "D", "text": "26", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-050",
+    "questionText": "Objet présent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🟢 → 🔵 🔴 🔵 🔵",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-051",
+    "questionText": "Ordre alphabétique ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "B A C",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-052",
+    "questionText": "Même orientation ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "↑ vs ↑",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-053",
+    "questionText": "A = ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "A→1 B→2 C→3",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "1", "isCorrect": true },
+      { "key": "B", "text": "2", "isCorrect": false },
+      { "key": "C", "text": "3", "isCorrect": false },
+      { "key": "D", "text": "4", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-054",
+    "questionText": "Suite croissante ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "9 8 7",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
+    ]
+  },
+  {
+    "questionKey": "speed-055",
+    "questionText": "Objet présent ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔵 → 🔴 🔴 🔵 🔴",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
+    ]
+  },
+  {
+    "questionKey": "speed-056",
+    "questionText": "Quel est l’intrus ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 8,
+    "stimulusText": "▲ ▲ ▲ ●",
+    "explanation": "",
+    "options": [
+      { "key": "A", "text": "▲", "isCorrect": false },
+      { "key": "B", "text": "●", "isCorrect": true }
+    ]
+  }
+]

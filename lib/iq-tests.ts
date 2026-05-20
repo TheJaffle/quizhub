@@ -526,9 +526,22 @@ type ResolvedTestSequenceQuestionStep = {
   questionKey: string;
 };
 
+type TestSequenceMemoryItem =
+  | {
+      questionKey: string;
+    }
+  | {
+      choices: TestSequenceQuestionChoice[];
+    };
+
 type TestSequenceMemoryStep = {
   type: "memory";
-  questionKeys?: string[];
+  items: TestSequenceMemoryItem[];
+};
+
+type ResolvedTestSequenceMemoryStep = {
+  type: "memory";
+  questionKeys: string[];
 };
 
 type TestSequenceSpeedStep = {
@@ -546,7 +559,7 @@ type TestSequenceAudioMemoryStep = {
 type TestSequenceSpecialStep = TestSequenceMemoryStep | TestSequenceAudioMemoryStep | TestSequenceSpeedStep;
 
 type TestSequenceStep = TestSequenceQuestionStep | TestSequenceSpecialStep;
-type ResolvedTestSequenceStep = ResolvedTestSequenceQuestionStep | TestSequenceSpecialStep;
+type ResolvedTestSequenceStep = ResolvedTestSequenceQuestionStep | ResolvedTestSequenceMemoryStep | TestSequenceAudioMemoryStep | TestSequenceSpeedStep;
 
 type TestSequenceDefinition = {
   version: number;
@@ -758,61 +771,44 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
         throw new Error("Une etape question doit definir questionKey ou choices.");
       }
 
-      if (rawChoices.length < 2 || rawChoices.length > 3) {
-        throw new Error("Une etape question avec choices doit definir entre 2 et 3 possibilites.");
-      }
-
-      const choices = rawChoices.map((choice) => {
-        if (!choice || typeof choice !== "object") {
-          throw new Error("Une option de choix de question est invalide.");
-        }
-
-        const choiceQuestionKey = typeof (choice as { questionKey?: unknown }).questionKey === "string" ? (choice as { questionKey: string }).questionKey.trim() : "";
-        const choiceWeight = typeof (choice as { weight?: unknown }).weight === "number" ? (choice as { weight: number }).weight : NaN;
-
-        if (!choiceQuestionKey) {
-          throw new Error("Chaque choix de question doit definir questionKey.");
-        }
-
-        if (!Number.isInteger(choiceWeight) || choiceWeight <= 0) {
-          throw new Error("Chaque choix de question doit definir un poids entier positif.");
-        }
-
-        return {
-          questionKey: choiceQuestionKey,
-          weight: choiceWeight,
-        };
-      });
-      const uniqueChoiceKeys = new Set(choices.map((choice) => choice.questionKey));
-
-      if (uniqueChoiceKeys.size !== choices.length) {
-        throw new Error("Les questionKey d'une etape choices doivent etre uniques.");
-      }
-
-      const totalWeight = choices.reduce((total, choice) => total + choice.weight, 0);
-
-      if (totalWeight !== 100) {
-        throw new Error("La somme des poids d'une etape choices doit etre egale a 100.");
-      }
-
-      steps.push({ type: "question", choices });
+      steps.push({ type: "question", choices: parseWeightedChoices(rawChoices, "une etape question avec choices") });
       continue;
     }
 
     if ((rawStep as { type?: unknown }).type === "memory") {
       memoryCount += 1;
-      const questionKeys = Array.isArray((rawStep as { questionKeys?: unknown }).questionKeys)
-        ? (rawStep as { questionKeys: unknown[] }).questionKeys
-            .filter((questionKey): questionKey is string => typeof questionKey === "string")
-            .map((questionKey) => questionKey.trim())
-            .filter(Boolean)
-        : undefined;
+      const rawItems = Array.isArray((rawStep as { items?: unknown }).items) ? (rawStep as { items: unknown[] }).items : null;
 
-      if (Array.isArray((rawStep as { questionKeys?: unknown }).questionKeys) && (!questionKeys || questionKeys.length === 0)) {
-        throw new Error("Une etape memory avec questionKeys doit contenir au moins une cle.");
+      if (!rawItems || rawItems.length === 0) {
+        throw new Error("Une etape memory doit definir items.");
       }
 
-      steps.push({ type: "memory", questionKeys });
+      const items = rawItems.map((item) => {
+        if (!item || typeof item !== "object") {
+          throw new Error("Un item memory est invalide.");
+        }
+
+        const questionKey = typeof (item as { questionKey?: unknown }).questionKey === "string" ? (item as { questionKey: string }).questionKey.trim() : "";
+        const rawChoices = Array.isArray((item as { choices?: unknown }).choices) ? (item as { choices: unknown[] }).choices : null;
+
+        if (questionKey && rawChoices) {
+          throw new Error("Un item memory ne peut pas definir questionKey et choices en meme temps.");
+        }
+
+        if (questionKey) {
+          return { questionKey } satisfies TestSequenceMemoryItem;
+        }
+
+        if (!rawChoices) {
+          throw new Error("Un item memory doit definir questionKey ou choices.");
+        }
+
+        return {
+          choices: parseWeightedChoices(rawChoices, "item memory avec choices"),
+        } satisfies TestSequenceMemoryItem;
+      });
+
+      steps.push({ type: "memory", items });
       continue;
     }
 
@@ -919,12 +915,60 @@ function pickWeightedQuestionKey(choices: TestSequenceQuestionChoice[]) {
   return choices[choices.length - 1].questionKey;
 }
 
+function parseWeightedChoices(rawChoices: unknown[], errorContext: string) {
+  if (rawChoices.length < 2 || rawChoices.length > 3) {
+    throw new Error(`${errorContext} doit definir entre 2 et 3 possibilites.`);
+  }
+
+  const choices = rawChoices.map((choice) => {
+    if (!choice || typeof choice !== "object") {
+      throw new Error(`Une option de ${errorContext} est invalide.`);
+    }
+
+    const choiceQuestionKey = typeof (choice as { questionKey?: unknown }).questionKey === "string" ? (choice as { questionKey: string }).questionKey.trim() : "";
+    const choiceWeight = typeof (choice as { weight?: unknown }).weight === "number" ? (choice as { weight: number }).weight : NaN;
+
+    if (!choiceQuestionKey) {
+      throw new Error(`Chaque choix de ${errorContext} doit definir questionKey.`);
+    }
+
+    if (!Number.isInteger(choiceWeight) || choiceWeight <= 0) {
+      throw new Error(`Chaque choix de ${errorContext} doit definir un poids entier positif.`);
+    }
+
+    return {
+      questionKey: choiceQuestionKey,
+      weight: choiceWeight,
+    };
+  });
+  const uniqueChoiceKeys = new Set(choices.map((choice) => choice.questionKey));
+
+  if (uniqueChoiceKeys.size !== choices.length) {
+    throw new Error(`Les questionKey d'un ${errorContext} doivent etre uniques.`);
+  }
+
+  const totalWeight = choices.reduce((total, choice) => total + choice.weight, 0);
+
+  if (totalWeight !== 100) {
+    throw new Error(`La somme des poids d'un ${errorContext} doit etre egale a 100.`);
+  }
+
+  return choices;
+}
+
 function resolveTestSequenceDefinition(sequence: TestSequenceDefinition): ResolvedTestSequenceDefinition {
   return {
     version: sequence.version,
     longMemory: sequence.longMemory,
     steps: sequence.steps.map((step) => {
       if (step.type !== "question") {
+        if (step.type === "memory") {
+          return {
+            type: "memory",
+            questionKeys: step.items.map((item) => ("questionKey" in item ? item.questionKey : pickWeightedQuestionKey(item.choices))),
+          };
+        }
+
         return step;
       }
 
@@ -1167,7 +1211,13 @@ function buildSequencePlan(sequence: TestSequenceDefinition | ResolvedTestSequen
 
     flushQuestionBuffer();
     if (step.type === "memory") {
-      entries.push({ type: "memory", questionKeys: step.questionKeys ?? null });
+      entries.push({
+        type: "memory",
+        questionKeys:
+          "questionKeys" in step
+            ? step.questionKeys ?? null
+            : step.items.map((item) => ("questionKey" in item ? item.questionKey : pickWeightedQuestionKey(item.choices))),
+      });
       continue;
     }
 

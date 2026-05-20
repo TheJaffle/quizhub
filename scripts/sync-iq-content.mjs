@@ -19,7 +19,7 @@ const dbConfig = {
 
 const testDefinitions = [
   { slug: "test-qi-complet", title: "Test", file: "Test.json" },
-  { slug: "sondage", title: "Sondage", file: "Test 2.json" },
+  { slug: "sondage", title: "Sondage", file: "Sondage.json" },
   { slug: "basic", title: "Basic", file: "Basic.json" },
   { slug: "premium", title: "Premium", file: "Premium.json" },
 ];
@@ -439,6 +439,87 @@ async function syncQuantitative(connection, bankId) {
   }
 }
 
+async function syncSpeed(connection, bankId) {
+  const [[speedSectionRow]] = await connection.query(
+    `SELECT section_type, time_limit_seconds, display_time_seconds
+     FROM iq_sections
+     WHERE test_id = ? AND section_key = 'speed'
+     LIMIT 1`,
+    [bankId]
+  );
+
+  const sectionId = await ensureSection(connection, bankId, {
+    key: "speed",
+    title: "Rapidite",
+    description: "Questions courtes a reponse rapide avec limite de temps par question.",
+    sectionType: speedSectionRow?.section_type ?? "speed",
+    timeLimitSeconds: speedSectionRow?.time_limit_seconds ?? null,
+    displayTimeSeconds: speedSectionRow?.display_time_seconds ?? null,
+    position: 9,
+  });
+
+  await clearSectionQuestions(connection, bankId, sectionId);
+
+  const questions = readJson("data/iq/speed.json");
+
+  for (let index = 0; index < questions.length; index += 1) {
+    const question = questions[index];
+    const [result] = await connection.query(
+      `INSERT INTO iq_questions (
+         test_id, section_id, question_key, question_text, answer_prompt_text, question_format,
+         difficulty_level, weight, time_limit_seconds, display_time_seconds, hide_stimulus_after_seconds,
+         stimulus_text, question_image_url, explanation, position, is_active, created_at, updated_at
+       ) VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, 1, NOW(), NOW())`,
+      [
+        bankId,
+        sectionId,
+        question.questionKey,
+        question.questionText ?? null,
+        question.questionFormat,
+        Number(question.difficultyLevel ?? 1),
+        Number(question.weight ?? 1),
+        Number(question.timeLimitSeconds ?? speedSectionRow?.time_limit_seconds ?? 8),
+        question.stimulusText ?? null,
+        question.questionImageUrl ?? null,
+        question.explanation ?? "",
+        index + 1,
+      ]
+    );
+    const questionId = result.insertId;
+
+    if (Array.isArray(question.options)) {
+      for (let optionIndex = 0; optionIndex < question.options.length; optionIndex += 1) {
+        const option = question.options[optionIndex];
+        await connection.query(
+          `INSERT INTO iq_question_options (
+             question_id, option_key, option_text, option_image_url, is_correct, position, is_active, created_at, updated_at
+           ) VALUES (?, ?, ?, NULL, ?, ?, 1, NOW(), NOW())`,
+          [questionId, option.key, option.text ?? null, option.isCorrect ? 1 : 0, optionIndex + 1]
+        );
+      }
+    }
+
+    if (question.overlay) {
+      await connection.query(
+        `INSERT INTO iq_spatial_overlay_questions (
+           question_id, question_image_url, answers_image_url, answer_count, grid_columns, grid_rows,
+           correct_position, correction_text, is_active, created_at, updated_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+        [
+          questionId,
+          question.overlay.questionImageUrl,
+          question.overlay.answersImageUrl,
+          String(question.overlay.answerCount ?? 4),
+          Number(question.overlay.gridColumns ?? 2),
+          Number(question.overlay.gridRows ?? 2),
+          Number(question.overlay.correctPosition),
+          question.overlay.correctionText ?? "",
+        ]
+      );
+    }
+  }
+}
+
 async function syncAudioMemory(connection, bankId) {
   const sectionId = await ensureSection(connection, bankId, {
     key: "audio_memory",
@@ -512,6 +593,7 @@ async function main() {
     await syncMemory(connection, bankId);
     await syncQuantitative(connection, bankId);
     await syncLongMemory(connection, bankId);
+    await syncSpeed(connection, bankId);
     await syncAudioMemory(connection, bankId);
     await connection.commit();
 

@@ -19,7 +19,11 @@
     { "type": "question", "questionKey": "verbal-008" },
      {
       "type": "memory",
-      "questionKeys": ["memory-001", "memory-002", "memory-003"]
+      "items": [
+        { "questionKey": "memory-001" },
+        { "questionKey": "memory-002" },
+        { "questionKey": "memory-003" }
+      ]
     },
     {
       "type": "speed",

@@ -3,13 +3,11 @@
 import type { IqAttemptPhase } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
 import { ResultEmailForm } from "@/components/results/result-email-form";
 import { AlertTriangle, Brain, Loader2, Pause, Play, TimerReset, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
@@ -73,25 +71,30 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const [pausedBoundaryAction, setPausedBoundaryAction] = useState<"continue" | "complete" | null>(null);
   const displayedAtRef = useRef<Date>(new Date());
   const hasCompletionStartedRef = useRef(false);
+  const isSubmittingRef = useRef(false);
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
-  const timeTotal = Math.max(data?.phaseTimeLimitSeconds ?? 120, 1);
+  const questionTimeLimitSeconds = currentQuestion?.timeLimitSeconds ?? data?.phaseTimeLimitSeconds ?? 120;
+  const timeTotal = Math.max(questionTimeLimitSeconds, 1);
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / timeTotal) * 100));
 
   useEffect(() => {
+    isSubmittingRef.current = false;
     setSelectedOptionId(null);
     setSaveError(null);
     setPauseRequested(false);
     setIsPaused(false);
     setPausedBoundaryAction(null);
+    setTimeRemaining(questionTimeLimitSeconds);
     displayedAtRef.current = new Date();
-  }, [currentQuestion?.id]);
+  }, [currentQuestion?.id, questionTimeLimitSeconds]);
 
   useEffect(() => {
-    if (!data || completionState || isCompleting || isPaused) return;
+    if (!data || !currentQuestion || completionState || isCompleting || isPaused || isSaving) return;
+
     if (timeRemaining <= 0) {
-      void handleComplete();
+      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: questionTimeLimitSeconds * 1000 });
       return;
     }
 
@@ -100,7 +103,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [completionState, data, isCompleting, timeRemaining, isPaused]);
+  }, [completionState, currentQuestion, data, isCompleting, isPaused, isSaving, questionTimeLimitSeconds, timeRemaining]);
 
   useEffect(() => {
     if (!data || completionState || isCompleting) return;
@@ -161,27 +164,46 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
     }
   };
 
-  const handleSelectOption = async (questionId: string, optionId: string) => {
-    if (!data || !currentQuestion || isSaving || isCompleting || completionState) return;
+  const continueAfterSave = async () => {
+    if (!currentQuestion || !data) return;
 
-    const numericQuestionId = Number(questionId);
-    const numericOptionId = Number(optionId);
-    const answeredAt = new Date();
-    const responseTimeMs = Math.max(answeredAt.getTime() - displayedAtRef.current.getTime(), 0);
+    if (pauseRequested) {
+      setPauseRequested(false);
+      setIsPaused(true);
+      setPausedBoundaryAction(currentQuestionIndex >= questions.length - 1 ? "complete" : "continue");
+      return;
+    }
 
-    setSelectedOptionId(numericOptionId);
+    if (currentQuestionIndex >= questions.length - 1) {
+      if (data.nextUrl) {
+        router.push(data.nextUrl);
+        return;
+      }
+
+      await handleComplete();
+      return;
+    }
+
+    setCurrentQuestionIndex((current) => current + 1);
+  };
+
+  const saveAnswer = async (body: { questionId: number; selectedOptionId?: number | null; responseTimeMs?: number }) => {
+    if (!data || !currentQuestion || isSaving || isCompleting || completionState || isSubmittingRef.current) return;
+
+    isSubmittingRef.current = true;
     setIsSaving(true);
     setSaveError(null);
 
     try {
+      const answeredAt = new Date();
+      const responseTimeMs = body.responseTimeMs ?? Math.max(answeredAt.getTime() - displayedAtRef.current.getTime(), 0);
       const response = await fetch(`/api/iq/attempts/${data.attempt.token}/answers`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          questionId: numericQuestionId,
-          selectedOptionId: numericOptionId,
+          ...body,
           responseTimeMs,
           displayedAt: displayedAtRef.current.toISOString(),
         }),
@@ -189,33 +211,27 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
       const payload = await response.json();
 
       if (!response.ok) {
-        throw new Error(payload.error || "Impossible d'enregistrer la réponse.");
+        throw new Error(payload.error || "Impossible d'enregistrer la reponse.");
       }
 
-      if (pauseRequested) {
-        setPauseRequested(false);
-        setIsPaused(true);
-        setPausedBoundaryAction(currentQuestionIndex >= questions.length - 1 || timeRemaining <= 0 ? "complete" : "continue");
-        return;
-      }
-
-      if (currentQuestionIndex >= questions.length - 1 || timeRemaining <= 0) {
-        if (data.nextUrl) {
-          router.push(data.nextUrl);
-          return;
-        }
-
-        await handleComplete();
-        return;
-      }
-
-      setCurrentQuestionIndex((current) => current + 1);
+      await continueAfterSave();
     } catch (answerError) {
+      isSubmittingRef.current = false;
       setSelectedOptionId(null);
-      setSaveError(answerError instanceof Error ? answerError.message : "Impossible d'enregistrer la réponse.");
+      setSaveError(answerError instanceof Error ? answerError.message : "Impossible d'enregistrer la reponse.");
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleSelectOption = async (questionId: string, optionId: string) => {
+    if (!data || !currentQuestion || isSaving || isCompleting || completionState) return;
+
+    const numericQuestionId = Number(questionId);
+    const numericOptionId = Number(optionId);
+
+    setSelectedOptionId(numericOptionId);
+    await saveAnswer({ questionId: numericQuestionId, selectedOptionId: numericOptionId });
   };
 
   const handlePauseToggle = () => {
@@ -260,7 +276,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
             <Zap className="h-9 w-9" />
           </div>
           <h2 className="mb-2 text-2xl font-bold">Votre resultat est pret</h2>
-          <p className="mb-6 text-muted-foreground">Recevez un lien sécurisé par email pour consulter votre score indicatif de raisonnement.</p>
+          <p className="mb-6 text-muted-foreground">Recevez un lien securise par email pour consulter votre score indicatif de raisonnement.</p>
           <ResultEmailForm resultType="iq" resultToken={data.attempt.token} />
         </Card>
       </div>
@@ -318,36 +334,36 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
             </div>
           ) : null}
           <Card className="overflow-hidden">
-          <motion.div
-            key={currentQuestion.id}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-6 p-6"
-          >
-            {templateQuestion ? (
-              <QuizQuestion
-                question={templateQuestion}
-                selectedOptionId={selectedOptionId ? String(selectedOptionId) : null}
-                onSelectOption={handleSelectOption}
-                isReviewMode={isSaving || isCompleting || isPaused}
-              />
-            ) : null}
+            <motion.div
+              key={currentQuestion.id}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-6 p-6"
+            >
+              {templateQuestion ? (
+                <QuizQuestion
+                  question={templateQuestion}
+                  selectedOptionId={selectedOptionId ? String(selectedOptionId) : null}
+                  onSelectOption={handleSelectOption}
+                  isReviewMode={isSaving || isCompleting || isPaused}
+                />
+              ) : null}
 
-            {saveError ? <p className="text-sm text-destructive">{saveError}</p> : null}
-            {isSaving ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Enregistrement de la reponse...
-              </div>
-            ) : null}
-            {isCompleting ? (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Finalisation du test...
-              </div>
-            ) : null}
-          </motion.div>
+              {saveError ? <p className="text-sm text-destructive">{saveError}</p> : null}
+              {isSaving ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Enregistrement de la reponse...
+                </div>
+              ) : null}
+              {isCompleting ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Finalisation du test...
+                </div>
+              ) : null}
+            </motion.div>
           </Card>
         </div>
       )}

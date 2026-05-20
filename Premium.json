@@ -9,31 +9,37 @@
       {
         "questionKey": "long-memory-001",
         "displayTimeSeconds": 6,
+        "timeLimitSeconds": 20,
         "minDelaySeconds": 20
       },
       {
         "questionKey": "long-memory-002",
         "displayTimeSeconds": 6,
+        "timeLimitSeconds": 22,
         "minDelaySeconds": 20
       },
             {
         "questionKey": "long-memory-003",
         "displayTimeSeconds": 6,
+        "timeLimitSeconds": 20,
         "minDelaySeconds": 20
       },
       {
         "questionKey": "long-memory-004",
         "displayTimeSeconds": 6,
+        "timeLimitSeconds": 20,
         "minDelaySeconds": 20
       },
       {
         "questionKey": "long-memory-005",
         "displayTimeSeconds": 6,
+        "timeLimitSeconds": 20,
         "minDelaySeconds": 20
       },
       {
         "questionKey": "long-memory-006",
         "displayTimeSeconds": 6,
+        "timeLimitSeconds": 20,
         "minDelaySeconds": 20
       }
     ]
@@ -57,12 +63,29 @@
     { "type": "question", "questionKey": "verbal-005" },
     {
       "type": "memory",
-      "questionKeys": ["memory-001", "memory-002", "memory-003"]
+      "items": [
+        { "questionKey": "memory-001" },
+        {
+          "choices": [
+            { "questionKey": "memory-002", "weight": 30 },
+            { "questionKey": "memory-003", "weight": 40 },
+            { "questionKey": "memory-004", "weight": 30 }
+          ]
+        },
+        { "questionKey": "memory-005" }
+      ]
     },
     {
       "type": "speed",
       "questionKeys": ["speed-001", "speed-004", "speed-010"],
       "timeLimitSeconds": 20
+    },
+    {
+      "type": "audioMemory",
+      "questionKeys": ["audio-memory-001", "audio-memory-004", "audio-memory-007"],
+      "timeLimitSeconds": 20
     }
+    
+
   ]
 }

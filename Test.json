@@ -63,7 +63,17 @@
     { "type": "question", "questionKey": "verbal-005" },
     {
       "type": "memory",
-      "questionKeys": ["memory-001", "memory-002", "memory-003"]
+      "items": [
+        { "questionKey": "memory-001" },
+        {
+          "choices": [
+            { "questionKey": "memory-002", "weight": 30 },
+            { "questionKey": "memory-003", "weight": 40 },
+            { "questionKey": "memory-004", "weight": 30 }
+          ]
+        },
+        { "questionKey": "memory-005" }
+      ]
     },
     {
       "type": "speed",
