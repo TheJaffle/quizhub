@@ -5,7 +5,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { AlertTriangle, Brain } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
@@ -64,7 +63,7 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
       </div>
 
       <div className="mb-6 rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 text-center shadow-sm">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Encodage memoire longue</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Encodage memoire longue</p>
       </div>
 
       <Card className="overflow-hidden border-violet-200 bg-white shadow-lg shadow-violet-100/60 p-6 md:p-8">
@@ -75,10 +74,12 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
         ) : null}
 
         {data.question.imageUrl ? (
-          <div className="space-y-4">
-            <div className="relative min-h-[320px] overflow-hidden rounded-lg border bg-muted/30 md:min-h-[420px]">
-              <Image src={data.question.imageUrl} alt="Stimulus memoire longue" fill sizes="(max-width: 768px) 100vw, 800px" className="object-contain p-3" />
-            </div>
+          <div className="rounded-lg border bg-muted/30 p-3 text-center">
+            <img
+              src={data.question.imageUrl}
+              alt="Stimulus memoire longue"
+              className="mx-auto h-auto max-h-[420px] w-full object-contain"
+            />
           </div>
         ) : (
           <div className="space-y-5 text-center">
