@@ -186,6 +186,7 @@ export type IqLongMemoryAnswer = {
     testTitle: string;
   };
   question: IqPhaseQuestion;
+  timeLimitSeconds: number | null;
   returnToUrl: string;
 };
 
@@ -233,6 +234,7 @@ export type IqAudioIntro = {
     description: string | null;
     questionCount: number;
     maxStimulusPlays: number;
+    timeLimitSeconds: number | null;
   };
   nextUrl: string;
 };
@@ -495,6 +497,7 @@ type TestSequenceQuestionChoice = {
 type TestSequenceLongMemoryItem = {
   questionKey: string;
   displayTimeSeconds: number;
+  timeLimitSeconds: number;
   minDelaySeconds: number;
 };
 
@@ -535,6 +538,7 @@ type TestSequenceSpeedStep = {
 type TestSequenceAudioMemoryStep = {
   type: "audio_memory";
   questionKeys?: string[];
+  timeLimitSeconds?: number;
 };
 
 type TestSequenceSpecialStep = TestSequenceMemoryStep | TestSequenceAudioMemoryStep | TestSequenceSpeedStep;
@@ -563,13 +567,15 @@ type LongMemoryAttemptState = {
   currentIndex: number;
   activeQuestionKey: string | null;
   shownAt: string | null;
+  questionsAnsweredSinceShown: number;
+  afterCurrentAnswerAction: "advance" | "return" | "complete";
   status: "pending_intro" | "awaiting_exposure" | "waiting_delay" | "awaiting_answer" | "completed";
 };
 
 type SequenceEntry =
   | { type: "block"; blockIndex: number; questionKeys: string[] }
   | { type: "memory"; questionKeys: string[] | null }
-  | { type: "audio_memory"; questionKeys: string[] | null }
+  | { type: "audio_memory"; questionKeys: string[] | null; timeLimitSeconds: number | null }
   | { type: "speed"; questionKeys: string[] | null; timeLimitSeconds: number | null };
 
 type SequencePlan = {
@@ -681,6 +687,10 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
         typeof (item as { displayTimeSeconds?: unknown }).displayTimeSeconds === "number"
           ? Number((item as { displayTimeSeconds: number }).displayTimeSeconds)
           : NaN;
+      const timeLimitSeconds =
+        typeof (item as { timeLimitSeconds?: unknown }).timeLimitSeconds === "number"
+          ? Number((item as { timeLimitSeconds: number }).timeLimitSeconds)
+          : NaN;
       const minDelaySeconds =
         typeof (item as { minDelaySeconds?: unknown }).minDelaySeconds === "number"
           ? Number((item as { minDelaySeconds: number }).minDelaySeconds)
@@ -694,6 +704,10 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
         throw new Error("Chaque item longMemory doit definir displayTimeSeconds comme entier positif.");
       }
 
+      if (!Number.isInteger(timeLimitSeconds) || timeLimitSeconds <= 0) {
+        throw new Error("Chaque item longMemory doit definir timeLimitSeconds comme entier positif.");
+      }
+
       if (!Number.isInteger(minDelaySeconds) || minDelaySeconds <= 0) {
         throw new Error("Chaque item longMemory doit definir minDelaySeconds comme entier positif.");
       }
@@ -701,6 +715,7 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
       return {
         questionKey,
         displayTimeSeconds,
+        timeLimitSeconds,
         minDelaySeconds,
       };
     });
@@ -816,7 +831,17 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
         throw new Error("Une etape audioMemory avec questionKeys doit contenir au moins une cle.");
       }
 
-      steps.push({ type: "audio_memory", questionKeys });
+      const timeLimitSecondsValue = (rawStep as { timeLimitSeconds?: unknown }).timeLimitSeconds;
+      const timeLimitSeconds =
+        typeof timeLimitSecondsValue === "number" && Number.isInteger(timeLimitSecondsValue) && timeLimitSecondsValue > 0
+          ? timeLimitSecondsValue
+          : undefined;
+
+      if (timeLimitSecondsValue !== undefined && timeLimitSeconds === undefined) {
+        throw new Error("Une etape audioMemory avec timeLimitSeconds doit definir un entier positif.");
+      }
+
+      steps.push({ type: "audio_memory", questionKeys, timeLimitSeconds });
       continue;
     }
 
@@ -982,6 +1007,8 @@ function createInitialLongMemoryState(sequence: ResolvedTestSequenceDefinition):
     currentIndex: 0,
     activeQuestionKey: sequence.longMemory.items[0].questionKey,
     shownAt: null,
+    questionsAnsweredSinceShown: 0,
+    afterCurrentAnswerAction: "advance",
     status: "pending_intro",
   };
 }
@@ -1058,6 +1085,25 @@ async function updateLongMemoryStateByAttemptId(connection: mysql.Connection, at
   );
 }
 
+async function markLongMemoryQuestionProgress(
+  connection: mysql.Connection,
+  attemptId: number,
+  sectionKey: string
+) {
+  if (sectionKey === "long_memory") {
+    return;
+  }
+
+  const state = await loadLongMemoryStateByAttemptId(connection, attemptId);
+
+  if (!state?.enabled || state.status !== "waiting_delay" || !state.shownAt) {
+    return;
+  }
+
+  state.questionsAnsweredSinceShown += 1;
+  await updateLongMemoryStateByAttemptId(connection, attemptId, state);
+}
+
 function buildLongMemoryExposureUrl(token: string, returnToUrl: string) {
   return `/iq/attempt/${token}/long-memory/exposure?returnTo=${encodeURIComponent(returnToUrl)}`;
 }
@@ -1079,6 +1125,10 @@ function shouldLongMemoryInterrupt(state: LongMemoryAttemptState, force = false)
 
   if (force) {
     return true;
+  }
+
+  if (state.questionsAnsweredSinceShown < 1) {
+    return false;
   }
 
   return Date.now() >= new Date(state.shownAt).getTime() + currentItem.minDelaySeconds * 1000;
@@ -1120,7 +1170,7 @@ function buildSequencePlan(sequence: TestSequenceDefinition | ResolvedTestSequen
     }
 
     if (step.type === "audio_memory") {
-      entries.push({ type: "audio_memory", questionKeys: step.questionKeys ?? null });
+      entries.push({ type: "audio_memory", questionKeys: step.questionKeys ?? null, timeLimitSeconds: step.timeLimitSeconds ?? null });
       continue;
     }
 
@@ -1669,6 +1719,7 @@ export async function getIqLongMemoryExposureByAttemptToken(token: string, retur
 
     state.status = "waiting_delay";
     state.shownAt = new Date().toISOString();
+    state.questionsAnsweredSinceShown = 0;
     await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
 
     return {
@@ -1718,6 +1769,7 @@ export async function getIqLongMemoryAnswerByAttemptToken(token: string, returnT
       return { data: null, error: "Aucune reponse de memoire longue en attente." };
     }
 
+    const currentItem = state.items[state.currentIndex];
     const question = await loadPhaseQuestionByKey(connection, attemptData.questionBankTestId, state.activeQuestionKey);
 
     if (!question) {
@@ -1735,6 +1787,7 @@ export async function getIqLongMemoryAnswerByAttemptToken(token: string, returnT
           testTitle: attemptData.row.test_title,
         },
         question,
+        timeLimitSeconds: currentItem?.timeLimitSeconds ?? null,
         returnToUrl,
       },
     };
@@ -1756,7 +1809,7 @@ export async function getIqLongMemoryAnswerByAttemptToken(token: string, returnT
 export async function getIqLongMemoryInterruptUrl(
   token: string,
   resumeUrl: string,
-  options?: { force?: boolean }
+  options?: { force?: boolean; afterCurrentAnswerAction?: "advance" | "return" | "complete" }
 ): Promise<string | null> {
   let connection: mysql.Connection | undefined;
 
@@ -1775,6 +1828,10 @@ export async function getIqLongMemoryInterruptUrl(
     }
 
     if (state.status === "awaiting_answer") {
+      if (options?.afterCurrentAnswerAction) {
+        state.afterCurrentAnswerAction = options.afterCurrentAnswerAction;
+        await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
+      }
       return buildLongMemoryAnswerUrl(token, resumeUrl);
     }
 
@@ -1783,6 +1840,7 @@ export async function getIqLongMemoryInterruptUrl(
     }
 
     state.status = "awaiting_answer";
+    state.afterCurrentAnswerAction = options?.afterCurrentAnswerAction ?? "advance";
     await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
 
     return buildLongMemoryAnswerUrl(token, resumeUrl);
@@ -1793,7 +1851,17 @@ export async function getIqLongMemoryInterruptUrl(
   }
 }
 
-export async function advanceIqLongMemoryAfterAnswer(token: string, returnToUrl: string): Promise<string | null> {
+export async function advanceIqLongMemoryAfterAnswer(token: string, returnToUrl: string): Promise<{
+  nextUrl: string | null;
+  completion:
+    | {
+        attemptToken: string;
+        userAttached: boolean;
+        redirectUrl: string | null;
+        guestResultReady: boolean;
+      }
+    | null;
+}> {
   let connection: mysql.Connection | undefined;
 
   try {
@@ -1801,13 +1869,42 @@ export async function advanceIqLongMemoryAfterAnswer(token: string, returnToUrl:
     const attemptData = await getAttemptAndQuestionBank(connection, token);
 
     if (!attemptData) {
-      return returnToUrl;
+      return { nextUrl: returnToUrl, completion: null };
     }
 
     const state = await loadLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id);
 
     if (!state?.enabled) {
-      return returnToUrl;
+      return { nextUrl: returnToUrl, completion: null };
+    }
+
+    if (state.afterCurrentAnswerAction === "complete") {
+      state.currentIndex = state.items.length;
+      state.activeQuestionKey = null;
+      state.shownAt = null;
+      state.questionsAnsweredSinceShown = 0;
+      state.status = "completed";
+      state.afterCurrentAnswerAction = "advance";
+      await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
+
+      const completionResult = await completeIqAttempt(token);
+
+      return {
+        nextUrl: completionResult.completion?.redirectUrl ?? returnToUrl,
+        completion: completionResult.completion ?? null,
+      };
+    }
+
+    if (state.afterCurrentAnswerAction === "return") {
+      state.currentIndex = state.items.length;
+      state.activeQuestionKey = null;
+      state.shownAt = null;
+      state.questionsAnsweredSinceShown = 0;
+      state.status = "completed";
+      state.afterCurrentAnswerAction = "advance";
+      await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
+
+      return { nextUrl: returnToUrl, completion: null };
     }
 
     const nextIndex = state.currentIndex + 1;
@@ -1817,20 +1914,24 @@ export async function advanceIqLongMemoryAfterAnswer(token: string, returnToUrl:
       state.currentIndex = state.items.length;
       state.activeQuestionKey = null;
       state.shownAt = null;
+      state.questionsAnsweredSinceShown = 0;
       state.status = "completed";
+      state.afterCurrentAnswerAction = "advance";
       await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
-      return returnToUrl;
+      return { nextUrl: returnToUrl, completion: null };
     }
 
     state.currentIndex = nextIndex;
     state.activeQuestionKey = nextItem.questionKey;
     state.shownAt = null;
+    state.questionsAnsweredSinceShown = 0;
     state.status = "awaiting_exposure";
+    state.afterCurrentAnswerAction = "advance";
     await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
 
-    return buildLongMemoryExposureUrl(token, returnToUrl);
+    return { nextUrl: buildLongMemoryExposureUrl(token, returnToUrl), completion: null };
   } catch {
-    return returnToUrl;
+    return { nextUrl: returnToUrl, completion: null };
   } finally {
     await connection?.end();
   }
@@ -2216,6 +2317,9 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
     const speedEntry = phase === "speed"
       ? sequencePlan.entries.find((entry): entry is Extract<SequenceEntry, { type: "speed" }> => entry.type === "speed") ?? null
       : null;
+    const audioEntry = phase === "audio"
+      ? sequencePlan.entries.find((entry): entry is Extract<SequenceEntry, { type: "audio_memory" }> => entry.type === "audio_memory") ?? null
+      : null;
 
     if (phase === "main" && !currentQuestionBlock) {
       return { data: null, error: "Bloc de questions introuvable dans la sequence du test." };
@@ -2351,6 +2455,8 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
         phaseTimeLimitSeconds:
           phase === "speed"
             ? speedEntry?.timeLimitSeconds ?? (questions[0] ? questions[0].section_time_limit_seconds ?? null : null)
+            : phase === "audio"
+              ? audioEntry?.timeLimitSeconds ?? (questions[0] ? questions[0].section_time_limit_seconds ?? null : null)
             : questions[0]
               ? questions[0].section_time_limit_seconds ?? null
               : null,
@@ -2468,7 +2574,10 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
       rawAnswerData?.section_key === "quantitative" ||
       rawAnswerData?.section_key === "long_memory" ||
       rawAnswerData?.section_key === "spatial";
-    const allowsTimeoutAnswer = isMainSection || rawAnswerData?.section_key === "memory";
+    const allowsTimeoutAnswer =
+      isMainSection ||
+      rawAnswerData?.section_key === "memory" ||
+      rawAnswerData?.section_key === "audio_memory";
     const answerCount = rawAnswerData?.overlay_answer_count ? Number(rawAnswerData.overlay_answer_count) : null;
 
     if (rawAnswerData && isTimedOut && !allowsTimeoutAnswer) {
@@ -2594,6 +2703,8 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
        WHERE id = ?`,
       [answerData.attempt_id, answerData.attempt_id, answerData.attempt_id, answerData.attempt_id, answerData.attempt_id]
     );
+
+    await markLongMemoryQuestionProgress(connection, answerData.attempt_id, answerData.section_key);
 
     return {
       answer: {
@@ -2743,6 +2854,9 @@ export async function getIqAudioIntroByAttemptToken(token: string): Promise<IqAu
           description: row.section_description,
           questionCount: audioQuestionKeys ? audioQuestionKeys.length : row.question_count,
           maxStimulusPlays: Math.max(Number(row.max_stimulus_plays ?? 1), 1),
+          timeLimitSeconds:
+            sequencePlan?.entries.find((entry): entry is Extract<SequenceEntry, { type: "audio_memory" }> => entry.type === "audio_memory")
+              ?.timeLimitSeconds ?? null,
         },
         nextUrl: `/iq/attempt/${row.attempt_token}/phase/audio`,
       },
@@ -2793,19 +2907,9 @@ export async function getIqSpeedIntroByAttemptToken(token: string): Promise<IqSp
     const resolvedQuestions = row && sequencePlan && questionBankTestId ? await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan) : null;
     const speedQuestionKeys = resolvedQuestions?.specialQuestionKeysByType.speed ?? null;
     const speedEntry = sequencePlan?.entries.find((entry): entry is Extract<SequenceEntry, { type: "speed" }> => entry.type === "speed") ?? null;
-    const longMemoryState = row ? await loadLongMemoryStateByAttemptId(connection, row.attempt_id) : null;
 
     if (!row) {
       return { data: null, error: "Introduction rapidite introuvable pour cette tentative." };
-    }
-
-    if (
-      longMemoryState?.enabled &&
-      longMemoryState.flushPendingBeforeSpeed &&
-      longMemoryState.status === "waiting_delay"
-    ) {
-      longMemoryState.status = "awaiting_answer";
-      await updateLongMemoryStateByAttemptId(connection, row.attempt_id, longMemoryState);
     }
 
     return {
@@ -2826,12 +2930,7 @@ export async function getIqSpeedIntroByAttemptToken(token: string): Promise<IqSp
           questionCount: speedQuestionKeys ? speedQuestionKeys.length : row.question_count,
           timeLimitSeconds: speedEntry?.timeLimitSeconds ?? row.time_limit_seconds ?? 120,
         },
-        nextUrl:
-          longMemoryState?.enabled &&
-          longMemoryState.flushPendingBeforeSpeed &&
-          (longMemoryState.status === "awaiting_answer" || longMemoryState.status === "waiting_delay")
-            ? buildLongMemoryAnswerUrl(row.attempt_token, `/iq/attempt/${row.attempt_token}/phase/speed`)
-            : `/iq/attempt/${row.attempt_token}/phase/speed`,
+        nextUrl: `/iq/attempt/${row.attempt_token}/phase/speed`,
       },
     };
   } catch (error) {

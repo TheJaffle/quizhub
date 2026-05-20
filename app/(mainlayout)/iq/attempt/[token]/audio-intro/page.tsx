@@ -35,6 +35,7 @@ export default async function IqAudioIntroRoute({ params }: { params: Promise<{ 
                 "Vous allez ecouter une courte sequence sonore, la memoriser, puis retrouver la bonne proposition parmi quatre lectures candidates.",
               questionCount: data.section.questionCount,
               maxStimulusPlays: data.section.maxStimulusPlays,
+              timeLimitSeconds: data.section.timeLimitSeconds,
               nextUrl: data.nextUrl,
             }
           : null

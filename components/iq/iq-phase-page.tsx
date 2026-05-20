@@ -2,9 +2,10 @@
 
 import type { IqAttemptPhase } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
-import { AlertTriangle, CheckCircle, ImageIcon, Loader2, Pause, Play, XCircle } from "lucide-react";
+import { AlertTriangle, Brain, CheckCircle, ImageIcon, Languages, Loader2, Pause, Play, Sigma, XCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -70,19 +71,44 @@ function TimeProgressBar({ value }: { value: number }) {
   );
 }
 
-function PauseToggleButton({ isPaused, onClick }: { isPaused: boolean; onClick: () => void }) {
+function PauseToggleButton({
+  isPaused,
+  pauseRequested,
+  onClick,
+}: {
+  isPaused: boolean;
+  pauseRequested: boolean;
+  onClick: () => void;
+}) {
   const Icon = isPaused ? Play : Pause;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-      aria-label={isPaused ? "Reprendre le test" : "Mettre le test en pause"}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+        pauseRequested && !isPaused ? "border-indigo-300 text-indigo-600" : ""
+      }`}
+      aria-label={isPaused ? "Reprendre le test" : "Demander une pause en fin de question"}
     >
       <Icon className="h-4 w-4" />
     </button>
   );
+}
+
+function getSectionBadge(sectionKey: string) {
+  switch (sectionKey) {
+    case "verbal":
+      return { label: "Question verbale", icon: Languages };
+    case "logic":
+      return { label: "Question logique", icon: Brain };
+    case "quantitative":
+      return { label: "Question quantitative", icon: Sigma };
+    case "spatial":
+      return { label: "Question spatiale", icon: ImageIcon };
+    default:
+      return { label: "Question", icon: Brain };
+  }
 }
 
 export function IqPhasePage({ data, error }: IqPhasePageProps) {
@@ -98,8 +124,8 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [direction, setDirection] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(MAIN_QUESTION_SECONDS);
+  const [pauseRequested, setPauseRequested] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isPauseTimeoutPending, setIsPauseTimeoutPending] = useState(false);
   const displayedAtRef = useRef<Date>(new Date());
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSubmittingRef = useRef(false);
@@ -109,6 +135,8 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   const isMainPhase = data?.phase === "main";
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / MAIN_QUESTION_SECONDS) * 100));
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const sectionBadge = currentQuestion ? getSectionBadge(currentQuestion.sectionKey) : null;
+  const SectionBadgeIcon = sectionBadge?.icon;
 
   useEffect(() => {
     displayedAtRef.current = new Date();
@@ -118,8 +146,8 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     setSelectedPosition(null);
     setSavedAnswer(null);
     setSaveError(null);
+    setPauseRequested(false);
     setIsPaused(false);
-    setIsPauseTimeoutPending(false);
   }, [currentQuestion?.id]);
 
   useEffect(() => {
@@ -132,11 +160,6 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     if (!isMainPhase || !currentQuestion || isSaving || savedAnswer) return;
 
     if (timeRemaining <= 0) {
-      if (isPaused) {
-        setIsPauseTimeoutPending(true);
-        return;
-      }
-
       void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: MAIN_QUESTION_SECONDS * 1000 });
       return;
     }
@@ -146,7 +169,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isMainPhase, currentQuestion, timeRemaining, isSaving, savedAnswer, isPaused]);
+  }, [isMainPhase, currentQuestion, timeRemaining, isSaving, savedAnswer]);
 
   useEffect(() => {
     return () => {
@@ -192,15 +215,30 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   const continueAfterSave = async () => {
     if (!data) return;
 
+    if (pauseRequested) {
+      setPauseRequested(false);
+      setIsPaused(true);
+      return;
+    }
+
+    const isSpeedTransition = Boolean(data.nextUrl?.includes("/speed-intro"));
+    const longMemoryPayload = isLastQuestion
+      ? {
+          resumeUrl: data.nextUrl ?? currentResumeUrl,
+          force: true,
+          afterCurrentAnswerAction: data.nextUrl ? (isSpeedTransition ? "return" : "advance") : "complete",
+        }
+      : {
+          resumeUrl: currentResumeUrl,
+        };
+
     try {
       const response = await fetch(`/api/iq/attempts/${data.attempt.token}/long-memory/check`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          resumeUrl: currentResumeUrl,
-        }),
+        body: JSON.stringify(longMemoryPayload),
       });
       const payload = (await response.json().catch(() => null)) as { nextUrl?: string | null } | null;
 
@@ -274,7 +312,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   };
 
   const handleSelectOption = async (questionId: string, optionId: string) => {
-    if (!data || !currentQuestion || isSaving || savedAnswer || isPaused) return;
+    if (!data || !currentQuestion || isSaving || savedAnswer) return;
 
     const numericQuestionId = Number(questionId);
     const numericOptionId = Number(optionId);
@@ -284,23 +322,22 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   };
 
   const handleSelectPosition = async (position: number) => {
-    if (!currentQuestion || isSaving || savedAnswer || isPaused) return;
+    if (!currentQuestion || isSaving || savedAnswer) return;
 
     setSelectedPosition(position);
     void saveAnswer({ questionId: currentQuestion.id, selectedPosition: position });
   };
 
   const handlePauseToggle = () => {
-    if (!currentQuestion || isSaving || savedAnswer) return;
-
-    if (isPaused && isPauseTimeoutPending) {
+    if (isPaused) {
       setIsPaused(false);
-      setIsPauseTimeoutPending(false);
-      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: MAIN_QUESTION_SECONDS * 1000 }, { feedbackDelayMs: 0 });
+      void continueAfterSave();
       return;
     }
 
-    setIsPaused((current) => !current);
+    if (!currentQuestion || isSaving || savedAnswer) return;
+
+    setPauseRequested((current) => !current);
   };
 
   if (error || !data) {
@@ -317,19 +354,28 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
-      <div className="mb-6">
-        <div className="mb-2 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-3">
-          <div className="text-sm font-medium">
-            Question {questions.length > 0 ? currentQuestionIndex + 1 : 0} of {questions.length}
-          </div>
-          {currentQuestion && isMainPhase ? (
-            <div className="flex items-center gap-2">
+      <div className="mb-6 flex items-center justify-between gap-3">
+        {currentQuestion && sectionBadge ? (
+          <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">
+            {SectionBadgeIcon ? <SectionBadgeIcon className="mr-1 h-3.5 w-3.5" /> : null}
+            {sectionBadge.label}
+          </Badge>
+        ) : <div />}
+        {currentQuestion && isMainPhase ? (
+          <div className="ml-auto flex items-center gap-2">
+            <div className="w-[110px] md:w-[140px]">
               <TimeProgressBar value={timeProgress} />
-              <PauseToggleButton isPaused={isPaused} onClick={handlePauseToggle} />
             </div>
-          ) : null}
-        </div>
+            <PauseToggleButton isPaused={isPaused} pauseRequested={pauseRequested} onClick={handlePauseToggle} />
+          </div>
+        ) : null}
       </div>
+
+      {pauseRequested && !isPaused && !savedAnswer ? (
+        <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+          Pause demandee : elle prendra effet a la fin de la question en cours.
+        </div>
+      ) : null}
 
       {!currentQuestion ? (
         <Card className="p-8 text-center">
@@ -338,20 +384,18 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
         </Card>
       ) : (
         <div className="relative">
-          {isPaused && !savedAnswer ? (
+          {isPaused ? (
             <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-background/85 p-6 text-center backdrop-blur-sm">
               <div>
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
                   <Pause className="h-6 w-6" />
                 </div>
-                <p className="font-semibold">{isPauseTimeoutPending ? "Temps termine" : "Test en pause"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {isPauseTimeoutPending ? "Appuyez sur lecture pour passer a la suite." : "Le temps continue de defiler pendant la pause."}
-                </p>
+                <p className="font-semibold">Pause active</p>
+                <p className="mt-1 text-sm text-muted-foreground">La pause a pris effet a la fin de la question courante. Appuyez sur lecture pour reprendre.</p>
               </div>
             </div>
           ) : null}
-          {savedAnswer ? (
+          {savedAnswer && !isPaused ? (
             <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm">
               <div className={`rounded-lg p-6 text-center ${savedAnswer.isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                 <div className={`mb-2 flex justify-center ${savedAnswer.isCorrect ? "text-green-500" : "text-red-500"}`}>

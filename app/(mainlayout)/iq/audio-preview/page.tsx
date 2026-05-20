@@ -8,6 +8,7 @@ const previewIntro: IqAudioIntroData = {
     "Vous allez ecouter une courte sequence sonore, la memoriser, puis retrouver la bonne proposition parmi quatre lectures candidates.",
   questionCount: 1,
   maxStimulusPlays: 1,
+  timeLimitSeconds: 20,
   nextUrl: "/iq/audio-preview/play",
 };
 

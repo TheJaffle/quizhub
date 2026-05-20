@@ -4,7 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AlertTriangle, AudioLines, CheckCircle, Headphones, Loader2, Play, Radio, Volume2 } from "lucide-react";
+import { AlertTriangle, AudioLines, CheckCircle, Headphones, Loader2, Pause, Play, Radio, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
@@ -20,6 +20,7 @@ export type IqAudioQuestionData = {
   options: IqAudioQuestionOption[];
   maxStimulusPlays: number;
   transitionDelayMs: number;
+  timeLimitSeconds?: number;
 };
 
 type IqAudioQuestionPageProps = {
@@ -27,7 +28,7 @@ type IqAudioQuestionPageProps = {
   error?: string;
 };
 
-type Phase = "stimulus" | "transition" | "answer" | "answered";
+type Phase = "stimulus" | "transition" | "answer" | "answered" | "timedOut";
 
 function SoundPulse({ active }: { active: boolean }) {
   return (
@@ -46,6 +47,39 @@ function SoundPulse({ active }: { active: boolean }) {
   );
 }
 
+function TimeProgressBar({ value }: { value: number }) {
+  return (
+    <div className="h-1 w-full overflow-hidden rounded-full bg-indigo-100/80" aria-label="Temps restant">
+      <div className="h-full rounded-full bg-indigo-400 transition-all duration-300 ease-linear" style={{ width: `${value}%` }} />
+    </div>
+  );
+}
+
+function PauseToggleButton({
+  isPaused,
+  pauseRequested,
+  onClick,
+}: {
+  isPaused: boolean;
+  pauseRequested: boolean;
+  onClick: () => void;
+}) {
+  const Icon = isPaused ? Play : Pause;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+        pauseRequested && !isPaused ? "border-indigo-300 text-indigo-600" : ""
+      }`}
+      aria-label={isPaused ? "Reprendre la maquette" : "Demander une pause en fin de question"}
+    >
+      <Icon className="h-4 w-4" />
+    </button>
+  );
+}
+
 export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
   useBlockTestBackNavigation();
   const [phase, setPhase] = useState<Phase>("stimulus");
@@ -54,9 +88,25 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
   const [playingOptionKey, setPlayingOptionKey] = useState<string | null>(null);
   const [selectedOptionKey, setSelectedOptionKey] = useState<string | null>(null);
   const [transitionRemainingMs, setTransitionRemainingMs] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(data?.timeLimitSeconds ?? 0);
+  const [pauseRequested, setPauseRequested] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [pausedBoundaryAction, setPausedBoundaryAction] = useState<"stay" | null>(null);
   const stimulusAudioRef = useRef<HTMLAudioElement | null>(null);
   const optionAudioRef = useRef<HTMLAudioElement | null>(null);
   const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const questionTimeLimitSeconds = data?.timeLimitSeconds ?? null;
+  const showQuestionTimer = Boolean(questionTimeLimitSeconds);
+  const timeProgress = questionTimeLimitSeconds ? Math.max(0, Math.min(100, (timeRemaining / Math.max(questionTimeLimitSeconds, 1)) * 100)) : 100;
+
+  useEffect(() => {
+    setTimeRemaining(data?.timeLimitSeconds ?? 0);
+    setPhase("stimulus");
+    setSelectedOptionKey(null);
+    setPauseRequested(false);
+    setIsPaused(false);
+    setPausedBoundaryAction(null);
+  }, [data?.timeLimitSeconds, data?.promptAudioUrl]);
 
   useEffect(() => {
     return () => {
@@ -89,6 +139,42 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
       }
     };
   }, [phase, data]);
+
+  useEffect(() => {
+    if (!questionTimeLimitSeconds || phase === "answered" || isPaused) {
+      return;
+    }
+
+    if (timeRemaining <= 0) {
+      if (pauseRequested) {
+        setPauseRequested(false);
+        setIsPaused(true);
+        setPausedBoundaryAction("stay");
+      }
+      setPhase("timedOut");
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeRemaining((current) => Math.max(current - 1, 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [questionTimeLimitSeconds, phase, timeRemaining, isPaused, pauseRequested]);
+
+  const handlePauseToggle = () => {
+    if (isPaused) {
+      setIsPaused(false);
+      setPausedBoundaryAction(null);
+      return;
+    }
+
+    if (phase === "answered" || phase === "timedOut") {
+      return;
+    }
+
+    setPauseRequested((current) => !current);
+  };
 
   const canPlayStimulus = useMemo(() => {
     if (!data) return false;
@@ -148,19 +234,42 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-4 md:py-8">
-      <div className="mb-4 md:mb-6">
-        <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
+      <div className="mb-4 flex items-center justify-between gap-3 md:mb-6">
+        <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">
           <Headphones className="mr-1 h-3.5 w-3.5" />
           Test sonore
         </Badge>
+        <div className="ml-auto flex items-center gap-2">
+        {showQuestionTimer ? (
+          <div className="w-[110px] md:w-[140px]">
+            <TimeProgressBar value={timeProgress} />
+          </div>
+        ) : null}
+        <PauseToggleButton isPaused={isPaused} pauseRequested={pauseRequested} onClick={handlePauseToggle} />
+        </div>
       </div>
 
+      {pauseRequested && !isPaused && phase !== "answered" && phase !== "timedOut" ? (
+        <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+          Pause demandee : la question en cours continue normalement, puis la pause prendra effet.
+        </div>
+      ) : null}
+
+      <div className="relative">
+      {isPaused ? (
+        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-background/85 p-6 text-center backdrop-blur-sm">
+          <div>
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+              <Pause className="h-6 w-6" />
+            </div>
+            <p className="font-semibold">Pause active</p>
+            <p className="mt-1 text-sm text-muted-foreground">La pause a ete prise en compte a la fin de la question courante.</p>
+          </div>
+        </div>
+      ) : null}
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="border-b bg-indigo-50 px-4 py-4 md:px-6 md:py-5">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-indigo-700 md:text-sm">
-            {phase === "stimulus" || phase === "transition" ? "Ecoute initiale" : "Rappel sonore"}
-          </p>
-          <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-950 md:text-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-slate-950 md:text-2xl">
             {phase === "stimulus" || phase === "transition" ? data.questionText : data.answerPromptText}
           </h1>
         </div>
@@ -200,6 +309,13 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
                 </div>
               ) : null}
             </div>
+          ) : phase === "timedOut" ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4">
+              <div className="flex items-center gap-2 text-amber-800">
+                <AlertTriangle className="h-5 w-5" />
+                <p className="font-medium">Temps ecoule. Passage a la question suivante.</p>
+              </div>
+            </div>
           ) : (
             <div className="space-y-4">
               <div className="grid gap-3">
@@ -231,6 +347,11 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
                             variant={isSelected ? "default" : "secondary"}
                             onClick={() => {
                               setSelectedOptionKey(option.key);
+                              if (pauseRequested) {
+                                setPauseRequested(false);
+                                setIsPaused(true);
+                                setPausedBoundaryAction("stay");
+                              }
                               setPhase("answered");
                             }}
                           >
@@ -251,17 +372,15 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
                 <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-4">
                   <div className="flex items-center gap-2 text-indigo-800">
                     <CheckCircle className="h-5 w-5" />
-                    <p className="font-medium">Selection enregistree visuellement pour la maquette : proposition {selectedOptionKey}.</p>
+                    <p className="font-medium">Selection enregistree : {selectedOptionKey}.</p>
                   </div>
-                  <p className="mt-1 text-sm text-indigo-700">
-                    Quand on branchera la base et le scoring, ce clic enregistrera la reponse comme les autres categories.
-                  </p>
                 </div>
               ) : null}
             </div>
           )}
         </div>
       </Card>
+      </div>
     </div>
   );
 }

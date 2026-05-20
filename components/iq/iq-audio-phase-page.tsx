@@ -5,7 +5,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { AlertTriangle, AudioLines, CheckCircle, Headphones, Loader2, Play, Radio, Volume2, XCircle } from "lucide-react";
+import { ResultEmailForm } from "@/components/results/result-email-form";
+import { AlertTriangle, AudioLines, CheckCircle, Headphones, Loader2, Pause, Play, Radio, Volume2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
@@ -19,6 +20,12 @@ type SavedAnswer = {
   isCorrect: boolean;
   correctOptionId: number | null;
   pointsEarned: number;
+};
+
+type CompletionState = {
+  userAttached: boolean;
+  redirectUrl: string | null;
+  guestResultReady: boolean;
 };
 
 type Phase = "stimulus" | "transition" | "answer" | "answered";
@@ -42,6 +49,40 @@ function SoundPulse({ active }: { active: boolean }) {
   );
 }
 
+function TimeProgressBar({ value }: { value: number }) {
+  return (
+    <div className="h-1 w-full overflow-hidden rounded-full bg-indigo-100/80" aria-label="Temps restant">
+      <div className="h-full rounded-full bg-indigo-400 transition-all duration-300 ease-linear" style={{ width: `${value}%` }} />
+    </div>
+  );
+}
+
+function PauseToggleButton({
+  isPaused,
+  pauseRequested,
+  onClick,
+}: {
+  isPaused: boolean;
+  pauseRequested: boolean;
+  onClick: () => void;
+}) {
+  const Icon = isPaused ? Play : Pause;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+        pauseRequested && !isPaused ? "border-indigo-300 text-indigo-600" : ""
+      }`}
+      aria-label={isPaused ? "Reprendre le test" : "Demander une pause en fin de question"}
+      title={isPaused ? "Reprendre le test" : pauseRequested ? "Pause demandee a la fin de la question" : "Mettre en pause a la fin de la question"}
+    >
+      <Icon className="h-4 w-4" />
+    </button>
+  );
+}
+
 export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -54,24 +95,45 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
   const [playingOptionKey, setPlayingOptionKey] = useState<string | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState<number | null>(null);
   const [savedAnswer, setSavedAnswer] = useState<SavedAnswer | null>(null);
+  const [timeoutTriggered, setTimeoutTriggered] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [transitionRemainingMs, setTransitionRemainingMs] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(data?.phaseTimeLimitSeconds ?? 0);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [completionState, setCompletionState] = useState<CompletionState | null>(null);
+  const [pauseRequested, setPauseRequested] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [pausedBoundaryAction, setPausedBoundaryAction] = useState<"continue" | "complete" | null>(null);
   const stimulusAudioRef = useRef<HTMLAudioElement | null>(null);
   const optionAudioRef = useRef<HTMLAudioElement | null>(null);
   const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const answerDisplayedAtRef = useRef<Date>(new Date());
   const isSubmittingRef = useRef(false);
+  const hasCompletionStartedRef = useRef(false);
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
   const currentAudio = currentQuestion?.audio ?? null;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  const questionTimeLimitSeconds = data?.phaseTimeLimitSeconds ?? null;
+  const showQuestionTimer = Boolean(questionTimeLimitSeconds);
+  const timeProgress = questionTimeLimitSeconds ? Math.max(0, Math.min(100, (timeRemaining / Math.max(questionTimeLimitSeconds, 1)) * 100)) : 100;
   const currentResumeUrl = useMemo(() => {
     const queryString = searchParams.toString();
     return queryString ? `${pathname}?${queryString}` : pathname;
   }, [pathname, searchParams]);
+
+  useEffect(() => {
+    setTimeRemaining(data?.phaseTimeLimitSeconds ?? 0);
+    setCompletionState(null);
+    setIsCompleting(false);
+    setPauseRequested(false);
+    setIsPaused(false);
+    setPausedBoundaryAction(null);
+    hasCompletionStartedRef.current = false;
+  }, [data?.phaseTimeLimitSeconds, data?.attempt.token]);
 
   useEffect(() => {
     return () => {
@@ -87,10 +149,15 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
   }, []);
 
   useEffect(() => {
-    if (!data || questions.length > 0 || !data.nextUrl) return;
+    if (!data || questions.length > 0 || completionState || isCompleting) return;
 
-    router.push(data.nextUrl);
-  }, [data, questions.length, router]);
+    if (data.nextUrl) {
+      router.push(data.nextUrl);
+      return;
+    }
+
+    void handlePhaseCompletion();
+  }, [completionState, data, isCompleting, questions.length, router]);
 
   useEffect(() => {
     stimulusAudioRef.current?.pause();
@@ -99,13 +166,39 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
     setStimulusPlayCount(0);
     setSelectedOptionId(null);
     setSavedAnswer(null);
+    setTimeoutTriggered(false);
     setSaveError(null);
     setIsSaving(false);
     setIsPlayingStimulus(false);
     setTransitionRemainingMs(0);
+    setTimeRemaining(data?.phaseTimeLimitSeconds ?? 0);
+    setPauseRequested(false);
+    setIsPaused(false);
+    setPausedBoundaryAction(null);
     isSubmittingRef.current = false;
     setPhase("stimulus");
-  }, [currentQuestion?.id]);
+  }, [currentQuestion?.id, data?.phaseTimeLimitSeconds]);
+
+  useEffect(() => {
+    if (!questionTimeLimitSeconds || completionState || isCompleting || isSaving || savedAnswer) {
+      return;
+    }
+
+    if (timeRemaining <= 0) {
+      if (phase === "answered") {
+        return;
+      }
+
+      void saveAnswer(null, questionTimeLimitSeconds * 1000, { timedOut: true });
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeRemaining((current) => Math.max(current - 1, 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [completionState, isCompleting, questionTimeLimitSeconds, phase, timeRemaining, isSaving, savedAnswer]);
 
   useEffect(() => {
     if (phase !== "transition" || !currentAudio) {
@@ -135,37 +228,125 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
     return stimulusPlayCount < currentAudio.maxStimulusPlays && !isPlayingStimulus && phase === "stimulus";
   }, [currentAudio, stimulusPlayCount, isPlayingStimulus, phase]);
 
-  const continueAfterSave = async () => {
-    if (!data) return;
-
+  const checkLongMemoryBoundary = async (
+    resumeUrl: string,
+    options?: { force?: boolean; afterCurrentAnswerAction?: "advance" | "return" | "complete" }
+  ) => {
     try {
-      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/long-memory/check`, {
+      const response = await fetch(`/api/iq/attempts/${data?.attempt.token}/long-memory/check`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          resumeUrl: currentResumeUrl,
+          resumeUrl,
+          force: options?.force,
+          afterCurrentAnswerAction: options?.afterCurrentAnswerAction,
         }),
       });
       const payload = (await response.json().catch(() => null)) as { nextUrl?: string | null } | null;
 
       if (response.ok && payload?.nextUrl) {
         router.push(payload.nextUrl);
-        return;
+        return true;
       }
     } catch {
-      // If the long-memory check fails, continue with the normal audio flow.
+      // Keep the native flow when the deferred long-memory check fails.
     }
 
-    if (isLastQuestion) {
-      if (data.nextUrl) {
-        router.push(data.nextUrl);
+    return false;
+  };
+
+  const finalizeAttempt = async () => {
+    if (!data || hasCompletionStartedRef.current) return;
+
+    hasCompletionStartedRef.current = true;
+    setIsCompleting(true);
+    setSaveError(null);
+
+    try {
+      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/complete`, {
+        method: "POST",
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Impossible de finaliser le test.");
       }
+
+      const completion = payload.completion as CompletionState;
+
+      if (completion.userAttached && completion.redirectUrl) {
+        router.push(completion.redirectUrl);
+        return;
+      }
+
+      setCompletionState(completion);
+    } catch (completionError) {
+      hasCompletionStartedRef.current = false;
+      setSaveError(completionError instanceof Error ? completionError.message : "Impossible de finaliser le test.");
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
+  const handlePhaseCompletion = async () => {
+    if (!data || hasCompletionStartedRef.current) return;
+
+    const isSpeedTransition = Boolean(data.nextUrl?.includes("/speed-intro"));
+
+    if (data.nextUrl) {
+      const interrupted = await checkLongMemoryBoundary(data.nextUrl, {
+        force: true,
+        afterCurrentAnswerAction: isSpeedTransition ? "return" : "advance",
+      });
+
+      if (interrupted) {
+        return;
+      }
+
+      router.push(data.nextUrl);
+      return;
+    }
+
+    const interrupted = await checkLongMemoryBoundary(currentResumeUrl, {
+      force: true,
+      afterCurrentAnswerAction: "complete",
+    });
+
+    if (interrupted) {
+      return;
+    }
+
+    await finalizeAttempt();
+  };
+
+  const proceedAfterQuestionBoundary = async () => {
+    if (!data) return;
+
+    if (isLastQuestion) {
+      await handlePhaseCompletion();
+      return;
+    }
+
+    const interrupted = await checkLongMemoryBoundary(currentResumeUrl);
+
+    if (interrupted) {
       return;
     }
 
     setCurrentQuestionIndex((current) => current + 1);
+  };
+
+  const continueAfterSave = async () => {
+    if (pauseRequested) {
+      setPauseRequested(false);
+      setIsPaused(true);
+      setPausedBoundaryAction(isLastQuestion ? "complete" : "continue");
+      return;
+    }
+
+    await proceedAfterQuestionBoundary();
   };
 
   const playStimulus = async () => {
@@ -207,7 +388,11 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
     }
   };
 
-  const saveAnswer = async (optionId: number) => {
+  const saveAnswer = async (
+    optionId: number | null,
+    forcedResponseTimeMs?: number,
+    options?: { timedOut?: boolean }
+  ) => {
     if (!data || !currentQuestion || isSaving || savedAnswer || isSubmittingRef.current) return;
 
     isSubmittingRef.current = true;
@@ -223,7 +408,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
         body: JSON.stringify({
           questionId: currentQuestion.id,
           selectedOptionId: optionId,
-          responseTimeMs: Math.max(new Date().getTime() - answerDisplayedAtRef.current.getTime(), 0),
+          responseTimeMs: forcedResponseTimeMs ?? Math.max(new Date().getTime() - answerDisplayedAtRef.current.getTime(), 0),
           displayedAt: answerDisplayedAtRef.current.toISOString(),
         }),
       });
@@ -234,6 +419,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
       }
 
       setSavedAnswer(payload.answer);
+      setTimeoutTriggered(Boolean(options?.timedOut));
       setPhase("answered");
       feedbackTimeoutRef.current = setTimeout(() => {
         void continueAfterSave();
@@ -247,6 +433,30 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
     }
   };
 
+  const handlePauseToggle = () => {
+    if (isPaused) {
+      const action = pausedBoundaryAction;
+      setIsPaused(false);
+      setPausedBoundaryAction(null);
+
+      if (action === "complete") {
+        void handlePhaseCompletion();
+        return;
+      }
+
+      if (action === "continue") {
+        void proceedAfterQuestionBoundary();
+      }
+      return;
+    }
+
+    if (isSaving || isCompleting || savedAnswer) {
+      return;
+    }
+
+    setPauseRequested((current) => !current);
+  };
+
   if (error || !data) {
     return (
       <div className="mx-auto max-w-3xl py-10">
@@ -255,6 +465,21 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
           <AlertTitle>Phase sonore indisponible</AlertTitle>
           <AlertDescription>{error || "Cette phase sonore est introuvable."}</AlertDescription>
         </Alert>
+      </div>
+    );
+  }
+
+  if (completionState?.guestResultReady) {
+    return (
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <Card className="p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+            <Headphones className="h-9 w-9" />
+          </div>
+          <h2 className="mb-2 text-2xl font-bold">Votre resultat est pret</h2>
+          <p className="mb-6 text-muted-foreground">Recevez un lien securise par email pour consulter votre resultat.</p>
+          <ResultEmailForm resultType="iq" resultToken={data.attempt.token} />
+        </Card>
       </div>
     );
   }
@@ -284,41 +509,59 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-8">
-      <div className="mb-4 md:mb-6">
-        <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
+    <div className="mx-auto max-w-3xl px-4 py-4 md:py-8">
+      <div className="mb-4 flex items-center justify-between gap-3 md:mb-6">
+        <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">
           <Headphones className="mr-1 h-3.5 w-3.5" />
           Test sonore
         </Badge>
+        <div className="ml-auto flex items-center gap-2">
+        {showQuestionTimer ? (
+          <div className="w-[110px] md:w-[140px]">
+            <TimeProgressBar value={timeProgress} />
+          </div>
+        ) : null}
+        <PauseToggleButton isPaused={isPaused} pauseRequested={pauseRequested} onClick={handlePauseToggle} />
+        </div>
       </div>
 
+      {pauseRequested && !isPaused && !savedAnswer ? (
+        <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
+          Pause demandee : la question en cours continue normalement, puis le test se mettra en pause.
+        </div>
+      ) : null}
+
+      <div className="relative">
+      {isPaused ? (
+        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-background/85 p-6 text-center backdrop-blur-sm">
+          <div>
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+              <Pause className="h-6 w-6" />
+            </div>
+            <p className="font-semibold">Test en pause</p>
+            <p className="mt-1 text-sm text-muted-foreground">La pause a pris effet a la fin de la question courante. Appuyez sur lecture pour reprendre.</p>
+          </div>
+        </div>
+      ) : null}
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="border-b bg-indigo-50 px-4 py-4 md:px-6 md:py-5">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-indigo-700 md:text-sm">
-            {phase === "stimulus" || phase === "transition" ? "Ecoute initiale" : "Rappel sonore"}
-          </p>
-          <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-950 md:text-2xl">
-            {phase === "stimulus" || phase === "transition" ? currentQuestion.questionText || "Ecoutez attentivement." : currentQuestion.answerPromptText || "Quelle sequence avez-vous entendue ?"}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Question {currentQuestionIndex + 1} sur {questions.length}
-          </p>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
+              {phase === "stimulus" || phase === "transition"
+                ? currentQuestion.questionText || "Ecoutez attentivement."
+                : currentQuestion.answerPromptText || "Quelle sequence avez-vous entendue ?"}
+            </h1>
+          </div>
         </div>
 
-        <div className="space-y-6 p-4 md:space-y-8 md:p-8">
+        <div className="space-y-5 p-4 md:space-y-6 md:p-6">
           {phase === "stimulus" || phase === "transition" ? (
-            <div className="space-y-6 text-center">
+            <div className="space-y-5 text-center">
               <div className="mx-auto flex max-w-xl flex-col items-center rounded-3xl border bg-background px-4 py-8 shadow-sm md:px-6 md:py-10">
                 <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
                   {isPlayingStimulus ? <Volume2 className="h-10 w-10" /> : <AudioLines className="h-10 w-10" />}
                 </div>
-                <p className="mb-6 text-sm text-muted-foreground">Ecoutez attentivement la sequence sonore sans support textuel ni visuel explicatif.</p>
-                <Button
-                  size="lg"
-                  className="w-full max-w-[320px] rounded-full px-8"
-                  onClick={() => void playStimulus()}
-                  disabled={!canPlayStimulus}
-                >
+                <Button size="lg" className="w-full max-w-[320px] rounded-full px-8" onClick={() => void playStimulus()} disabled={!canPlayStimulus}>
                   {isPlayingStimulus ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
                   Ecouter la sequence
                 </Button>
@@ -327,9 +570,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
                 </div>
               </div>
 
-              <div className="text-sm text-muted-foreground">
-                Lecture stimulus : {stimulusPlayCount}/{currentAudio.maxStimulusPlays}
-              </div>
+              <div className="text-sm text-muted-foreground">Lecture stimulus : {stimulusPlayCount}/{currentAudio.maxStimulusPlays}</div>
 
               {phase === "transition" ? (
                 <div className="rounded-xl border bg-muted/40 px-4 py-4 text-center">
@@ -340,69 +581,62 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
                 </div>
               ) : null}
             </div>
+          ) : timeoutTriggered ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-4">
+              <div className="flex items-center gap-2 text-amber-800">
+                <AlertTriangle className="h-5 w-5" />
+                <p className="font-medium">Temps ecoule. Passage a la question suivante...</p>
+              </div>
+            </div>
           ) : (
-            <div className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                {currentQuestion.options.map((option) => {
-                  const isSelected = selectedOptionId === option.id;
-                  const isPlaying = playingOptionKey === option.key;
+            <div className="space-y-3">
+              {currentQuestion.options.map((option) => {
+                const isSelected = selectedOptionId === option.id;
+                const isPlaying = playingOptionKey === option.key;
 
-                  return (
-                    <div
-                      key={option.id}
-                      className={`rounded-2xl border bg-background p-5 text-left shadow-sm transition-all ${
-                        isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20" : ""
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-100 font-semibold text-indigo-700">
-                            {option.key}
-                          </span>
-                          <div>
-                            <p className="font-medium text-slate-950">Proposition {option.key}</p>
-                            <p className="text-sm text-muted-foreground">Ecoutez la sequence puis validez si c&apos;est votre choix.</p>
-                          </div>
-                        </div>
-                        <div className="text-indigo-600">
-                          {isPlaying ? <Radio className="h-5 w-5 animate-pulse" /> : <Play className="h-5 w-5" />}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                return (
+                  <div
+                    key={option.id}
+                    className={`rounded-2xl border bg-background p-4 shadow-sm transition-all ${isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20" : ""}`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="min-w-0 flex-1 space-y-3">
                         <Button
                           type="button"
                           variant="outline"
-                          className="flex-1"
+                          className="w-full justify-center"
                           onClick={() => void playOption(option.key, option.audioUrl)}
                           disabled={!option.audioUrl}
                         >
-                          <Play className="mr-2 h-4 w-4" />
+                          {isPlaying ? <Radio className="mr-2 h-4 w-4 animate-pulse text-indigo-600" /> : <Play className="mr-2 h-4 w-4" />}
                           Ecouter
                         </Button>
                         <Button
                           type="button"
-                          className="flex-1"
+                          className="w-full justify-center"
                           variant={isSelected ? "default" : "secondary"}
-                          disabled={isSaving || Boolean(savedAnswer)}
+                          disabled={isSaving || Boolean(savedAnswer) || isCompleting}
                           onClick={() => {
                             setSelectedOptionId(option.id);
                             void saveAnswer(option.id);
                           }}
                         >
                           <CheckCircle className="mr-2 h-4 w-4" />
-                          Choisir {option.key}
+                          Choisir
                         </Button>
                       </div>
+                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700">
+                        {option.key}
+                      </span>
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                );
+              })}
 
               {savedAnswer ? (
                 <div className={`rounded-xl px-4 py-4 ${savedAnswer.isCorrect ? "border border-emerald-200 bg-emerald-50" : "border border-red-200 bg-red-50"}`}>
                   <div className={`flex items-center gap-2 ${savedAnswer.isCorrect ? "text-emerald-800" : "text-red-800"}`}>
-                    {savedAnswer.isCorrect ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+                    <CheckCircle className="h-5 w-5" />
                     <p className="font-medium">{savedAnswer.isCorrect ? "Bonne reponse enregistree." : "Reponse enregistree."}</p>
                   </div>
                 </div>
@@ -417,8 +651,16 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
               <AlertDescription>{saveError}</AlertDescription>
             </Alert>
           ) : null}
+
+          {isCompleting ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Finalisation du test...
+            </div>
+          ) : null}
         </div>
       </Card>
+      </div>
     </div>
   );
 }

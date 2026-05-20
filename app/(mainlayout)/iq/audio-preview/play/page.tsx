@@ -8,6 +8,7 @@ const previewQuestion: IqAudioQuestionData = {
   promptAudioUrl: "/iq/audio-memory/audio-memory-001-stimulus.wav",
   maxStimulusPlays: 1,
   transitionDelayMs: 1800,
+  timeLimitSeconds: 20,
   options: [
     { key: "A", audioUrl: "/iq/audio-memory/audio-memory-001-a.wav" },
     { key: "B", audioUrl: "/iq/audio-memory/audio-memory-001-b.wav" },

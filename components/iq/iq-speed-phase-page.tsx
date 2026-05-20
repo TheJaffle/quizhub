@@ -33,15 +33,25 @@ function TimeProgressBar({ value }: { value: number }) {
   );
 }
 
-function PauseToggleButton({ isPaused, onClick }: { isPaused: boolean; onClick: () => void }) {
+function PauseToggleButton({
+  isPaused,
+  pauseRequested,
+  onClick,
+}: {
+  isPaused: boolean;
+  pauseRequested: boolean;
+  onClick: () => void;
+}) {
   const Icon = isPaused ? Play : Pause;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-      aria-label={isPaused ? "Reprendre le test" : "Mettre le test en pause"}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+        pauseRequested && !isPaused ? "border-amber-300 text-amber-600" : ""
+      }`}
+      aria-label={isPaused ? "Reprendre le test" : "Demander une pause en fin de question"}
     >
       <Icon className="h-4 w-4" />
     </button>
@@ -58,33 +68,29 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [completionState, setCompletionState] = useState<CompletionState | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(data?.phaseTimeLimitSeconds ?? 120);
+  const [pauseRequested, setPauseRequested] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isPauseCompletePending, setIsPauseCompletePending] = useState(false);
+  const [pausedBoundaryAction, setPausedBoundaryAction] = useState<"continue" | "complete" | null>(null);
   const displayedAtRef = useRef<Date>(new Date());
   const hasCompletionStartedRef = useRef(false);
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
-  const totalQuestions = questions.length;
   const timeTotal = Math.max(data?.phaseTimeLimitSeconds ?? 120, 1);
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / timeTotal) * 100));
 
   useEffect(() => {
     setSelectedOptionId(null);
     setSaveError(null);
+    setPauseRequested(false);
     setIsPaused(false);
-    setIsPauseCompletePending(false);
+    setPausedBoundaryAction(null);
     displayedAtRef.current = new Date();
   }, [currentQuestion?.id]);
 
   useEffect(() => {
-    if (!data || completionState || isCompleting) return;
+    if (!data || completionState || isCompleting || isPaused) return;
     if (timeRemaining <= 0) {
-      if (isPaused) {
-        setIsPauseCompletePending(true);
-        return;
-      }
-
       void handleComplete();
       return;
     }
@@ -156,7 +162,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   };
 
   const handleSelectOption = async (questionId: string, optionId: string) => {
-    if (!data || !currentQuestion || isSaving || isCompleting || completionState || isPaused) return;
+    if (!data || !currentQuestion || isSaving || isCompleting || completionState) return;
 
     const numericQuestionId = Number(questionId);
     const numericOptionId = Number(optionId);
@@ -186,6 +192,13 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
         throw new Error(payload.error || "Impossible d'enregistrer la réponse.");
       }
 
+      if (pauseRequested) {
+        setPauseRequested(false);
+        setIsPaused(true);
+        setPausedBoundaryAction(currentQuestionIndex >= questions.length - 1 || timeRemaining <= 0 ? "complete" : "continue");
+        return;
+      }
+
       if (currentQuestionIndex >= questions.length - 1 || timeRemaining <= 0) {
         if (data.nextUrl) {
           router.push(data.nextUrl);
@@ -208,14 +221,23 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const handlePauseToggle = () => {
     if (!currentQuestion || isSaving || isCompleting || completionState) return;
 
-    if (isPaused && isPauseCompletePending) {
+    if (isPaused) {
+      const action = pausedBoundaryAction;
       setIsPaused(false);
-      setIsPauseCompletePending(false);
-      void handleComplete();
+      setPausedBoundaryAction(null);
+
+      if (action === "complete") {
+        void handleComplete();
+        return;
+      }
+
+      if (action === "continue") {
+        setCurrentQuestionIndex((current) => current + 1);
+      }
       return;
     }
 
-    setIsPaused((current) => !current);
+    setPauseRequested((current) => !current);
   };
 
   if (error || !data) {
@@ -247,26 +269,26 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
-      <div className="hidden md:block md:mb-8">
-        <Badge className="mb-3 w-fit bg-amber-500 text-white hover:bg-amber-600">
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <Badge className="bg-amber-500 text-white hover:bg-amber-600">
           <Brain className="mr-1 h-3.5 w-3.5" />
           Test de rapidite
         </Badge>
-        <h1 className="text-2xl font-bold md:text-3xl">{data.attempt.testTitle}</h1>
-        <p className="mt-2 text-muted-foreground">Repondez vite, chaque reponse est enregistree immediatement et le timer est global.</p>
+        {currentQuestion ? (
+          <div className="flex items-center gap-2">
+            <div className="w-[110px] md:w-[140px]">
+              <TimeProgressBar value={timeProgress} />
+            </div>
+            <PauseToggleButton isPaused={isPaused} pauseRequested={pauseRequested} onClick={handlePauseToggle} />
+          </div>
+        ) : null}
       </div>
 
-      <div className="mb-6">
-        <div className="mb-2 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-3">
-          <div className="text-sm font-medium">
-            Question {totalQuestions > 0 ? currentQuestionIndex + 1 : 0} of {totalQuestions}
-          </div>
-          <div className="flex items-center gap-2">
-            <TimeProgressBar value={timeProgress} />
-            <PauseToggleButton isPaused={isPaused} onClick={handlePauseToggle} />
-          </div>
+      {pauseRequested && !isPaused ? (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Pause demandee : elle prendra effet a la fin de la question en cours.
         </div>
-      </div>
+      ) : null}
 
       {!currentQuestion ? (
         <Card className="p-8 text-center">
@@ -290,10 +312,8 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-700">
                   <Pause className="h-6 w-6" />
                 </div>
-                <p className="font-semibold">{isPauseCompletePending ? "Temps termine" : "Test en pause"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {isPauseCompletePending ? "Appuyez sur lecture pour finaliser le test." : "Le temps continue de defiler pendant la pause."}
-                </p>
+                <p className="font-semibold">Pause active</p>
+                <p className="mt-1 text-sm text-muted-foreground">La pause a pris effet a la fin de la question courante. Appuyez sur lecture pour reprendre.</p>
               </div>
             </div>
           ) : null}

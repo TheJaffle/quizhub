@@ -10,7 +10,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     return NextResponse.json({ error: "returnToUrl is required." }, { status: 400 });
   }
 
-  const nextUrl = await advanceIqLongMemoryAfterAnswer(token, returnToUrl);
+  const result = await advanceIqLongMemoryAfterAnswer(token, returnToUrl);
 
-  return NextResponse.json({ nextUrl });
+  return NextResponse.json(result);
 }

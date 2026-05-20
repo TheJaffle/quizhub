@@ -34,15 +34,25 @@ function TimeProgressBar({ value }: { value: number }) {
   );
 }
 
-function PauseToggleButton({ isPaused, onClick }: { isPaused: boolean; onClick: () => void }) {
+function PauseToggleButton({
+  isPaused,
+  pauseRequested,
+  onClick,
+}: {
+  isPaused: boolean;
+  pauseRequested: boolean;
+  onClick: () => void;
+}) {
   const Icon = isPaused ? Play : Pause;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-      aria-label={isPaused ? "Reprendre le test" : "Mettre le test en pause"}
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background text-foreground shadow-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
+        pauseRequested && !isPaused ? "border-emerald-300 text-emerald-600" : ""
+      }`}
+      aria-label={isPaused ? "Reprendre le test" : "Demander une pause en fin de question"}
     >
       <Icon className="h-4 w-4" />
     </button>
@@ -62,8 +72,8 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [direction, setDirection] = useState(0);
+  const [pauseRequested, setPauseRequested] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [pausedTransition, setPausedTransition] = useState<"memorize-complete" | "answer-timeout" | null>(null);
   const answerDisplayedAtRef = useRef<Date>(new Date());
   const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isSubmittingRef = useRef(false);
@@ -91,19 +101,14 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     setSelectedOptionId(null);
     setSavedAnswer(null);
     setSaveError(null);
+    setPauseRequested(false);
     setIsPaused(false);
-    setPausedTransition(null);
   }, [currentQuestion?.id, currentQuestion, displaySeconds]);
 
   useEffect(() => {
     if (!currentQuestion || mode !== "memorize") return;
 
     if (timeRemaining <= 0) {
-      if (isPaused) {
-        setPausedTransition("memorize-complete");
-        return;
-      }
-
       answerDisplayedAtRef.current = new Date();
       setTimeRemaining(ANSWER_SECONDS);
       setMode("answer");
@@ -115,17 +120,12 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentQuestion, mode, timeRemaining, isPaused]);
+  }, [currentQuestion, mode, timeRemaining]);
 
   useEffect(() => {
     if (!currentQuestion || mode !== "answer" || isSaving || savedAnswer) return;
 
     if (timeRemaining <= 0) {
-      if (isPaused) {
-        setPausedTransition("answer-timeout");
-        return;
-      }
-
       void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: ANSWER_SECONDS * 1000 });
       return;
     }
@@ -135,7 +135,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentQuestion, mode, timeRemaining, isSaving, savedAnswer, isPaused]);
+  }, [currentQuestion, mode, timeRemaining, isSaving, savedAnswer]);
 
   useEffect(() => {
     return () => {
@@ -174,15 +174,30 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
   const continueAfterSave = async () => {
     if (!data) return;
 
+    if (pauseRequested) {
+      setPauseRequested(false);
+      setIsPaused(true);
+      return;
+    }
+
+    const isSpeedTransition = Boolean(data.nextUrl?.includes("/speed-intro"));
+    const longMemoryPayload = isLastQuestion
+      ? {
+          resumeUrl: data.nextUrl ?? currentResumeUrl,
+          force: true,
+          afterCurrentAnswerAction: data.nextUrl ? (isSpeedTransition ? "return" : "advance") : "complete",
+        }
+      : {
+          resumeUrl: currentResumeUrl,
+        };
+
     try {
       const response = await fetch(`/api/iq/attempts/${data.attempt.token}/long-memory/check`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          resumeUrl: currentResumeUrl,
-        }),
+        body: JSON.stringify(longMemoryPayload),
       });
       const payload = (await response.json().catch(() => null)) as { nextUrl?: string | null } | null;
 
@@ -255,7 +270,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
   };
 
   const handleSelectOption = async (questionId: string, optionId: string) => {
-    if (!data || !currentQuestion || mode !== "answer" || isSaving || savedAnswer || isPaused) return;
+    if (!data || !currentQuestion || mode !== "answer" || isSaving || savedAnswer) return;
 
     const numericQuestionId = Number(questionId);
     const numericOptionId = Number(optionId);
@@ -265,25 +280,15 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
   };
 
   const handlePauseToggle = () => {
+    if (isPaused) {
+      setIsPaused(false);
+      void continueAfterSave();
+      return;
+    }
+
     if (!currentQuestion || isSaving || savedAnswer) return;
 
-    if (isPaused && pausedTransition === "memorize-complete") {
-      setIsPaused(false);
-      setPausedTransition(null);
-      answerDisplayedAtRef.current = new Date();
-      setTimeRemaining(ANSWER_SECONDS);
-      setMode("answer");
-      return;
-    }
-
-    if (isPaused && pausedTransition === "answer-timeout") {
-      setIsPaused(false);
-      setPausedTransition(null);
-      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: ANSWER_SECONDS * 1000 }, { feedbackDelayMs: 0 });
-      return;
-    }
-
-    setIsPaused((current) => !current);
+    setPauseRequested((current) => !current);
   };
 
   if (error || !data) {
@@ -300,28 +305,32 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
-      <div className="hidden md:block md:mb-8">
-        <Badge className="mb-3 w-fit bg-emerald-500 text-white hover:bg-emerald-600">
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <Badge className="bg-emerald-500 text-white hover:bg-emerald-600">
           <Brain className="mr-1 h-3.5 w-3.5" />
           Test de memoire
         </Badge>
-        <h1 className="text-2xl font-bold md:text-3xl">{data.attempt.testTitle}</h1>
-        <p className="mt-2 text-muted-foreground">Memorisez le stimulus, puis choisissez la reponse correspondante.</p>
+        {currentQuestion ? (
+          <div className="ml-auto flex items-center gap-2">
+            {mode === "answer" ? (
+              <div className="w-[110px] md:w-[140px]">
+                <TimeProgressBar value={timeProgress} />
+              </div>
+            ) : (
+              <span className="min-w-[5.75rem] whitespace-nowrap rounded-full bg-emerald-100 px-3 py-1 text-center text-sm font-medium tabular-nums text-emerald-700">
+                {timeRemaining} sec
+              </span>
+            )}
+            <PauseToggleButton isPaused={isPaused} pauseRequested={pauseRequested} onClick={handlePauseToggle} />
+          </div>
+        ) : null}
       </div>
 
-      <div className="mb-6">
-        <div className="mb-2 grid grid-cols-2 items-center gap-3">
-          <div className="text-sm font-medium">
-            Question {questions.length > 0 ? currentQuestionIndex + 1 : 0} of {questions.length}
-          </div>
-          {currentQuestion ? (
-            <div className="flex items-center gap-2">
-              <TimeProgressBar value={timeProgress} />
-              <PauseToggleButton isPaused={isPaused} onClick={handlePauseToggle} />
-            </div>
-          ) : null}
+      {pauseRequested && !isPaused && !savedAnswer ? (
+        <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          Pause demandee : elle prendra effet a la fin de la question en cours.
         </div>
-      </div>
+      ) : null}
 
       {!currentQuestion ? (
         <Card className="p-8 text-center">
@@ -330,20 +339,18 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
         </Card>
       ) : (
         <div className="relative">
-          {isPaused && !savedAnswer ? (
+          {isPaused ? (
             <div className="absolute inset-0 z-20 flex items-center justify-center rounded-lg bg-background/85 p-6 text-center backdrop-blur-sm">
               <div>
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
                   <Pause className="h-6 w-6" />
                 </div>
-                <p className="font-semibold">{pausedTransition ? "Temps termine" : "Test en pause"}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {pausedTransition ? "Appuyez sur lecture pour continuer." : "Le temps continue de defiler pendant la pause."}
-                </p>
+                <p className="font-semibold">Pause active</p>
+                <p className="mt-1 text-sm text-muted-foreground">La pause a pris effet a la fin de la question courante. Appuyez sur lecture pour reprendre.</p>
               </div>
             </div>
           ) : null}
-          {savedAnswer ? (
+          {savedAnswer && !isPaused ? (
             <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm">
               <div className={`rounded-lg p-6 text-center ${savedAnswer.isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                 <div className={`mb-2 flex justify-center ${savedAnswer.isCorrect ? "text-green-500" : "text-red-500"}`}>

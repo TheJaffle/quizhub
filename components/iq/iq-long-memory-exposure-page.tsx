@@ -53,15 +53,18 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
-      <div className="mb-6 hidden md:block">
-        <Badge className="mb-3 w-fit bg-violet-500 text-white hover:bg-violet-600">
+      <div className="mb-6">
+        <Badge className="mb-3 w-fit bg-violet-600 text-white hover:bg-violet-700">
           <Brain className="mr-1 h-3.5 w-3.5" />
           Memoire longue
         </Badge>
-        <p className="text-lg font-medium text-foreground">Memorisez ce stimulus. Les reponses seront proposees plus tard.</p>
+        <div className="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 via-fuchsia-50 to-white px-4 py-4 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Encodage memoire longue</p>
+          <p className="mt-2 text-lg font-medium text-violet-950">Memorisez ce stimulus. Les reponses seront proposees plus tard, au milieu du test.</p>
+        </div>
       </div>
 
-      <Card className="overflow-hidden p-6 md:p-8">
+      <Card className="overflow-hidden border-violet-200 bg-white shadow-lg shadow-violet-100/60 p-6 md:p-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-violet-600">
             <Eye className="h-5 w-5" />
@@ -73,7 +76,7 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
         </div>
 
         {data.question.questionText ? (
-          <div className="mb-6 rounded-lg border bg-violet-50 px-4 py-3 text-center">
+          <div className="mb-6 rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-100 via-fuchsia-50 to-violet-50 px-4 py-4 text-center shadow-sm">
             <p className="text-sm font-medium uppercase tracking-wide text-violet-700">Question memoire longue</p>
             <p className="mt-1 text-lg font-semibold text-violet-950">{data.question.questionText}</p>
           </div>

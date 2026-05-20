@@ -13,8 +13,24 @@ export type IqAudioIntroData = {
   description: string;
   questionCount: number;
   maxStimulusPlays: number;
+  timeLimitSeconds: number | null;
   nextUrl: string;
 };
+
+function formatTimeLimit(totalSeconds: number) {
+  if (totalSeconds < 60) {
+    return `${totalSeconds} sec`;
+  }
+
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  if (seconds === 0) {
+    return `${minutes} min`;
+  }
+
+  return `${minutes} min ${seconds} sec`;
+}
 
 type IqAudioIntroPageProps = {
   data: IqAudioIntroData | null;
@@ -54,7 +70,7 @@ export function IqAudioIntroPage({ data, error }: IqAudioIntroPageProps) {
           </div>
 
           <CardContent className="space-y-6 p-6 md:p-8">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className={`grid gap-3 ${data.timeLimitSeconds ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
               <div className="rounded-lg border bg-background p-4">
                 <p className="text-sm text-muted-foreground">Questions sonores</p>
                 <p className="mt-2 text-3xl font-bold">{data.questionCount}</p>
@@ -63,6 +79,12 @@ export function IqAudioIntroPage({ data, error }: IqAudioIntroPageProps) {
                 <p className="text-sm text-muted-foreground">Ecoutes stimulus</p>
                 <p className="mt-2 text-2xl font-bold">{data.maxStimulusPlays}</p>
               </div>
+              {data.timeLimitSeconds ? (
+                <div className="rounded-lg border bg-background p-4">
+                  <p className="text-sm text-muted-foreground">Temps par question</p>
+                  <p className="mt-2 text-2xl font-bold">{formatTimeLimit(data.timeLimitSeconds)}</p>
+                </div>
+              ) : null}
             </div>
 
             <div className="space-y-3">
@@ -74,6 +96,7 @@ export function IqAudioIntroPage({ data, error }: IqAudioIntroPageProps) {
                 <p>Vous ecoutez d&apos;abord une sequence sonore a memoriser.</p>
                 <p>Quelques secondes plus tard, quatre propositions audio vous seront presentes.</p>
                 <p>Vous devrez identifier celle qui correspond exactement a la sequence initiale.</p>
+                {data.timeLimitSeconds ? <p>Chaque question de rappel devra etre resolue en {formatTimeLimit(data.timeLimitSeconds)} maximum.</p> : null}
                 <p>Aucune note ni indication textuelle ne sera affichee pendant l&apos;exercice.</p>
               </div>
             </div>
