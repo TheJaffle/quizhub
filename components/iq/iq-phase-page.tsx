@@ -99,13 +99,13 @@ function PauseToggleButton({
 function getSectionBadge(sectionKey: string) {
   switch (sectionKey) {
     case "verbal":
-      return { label: "Question verbale", icon: Languages };
+      return { label: "Verbale", icon: Languages };
     case "logic":
-      return { label: "Question logique", icon: Brain };
+      return { label: "Logique", icon: Brain };
     case "quantitative":
-      return { label: "Question quantitative", icon: Sigma };
+      return { label: "Quantitative", icon: Sigma };
     case "spatial":
-      return { label: "Question spatiale", icon: ImageIcon };
+      return { label: "Spatiale", icon: ImageIcon };
     default:
       return { label: "Question", icon: Brain };
   }

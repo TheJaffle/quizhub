@@ -58,9 +58,8 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
           <Brain className="mr-1 h-3.5 w-3.5" />
           Memoire longue
         </Badge>
-        <div className="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 via-fuchsia-50 to-white px-4 py-4 shadow-sm">
+        <div className="rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Encodage memoire longue</p>
-          <p className="mt-2 text-lg font-medium text-violet-950">Memorisez ce stimulus. Les reponses seront proposees plus tard, au milieu du test.</p>
         </div>
       </div>
 
@@ -76,9 +75,8 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
         </div>
 
         {data.question.questionText ? (
-          <div className="mb-6 rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-100 via-fuchsia-50 to-violet-50 px-4 py-4 text-center shadow-sm">
-            <p className="text-sm font-medium uppercase tracking-wide text-violet-700">Question memoire longue</p>
-            <p className="mt-1 text-lg font-semibold text-violet-950">{data.question.questionText}</p>
+          <div className="mb-5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-center shadow-sm">
+            <p className="text-base font-semibold text-violet-950">{data.question.questionText}</p>
           </div>
         ) : null}
 

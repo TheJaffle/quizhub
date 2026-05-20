@@ -308,7 +308,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
       <div className="mb-6 flex items-center justify-between gap-3">
         <Badge className="bg-emerald-500 text-white hover:bg-emerald-600">
           <Brain className="mr-1 h-3.5 w-3.5" />
-          Test de memoire
+          Memoire
         </Badge>
         {currentQuestion ? (
           <div className="ml-auto flex items-center gap-2">

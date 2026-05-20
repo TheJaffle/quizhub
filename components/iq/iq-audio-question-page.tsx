@@ -237,7 +237,7 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
       <div className="mb-4 flex items-center justify-between gap-3 md:mb-6">
         <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">
           <Headphones className="mr-1 h-3.5 w-3.5" />
-          Test sonore
+          Sonore
         </Badge>
         <div className="ml-auto flex items-center gap-2">
         {showQuestionTimer ? (
@@ -269,7 +269,7 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
       ) : null}
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="border-b bg-indigo-50 px-4 py-4 md:px-6 md:py-5">
-          <h1 className="text-xl font-bold tracking-tight text-slate-950 md:text-2xl">
+          <h1 className="whitespace-nowrap text-[clamp(1.15rem,5vw,2rem)] font-bold leading-none tracking-tight text-slate-950">
             {phase === "stimulus" || phase === "transition" ? data.questionText : data.answerPromptText}
           </h1>
         </div>
@@ -317,7 +317,7 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-2.5">
               <div className="grid gap-3">
                 {data.options.map((option) => {
                   const isSelected = selectedOptionKey === option.key;
@@ -330,12 +330,15 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
                         isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20" : ""
                       }`}
                     >
-                      <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-base font-semibold text-indigo-700">
+                          {option.key}
+                        </span>
                         <div className="flex min-w-0 flex-1 flex-col gap-2">
                           <Button
                             type="button"
                             variant="outline"
-                            className="w-full justify-center"
+                            className="h-11 w-full justify-center rounded-xl"
                             onClick={() => void playOption(option.key, option.audioUrl)}
                           >
                             {isPlaying ? <Radio className="mr-2 h-4 w-4 animate-pulse" /> : <Play className="mr-2 h-4 w-4" />}
@@ -343,7 +346,7 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
                           </Button>
                           <Button
                             type="button"
-                            className="w-full justify-center"
+                            className="h-11 w-full justify-center rounded-xl"
                             variant={isSelected ? "default" : "secondary"}
                             onClick={() => {
                               setSelectedOptionKey(option.key);
@@ -359,9 +362,6 @@ export function IqAudioQuestionPage({ data, error }: IqAudioQuestionPageProps) {
                             Choisir
                           </Button>
                         </div>
-                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700 md:h-14 md:w-14 md:text-xl">
-                          {option.key}
-                        </span>
                       </div>
                     </div>
                   );

@@ -513,7 +513,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
       <div className="mb-4 flex items-center justify-between gap-3 md:mb-6">
         <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">
           <Headphones className="mr-1 h-3.5 w-3.5" />
-          Test sonore
+          Sonore
         </Badge>
         <div className="ml-auto flex items-center gap-2">
         {showQuestionTimer ? (
@@ -546,7 +546,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="border-b bg-indigo-50 px-4 py-4 md:px-6 md:py-5">
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">
+            <h1 className="whitespace-nowrap text-[clamp(1.15rem,5vw,2.3rem)] font-bold leading-none tracking-tight text-slate-950">
               {phase === "stimulus" || phase === "transition"
                 ? currentQuestion.questionText || "Ecoutez attentivement."
                 : currentQuestion.answerPromptText || "Quelle sequence avez-vous entendue ?"}
@@ -589,7 +589,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {currentQuestion.options.map((option) => {
                 const isSelected = selectedOptionId === option.id;
                 const isPlaying = playingOptionKey === option.key;
@@ -597,14 +597,17 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
                 return (
                   <div
                     key={option.id}
-                    className={`rounded-2xl border bg-background p-4 shadow-sm transition-all ${isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20" : ""}`}
+                    className={`rounded-2xl border bg-background p-3 shadow-sm transition-all ${isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20" : ""}`}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="min-w-0 flex-1 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-base font-semibold text-indigo-700">
+                        {option.key}
+                      </span>
+                      <div className="min-w-0 flex-1 space-y-2">
                         <Button
                           type="button"
                           variant="outline"
-                          className="w-full justify-center"
+                          className="h-11 w-full justify-center rounded-xl"
                           onClick={() => void playOption(option.key, option.audioUrl)}
                           disabled={!option.audioUrl}
                         >
@@ -613,7 +616,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
                         </Button>
                         <Button
                           type="button"
-                          className="w-full justify-center"
+                          className="h-11 w-full justify-center rounded-xl"
                           variant={isSelected ? "default" : "secondary"}
                           disabled={isSaving || Boolean(savedAnswer) || isCompleting}
                           onClick={() => {
@@ -625,9 +628,6 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
                           Choisir
                         </Button>
                       </div>
-                      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700">
-                        {option.key}
-                      </span>
                     </div>
                   </div>
                 );

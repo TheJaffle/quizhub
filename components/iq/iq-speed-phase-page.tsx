@@ -272,7 +272,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
       <div className="mb-6 flex items-center justify-between gap-3">
         <Badge className="bg-amber-500 text-white hover:bg-amber-600">
           <Brain className="mr-1 h-3.5 w-3.5" />
-          Test de rapidite
+          Rapidite
         </Badge>
         {currentQuestion ? (
           <div className="flex items-center gap-2">

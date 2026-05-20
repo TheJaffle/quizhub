@@ -240,7 +240,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
       <div className="mb-6 flex items-center justify-between gap-3">
         <Badge className="bg-violet-600 text-white hover:bg-violet-700">
           <Brain className="mr-1 h-3.5 w-3.5" />
-          Reponse memoire longue
+          Memoire longue
         </Badge>
         <div className="ml-auto flex items-center gap-2">
           {showTimer ? (
@@ -265,9 +265,8 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
         </div>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-50 via-fuchsia-50 to-white px-4 py-4 shadow-sm">
+      <div className="mb-5 rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Rappel memoire longue</p>
-        <p className="mt-2 text-lg font-medium text-violet-950">Vous revenez sur un element memorise plus tot. Repondez avant de reprendre le fil normal du test.</p>
       </div>
 
       {pauseRequested && !isPaused && !savedAnswer ? (
@@ -305,8 +304,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
 
           {isOverlayQuestion && currentQuestion.overlay ? (
             <div className="space-y-6">
-              <div className="rounded-2xl border border-violet-200 bg-gradient-to-r from-violet-100 via-fuchsia-50 to-violet-50 px-4 py-4 shadow-sm">
-                <p className="text-sm font-medium uppercase tracking-wide text-violet-700">Reponse memoire longue</p>
+              <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 shadow-sm">
                 <h2 className="mt-1 text-xl font-semibold leading-tight text-violet-950 md:text-2xl">
                   {currentQuestion.answerPromptText || currentQuestion.questionText || "Selectionnez la bonne reponse."}
                 </h2>
