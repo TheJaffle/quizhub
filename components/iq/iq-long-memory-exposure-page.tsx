@@ -4,7 +4,7 @@ import type { IqLongMemoryExposure } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { AlertTriangle, Brain, Eye } from "lucide-react";
+import { AlertTriangle, Brain } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -53,26 +53,21 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-4 md:py-8">
-      <div className="mb-6">
-        <Badge className="mb-3 w-fit bg-violet-600 text-white hover:bg-violet-700">
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <Badge className="bg-violet-600 text-white hover:bg-violet-700">
           <Brain className="mr-1 h-3.5 w-3.5" />
           Memoire longue
         </Badge>
-        <div className="rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 text-center shadow-sm">
+        <span className="min-w-[5.75rem] whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-center text-sm font-medium tabular-nums text-violet-700">
+          {timeRemaining} sec
+        </span>
+      </div>
+
+      <div className="mb-6 rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 text-center shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Encodage memoire longue</p>
-        </div>
       </div>
 
       <Card className="overflow-hidden border-violet-200 bg-white shadow-lg shadow-violet-100/60 p-6 md:p-8">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center justify-center text-violet-600">
-            <Eye className="h-5 w-5" />
-          </div>
-          <span className="min-w-[5.75rem] whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-center text-sm font-medium tabular-nums text-violet-700">
-            {timeRemaining} sec
-          </span>
-        </div>
-
         {data.question.questionText ? (
           <div className="mb-4 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-center shadow-sm">
             <p className="text-base font-semibold text-violet-950">{data.question.questionText}</p>

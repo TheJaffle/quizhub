@@ -23,7 +23,7 @@ type SavedAnswer = {
 };
 
 const DEFAULT_DISPLAY_SECONDS = 10;
-const ANSWER_SECONDS = 15;
+const DEFAULT_ANSWER_SECONDS = 15;
 const FEEDBACK_DELAY_MS = 1100;
 
 function TimeProgressBar({ value }: { value: number }) {
@@ -81,7 +81,8 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
   const displaySeconds = currentQuestion?.displayTimeSeconds ?? DEFAULT_DISPLAY_SECONDS;
-  const timeTotal = Math.max(mode === "memorize" ? displaySeconds : ANSWER_SECONDS, 1);
+  const answerSeconds = currentQuestion?.timeLimitSeconds ?? DEFAULT_ANSWER_SECONDS;
+  const timeTotal = Math.max(mode === "memorize" ? displaySeconds : answerSeconds, 1);
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / timeTotal) * 100));
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const stimulusText = currentQuestion?.stimulusText || currentQuestion?.questionText || "";
@@ -110,7 +111,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
 
     if (timeRemaining <= 0) {
       answerDisplayedAtRef.current = new Date();
-      setTimeRemaining(ANSWER_SECONDS);
+      setTimeRemaining(answerSeconds);
       setMode("answer");
       return;
     }
@@ -120,13 +121,13 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentQuestion, mode, timeRemaining]);
+  }, [currentQuestion, mode, timeRemaining, answerSeconds]);
 
   useEffect(() => {
     if (!currentQuestion || mode !== "answer" || isSaving || savedAnswer) return;
 
     if (timeRemaining <= 0) {
-      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: ANSWER_SECONDS * 1000 });
+      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: answerSeconds * 1000 });
       return;
     }
 
@@ -135,7 +136,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentQuestion, mode, timeRemaining, isSaving, savedAnswer]);
+  }, [currentQuestion, mode, timeRemaining, isSaving, savedAnswer, answerSeconds]);
 
   useEffect(() => {
     return () => {

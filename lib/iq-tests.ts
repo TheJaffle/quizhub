@@ -59,6 +59,7 @@ export type IqPhaseQuestion = {
   difficultyLevel: number;
   weight: number;
   displayTimeSeconds: number | null;
+  timeLimitSeconds: number | null;
   position: number;
   overlay: {
     answersImageUrl: string;
@@ -358,6 +359,7 @@ type IqQuestionRow = {
   question_image_url: string | null;
   difficulty_level: number;
   weight: string | number;
+  time_limit_seconds: number | null;
   display_time_seconds: number | null;
   section_display_time_seconds: number | null;
   section_time_limit_seconds: number | null;
@@ -1533,7 +1535,7 @@ async function loadPhaseQuestionByKey(connection: mysql.Connection, testId: numb
   const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
     `SELECT q.id, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.answer_prompt_text, q.stimulus_text,
             q.question_format, COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url, q.difficulty_level, q.weight,
-            q.display_time_seconds, s.display_time_seconds AS section_display_time_seconds,
+            q.time_limit_seconds, q.display_time_seconds, s.display_time_seconds AS section_display_time_seconds,
             s.time_limit_seconds AS section_time_limit_seconds, q.position,
             overlay.answers_image_url, overlay.answer_count, overlay.grid_columns, overlay.grid_rows,
             audio.prompt_audio_url, audio.max_stimulus_plays, audio.transition_delay_ms
@@ -1579,6 +1581,7 @@ async function loadPhaseQuestionByKey(connection: mysql.Connection, testId: numb
     difficultyLevel: question.difficulty_level,
     weight: Number(question.weight),
     displayTimeSeconds: question.display_time_seconds ?? question.section_display_time_seconds ?? null,
+    timeLimitSeconds: question.time_limit_seconds ?? question.section_time_limit_seconds ?? null,
     position: question.position,
     overlay:
       isOverlayQuestion && question.answers_image_url
@@ -2398,7 +2401,7 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
     const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
       `SELECT q.id, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.answer_prompt_text, q.stimulus_text,
               q.question_format, COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url, q.difficulty_level, q.weight,
-              q.display_time_seconds, s.display_time_seconds AS section_display_time_seconds,
+              q.time_limit_seconds, q.display_time_seconds, s.display_time_seconds AS section_display_time_seconds,
               s.time_limit_seconds AS section_time_limit_seconds, q.position,
               overlay.answers_image_url, overlay.answer_count, overlay.grid_columns, overlay.grid_rows,
               audio.prompt_audio_url, audio.max_stimulus_plays, audio.transition_delay_ms
@@ -2484,6 +2487,7 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
             difficultyLevel: question.difficulty_level,
             weight: Number(question.weight),
             displayTimeSeconds: question.display_time_seconds ?? question.section_display_time_seconds ?? null,
+            timeLimitSeconds: question.time_limit_seconds ?? question.section_time_limit_seconds ?? null,
             position: question.position,
             overlay:
               isOverlayQuestion && question.answers_image_url

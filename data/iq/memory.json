@@ -1,0 +1,459 @@
+[
+{
+  "questionKey": "memory-001",
+  "questionText": "Quelle couleur etait juste avant jaune ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "🔴 🔵 🟢 🟡",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "🔵", "isCorrect": false },
+    { "key": "B", "text": "🔴", "isCorrect": false },
+    { "key": "C", "text": "🟢", "isCorrect": true },
+    { "key": "D", "text": "⚫", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-002",
+  "questionText": "Quel chiffre était juste après 2 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "6 – 2 – 9 – 4 – 7",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "6", "isCorrect": false },
+    { "key": "B", "text": "9", "isCorrect": true },
+    { "key": "C", "text": "4", "isCorrect": false },
+    { "key": "D", "text": "7", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-003",
+  "questionText": "Quelle lettre était juste avant 3 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "A – 5 – C – 3 – B",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "A", "isCorrect": false },
+    { "key": "B", "text": "B", "isCorrect": false },
+    { "key": "C", "text": "C", "isCorrect": true },
+    { "key": "D", "text": "5", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-004",
+  "questionText": "Combien d’animaux étaient présents ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "🍎 🐶 🍌 🐱 🍇",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "1", "isCorrect": false },
+    { "key": "B", "text": "2", "isCorrect": true },
+    { "key": "C", "text": "3", "isCorrect": false },
+    { "key": "D", "text": "4", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-005",
+  "questionText": "Quel est le 2e chiffre en partant de la gauche ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "8 – 1 – 6 – 3 – 9",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "1", "isCorrect": true },
+    { "key": "B", "text": "6", "isCorrect": false },
+    { "key": "C", "text": "8", "isCorrect": false },
+    { "key": "D", "text": "3", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-006",
+  "questionText": "Quelle forme était en 3e position ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "▲ ● ■ ★ ◆",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "●", "isCorrect": false },
+    { "key": "B", "text": "★", "isCorrect": false },
+    { "key": "C", "text": "■", "isCorrect": true },
+    { "key": "D", "text": "◆", "isCorrect": false }
+  ]
+},
+  {
+  "questionKey": "memory-007",
+  "questionText": "Quel est le plus grand chiffre impair ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "4 – 7 – 2 – 8 – 5",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "5", "isCorrect": false },
+    { "key": "B", "text": "7", "isCorrect": true },
+    { "key": "C", "text": "2", "isCorrect": false },
+    { "key": "D", "text": "4", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-008",
+  "questionText": "Quelle flèche venait après ← ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "→ ↑ ← ↓",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "↑", "isCorrect": false },
+    { "key": "B", "text": "↓", "isCorrect": true },
+    { "key": "C", "text": "→", "isCorrect": false },
+    { "key": "D", "text": "←", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-009",
+  "questionText": "Quel est le 3e chiffre impair en partant de la gauche ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "3 – 8 – 2 – 7 – 6 – 1",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "7", "isCorrect": false },
+    { "key": "B", "text": "1", "isCorrect": true },
+    { "key": "C", "text": "3", "isCorrect": false },
+    { "key": "D", "text": "2", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-010",
+  "questionText": "Quel symbole était juste après 🔵 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "🔴 – ▲ – 🔵 – ■ – 🟢",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "▲", "isCorrect": false },
+    { "key": "B", "text": "■", "isCorrect": true },
+    { "key": "C", "text": "🔴", "isCorrect": false },
+    { "key": "D", "text": "🟢", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-011",
+  "questionText": "Quel est le résultat de : (1er + dernier) − (plus petit chiffre) ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 5,
+  "timeLimitSeconds": 12,
+  "stimulusText": "5 – 2 – 9 – 4 – 7",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "10", "isCorrect": true },
+    { "key": "B", "text": "8", "isCorrect": false },
+    { "key": "C", "text": "9", "isCorrect": false },
+    { "key": "D", "text": "7", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-012",
+  "questionText": "Quel symbole était juste avant 🟩 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "🔺 🔵 ⭐ 🟩 🔴",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "🔺", "isCorrect": false },
+    { "key": "B", "text": "⭐", "isCorrect": true },
+    { "key": "C", "text": "🔵", "isCorrect": false },
+    { "key": "D", "text": "🔴", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-013",
+  "questionText": "Quelle lettre est associée au plus grand chiffre ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 5,
+  "timeLimitSeconds": 12,
+  "stimulusText": "A – 3 – B – 6 – C – 2",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "A", "isCorrect": false },
+    { "key": "B", "text": "B", "isCorrect": true },
+    { "key": "C", "text": "C", "isCorrect": false },
+    { "key": "D", "text": "aucune", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-014",
+  "questionText": "Combien d’éléments n’appartenaient pas à la catégorie “animaux” ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 5,
+  "timeLimitSeconds": 12,
+  "stimulusText": "🐶 🐱 🍎 🍌 🚗",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "1", "isCorrect": false },
+    { "key": "B", "text": "2", "isCorrect": true },
+    { "key": "C", "text": "3", "isCorrect": false },
+    { "key": "D", "text": "4", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-015",
+  "questionText": "Quel est le résultat de : (somme des chiffres pairs) − (nombre de chiffres impairs) ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 5,
+  "timeLimitSeconds": 12,
+  "stimulusText": "7 – 1 – 4 – 9 – 2 – 6",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "10", "isCorrect": false },
+    { "key": "B", "text": "9", "isCorrect": true },
+    { "key": "C", "text": "8", "isCorrect": false },
+    { "key": "D", "text": "7", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-016",
+  "questionText": "Quel symbole apparaissait le plus souvent ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "▲ ▲ ● ▲ ■",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "▲", "isCorrect": true },
+    { "key": "B", "text": "●", "isCorrect": false },
+    { "key": "C", "text": "■", "isCorrect": false },
+    { "key": "D", "text": "aucun", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-017",
+  "questionText": "Quelle lettre était entre 4 et 9 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "R – 4 – T – 9 – P – 2",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "R", "isCorrect": false },
+    { "key": "B", "text": "T", "isCorrect": true },
+    { "key": "C", "text": "P", "isCorrect": false },
+    { "key": "D", "text": "2", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-018",
+  "questionText": "Quelle était la couleur de la case centrale ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "⬜ ⬛ ⬜ ⬛ ⬜",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "⬜", "isCorrect": true },
+    { "key": "B", "text": "⬛", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-019",
+  "questionText": "Quel chiffre était le plus proche de 5 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "8 – 3 – 5 – 6 – 2",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "8", "isCorrect": false },
+    { "key": "B", "text": "3", "isCorrect": true },
+    { "key": "C", "text": "4", "isCorrect": false },
+    { "key": "D", "text": "7", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-020",
+  "questionText": "Quel était le 2e élément en partant de la droite ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "🔴 🟢 🔵 🟡",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "🔴", "isCorrect": false },
+    { "key": "B", "text": "🟢", "isCorrect": false },
+    { "key": "C", "text": "🔵", "isCorrect": true },
+    { "key": "D", "text": "🟡", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-021",
+  "questionText": "Quelle lettre venait juste avant H ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "B – D – F – H – J",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "D", "isCorrect": false },
+    { "key": "B", "text": "F", "isCorrect": true },
+    { "key": "C", "text": "J", "isCorrect": false },
+    { "key": "D", "text": "B", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-022",
+  "questionText": "Quel était le dernier chiffre pair ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "1 – 4 – 8 – 2 – 5 – 7",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "8", "isCorrect": false },
+    { "key": "B", "text": "2", "isCorrect": true },
+    { "key": "C", "text": "4", "isCorrect": false },
+    { "key": "D", "text": "5", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-023",
+  "questionText": "Quel symbole touchait 🔴 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "🔵 ▲ 🔴 ■ 🟢 ★",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "🔵", "isCorrect": false },
+    { "key": "B", "text": "■", "isCorrect": true },
+    { "key": "C", "text": "★", "isCorrect": false },
+    { "key": "D", "text": "🟢", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-024",
+  "questionText": "Combien de lettres étaient présentes ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "M – 2 – K – 8 – P – 5",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "2", "isCorrect": false },
+    { "key": "B", "text": "3", "isCorrect": true },
+    { "key": "C", "text": "4", "isCorrect": false },
+    { "key": "D", "text": "5", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-025",
+  "questionText": "Quelle lettre était associée au plus petit chiffre ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "6 – A – 3 – C – 9 – B",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "A", "isCorrect": false },
+    { "key": "B", "text": "B", "isCorrect": false },
+    { "key": "C", "text": "C", "isCorrect": true },
+    { "key": "D", "text": "aucune", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-026",
+  "questionText": "Quel nombre venait juste avant 7 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "1 → 3 → 5 → 7",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "1", "isCorrect": false },
+    { "key": "B", "text": "3", "isCorrect": false },
+    { "key": "C", "text": "5", "isCorrect": true },
+    { "key": "D", "text": "6", "isCorrect": false }
+  ]
+},
+{
+  "questionKey": "memory-027",
+  "questionText": "Combien de chiffres étaient supérieurs à 5 ?",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "displayTimeSeconds": 4,
+  "timeLimitSeconds": 10,
+  "stimulusText": "2 – 7 – 4 – 9 – 6",
+  "explanation": "",
+  "options": [
+    { "key": "A", "text": "2", "isCorrect": false },
+    { "key": "B", "text": "3", "isCorrect": true },
+    { "key": "C", "text": "4", "isCorrect": false },
+    { "key": "D", "text": "5", "isCorrect": false }
+  ]
+}
+]
