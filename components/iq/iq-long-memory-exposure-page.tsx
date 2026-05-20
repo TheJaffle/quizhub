@@ -58,7 +58,7 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
           <Brain className="mr-1 h-3.5 w-3.5" />
           Memoire longue
         </Badge>
-        <div className="rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 shadow-sm">
+        <div className="rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 text-center shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Encodage memoire longue</p>
         </div>
       </div>
@@ -67,7 +67,6 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2 text-violet-600">
             <Eye className="h-5 w-5" />
-            <span className="font-medium">Stimulus a memoriser</span>
           </div>
           <span className="min-w-[5.75rem] whitespace-nowrap rounded-full bg-violet-100 px-3 py-1 text-center text-sm font-medium tabular-nums text-violet-700">
             {timeRemaining} sec
@@ -75,7 +74,7 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
         </div>
 
         {data.question.questionText ? (
-          <div className="mb-5 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-center shadow-sm">
+          <div className="mb-4 rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-center shadow-sm">
             <p className="text-base font-semibold text-violet-950">{data.question.questionText}</p>
           </div>
         ) : null}

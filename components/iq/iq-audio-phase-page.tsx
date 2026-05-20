@@ -546,7 +546,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="border-b bg-indigo-50 px-4 py-4 md:px-6 md:py-5">
           <div className="space-y-2">
-            <h1 className="whitespace-nowrap text-[clamp(1.15rem,5vw,2.3rem)] font-bold leading-none tracking-tight text-slate-950">
+            <h1 className="overflow-hidden text-ellipsis whitespace-nowrap text-[clamp(1rem,3.9vw,2.3rem)] font-bold leading-none tracking-tight text-slate-950">
               {phase === "stimulus" || phase === "transition"
                 ? currentQuestion.questionText || "Ecoutez attentivement."
                 : currentQuestion.answerPromptText || "Quelle sequence avez-vous entendue ?"}
@@ -599,15 +599,15 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
                     key={option.id}
                     className={`rounded-2xl border bg-background p-3 shadow-sm transition-all ${isSelected ? "border-indigo-500 ring-2 ring-indigo-500/20" : ""}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-base font-semibold text-indigo-700">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
                         {option.key}
                       </span>
                       <div className="min-w-0 flex-1 space-y-2">
                         <Button
                           type="button"
                           variant="outline"
-                          className="h-11 w-full justify-center rounded-xl"
+                          className="h-9 w-full justify-center rounded-lg px-3 text-base"
                           onClick={() => void playOption(option.key, option.audioUrl)}
                           disabled={!option.audioUrl}
                         >
@@ -616,7 +616,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
                         </Button>
                         <Button
                           type="button"
-                          className="h-11 w-full justify-center rounded-xl"
+                          className="h-9 w-full justify-center rounded-lg px-3 text-base"
                           variant={isSelected ? "default" : "secondary"}
                           disabled={isSaving || Boolean(savedAnswer) || isCompleting}
                           onClick={() => {

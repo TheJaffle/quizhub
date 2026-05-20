@@ -265,7 +265,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
         </div>
       </div>
 
-      <div className="mb-5 rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 shadow-sm">
+      <div className="mb-4 rounded-xl border border-violet-200 bg-violet-50/70 px-4 py-3 text-center shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.22em] text-violet-700">Rappel memoire longue</p>
       </div>
 
@@ -304,7 +304,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
 
           {isOverlayQuestion && currentQuestion.overlay ? (
             <div className="space-y-6">
-              <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 shadow-sm">
+              <div className="rounded-xl border border-violet-200 bg-violet-50 px-4 py-3 text-center shadow-sm">
                 <h2 className="mt-1 text-xl font-semibold leading-tight text-violet-950 md:text-2xl">
                   {currentQuestion.answerPromptText || currentQuestion.questionText || "Selectionnez la bonne reponse."}
                 </h2>
