@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
 import { ResultEmailForm } from "@/components/results/result-email-form";
-import { AlertTriangle, Brain, CheckCircle, ImageIcon, Loader2, Pause, Play, XCircle } from "lucide-react";
+import { AlertTriangle, Brain, ImageIcon, Loader2, Pause, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -30,8 +30,6 @@ type CompletionState = {
   redirectUrl: string | null;
   guestResultReady: boolean;
 };
-
-const FEEDBACK_DELAY_MS = 1100;
 
 function TimeProgressBar({ value }: { value: number }) {
   return (
@@ -113,7 +111,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
     ? {
         id: String(currentQuestion.id),
         text: currentQuestion.answerPromptText || currentQuestion.questionText || "Selectionnez la bonne reponse pour cette question de memoire longue.",
-        correctOptionId: savedAnswer?.correctOptionId ? String(savedAnswer.correctOptionId) : "",
+        correctOptionId: "",
         options: currentQuestion.options.map((option) => ({
           id: String(option.id),
           label: option.key,
@@ -121,13 +119,6 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
         })),
       }
     : null;
-
-  const correctOptionText = useMemo(() => {
-    if (!currentQuestion || !savedAnswer?.correctOptionId) return null;
-
-    const correctOption = currentQuestion.options.find((option) => option.id === savedAnswer.correctOptionId);
-    return correctOption?.text || correctOption?.key || null;
-  }, [currentQuestion, savedAnswer]);
 
   const finishFlow = async () => {
     if (!data) return;
@@ -196,9 +187,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
       }
 
       setSavedAnswer(payload.answer);
-      setTimeout(() => {
-        void continueAfterSave();
-      }, FEEDBACK_DELAY_MS);
+      void continueAfterSave();
     } catch (answerError) {
       setSelectedOptionId(null);
       setSelectedPosition(null);
@@ -328,8 +317,6 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
                   {Array.from({ length: currentQuestion.overlay.answerCount }, (_, index) => {
                     const position = index + 1;
                     const isSelected = selectedPosition === position;
-                    const isCorrect = savedAnswer?.correctPosition === position;
-                    const isWrong = Boolean(savedAnswer) && isSelected && !isCorrect;
 
                     return (
                       <button
@@ -343,7 +330,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
                         disabled={Boolean(savedAnswer) || isSaving || isPaused}
                         className={`border border-transparent bg-transparent transition-all hover:bg-violet-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                           isSelected ? "bg-violet-500/15 ring-2 ring-violet-500" : ""
-                        } ${isCorrect ? "bg-green-500/20 ring-2 ring-green-500" : ""} ${isWrong ? "bg-red-500/20 ring-2 ring-red-500" : ""}`}
+                        }`}
                       />
                     );
                   })}
@@ -356,22 +343,6 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
                 <ImageIcon className="mx-auto mb-3 h-10 w-10" />
                 <p className="text-sm">Question visuelle</p>
               </div>
-            </div>
-          ) : null}
-
-          {savedAnswer ? (
-            <div className={`rounded-lg p-6 text-center ${savedAnswer.isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-              <div className={`mb-2 flex justify-center ${savedAnswer.isCorrect ? "text-green-500" : "text-red-500"}`}>
-                {savedAnswer.isCorrect ? <CheckCircle className="h-14 w-14" /> : <XCircle className="h-14 w-14" />}
-              </div>
-              <h3 className="mb-1 text-xl font-bold">{savedAnswer.isCorrect ? "Correct !" : "Incorrect"}</h3>
-              <p>
-                {savedAnswer.isCorrect
-                  ? "Reponse enregistree."
-                  : isOverlayQuestion
-                    ? `Bonne zone : ${savedAnswer.correctPosition ?? "indisponible"}`
-                    : `Bonne reponse : ${correctOptionText ?? "indisponible"}`}
-              </p>
             </div>
           ) : null}
 

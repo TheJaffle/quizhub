@@ -36,6 +36,7 @@ export default async function IqAudioIntroRoute({ params }: { params: Promise<{ 
               questionCount: data.section.questionCount,
               maxStimulusPlays: data.section.maxStimulusPlays,
               timeLimitSeconds: data.section.timeLimitSeconds,
+              previewAudioUrl: data.section.previewAudioUrl,
               nextUrl: data.nextUrl,
             }
           : null

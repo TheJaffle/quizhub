@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, AudioLines, Clock3, Headphones, Play, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 export type IqAudioIntroData = {
@@ -14,6 +15,7 @@ export type IqAudioIntroData = {
   questionCount: number;
   maxStimulusPlays: number;
   timeLimitSeconds: number | null;
+  previewAudioUrl: string | null;
   nextUrl: string;
 };
 
@@ -39,6 +41,8 @@ type IqAudioIntroPageProps = {
 
 export function IqAudioIntroPage({ data, error }: IqAudioIntroPageProps) {
   const router = useRouter();
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPreviewPlaying, setIsPreviewPlaying] = useState(false);
   useBlockTestBackNavigation();
 
   if (error || !data) {
@@ -52,6 +56,28 @@ export function IqAudioIntroPage({ data, error }: IqAudioIntroPageProps) {
       </div>
     );
   }
+
+  const handlePreviewToggle = async () => {
+    if (!data.previewAudioUrl) return;
+
+    const audio = previewAudioRef.current;
+    if (!audio) return;
+
+    if (isPreviewPlaying) {
+      audio.pause();
+      audio.currentTime = 0;
+      setIsPreviewPlaying(false);
+      return;
+    }
+
+    try {
+      audio.currentTime = 0;
+      await audio.play();
+      setIsPreviewPlaying(true);
+    } catch {
+      setIsPreviewPlaying(false);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-4 md:py-8">
@@ -70,6 +96,35 @@ export function IqAudioIntroPage({ data, error }: IqAudioIntroPageProps) {
           </div>
 
           <CardContent className="space-y-6 p-6 md:p-8">
+            {data.previewAudioUrl ? (
+              <div className="rounded-lg border bg-muted/40 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <AudioLines className="h-5 w-5 text-indigo-500" />
+                  <h2 className="text-base font-semibold">Test du son</h2>
+                </div>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Lancez un extrait de la premiere enigme pour verifier que le son est actif et ajuster votre volume avant de commencer.
+                </p>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <Button type="button" variant="secondary" onClick={handlePreviewToggle}>
+                    <Play className="mr-2 h-4 w-4" />
+                    {isPreviewPlaying ? "Relancer l'extrait" : "Tester le son"}
+                  </Button>
+                  <audio
+                    ref={previewAudioRef}
+                    controls
+                    preload="none"
+                    className="w-full sm:max-w-md"
+                    onPlay={() => setIsPreviewPlaying(true)}
+                    onPause={() => setIsPreviewPlaying(false)}
+                    onEnded={() => setIsPreviewPlaying(false)}
+                  >
+                    <source src={data.previewAudioUrl} />
+                  </audio>
+                </div>
+              </div>
+            ) : null}
+
             <div className={`grid gap-3 ${data.timeLimitSeconds ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
               <div className="rounded-lg border bg-background p-4">
                 <p className="text-sm text-muted-foreground">Questions sonores</p>

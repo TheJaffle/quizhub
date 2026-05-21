@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
-import { AlertTriangle, Brain, CheckCircle, Loader2, Pause, Play, XCircle } from "lucide-react";
+import { AlertTriangle, Brain, Loader2, Pause, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -24,7 +24,6 @@ type SavedAnswer = {
 
 const DEFAULT_DISPLAY_SECONDS = 10;
 const DEFAULT_ANSWER_SECONDS = 15;
-const FEEDBACK_DELAY_MS = 1100;
 
 function TimeProgressBar({ value }: { value: number }) {
   return (
@@ -146,19 +145,11 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     };
   }, []);
 
-  const correctOptionText = useMemo(() => {
-    if (!currentQuestion || !savedAnswer?.correctOptionId) return null;
-
-    const correctOption = currentQuestion.options.find((option) => option.id === savedAnswer.correctOptionId);
-
-    return correctOption?.text || correctOption?.key || null;
-  }, [currentQuestion, savedAnswer]);
-
   const templateQuestion = currentQuestion
     ? {
         id: String(currentQuestion.id),
         text: currentQuestion.questionText || "Question memoire",
-        correctOptionId: savedAnswer?.correctOptionId ? String(savedAnswer.correctOptionId) : "",
+        correctOptionId: "",
         options: currentQuestion.options.map((option) => ({
           id: String(option.id),
           label: option.key,
@@ -181,35 +172,6 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
       return;
     }
 
-    const isSpeedTransition = Boolean(data.nextUrl?.includes("/speed-intro"));
-    const longMemoryPayload = isLastQuestion
-      ? {
-          resumeUrl: data.nextUrl ?? currentResumeUrl,
-          force: true,
-          afterCurrentAnswerAction: data.nextUrl ? (isSpeedTransition ? "return" : "advance") : "complete",
-        }
-      : {
-          resumeUrl: currentResumeUrl,
-        };
-
-    try {
-      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/long-memory/check`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(longMemoryPayload),
-      });
-      const payload = (await response.json().catch(() => null)) as { nextUrl?: string | null } | null;
-
-      if (response.ok && payload?.nextUrl) {
-        router.push(payload.nextUrl);
-        return;
-      }
-    } catch {
-      // If the long-memory check fails, continue with the normal memory flow.
-    }
-
     if (isLastQuestion) {
       if (data.nextUrl) {
         router.push(data.nextUrl);
@@ -221,10 +183,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     setCurrentQuestionIndex((current) => current + 1);
   };
 
-  const saveAnswer = async (
-    body: { questionId: number; selectedOptionId?: number | null; responseTimeMs?: number },
-    options?: { feedbackDelayMs?: number }
-  ) => {
+  const saveAnswer = async (body: { questionId: number; selectedOptionId?: number | null; responseTimeMs?: number }) => {
     if (!data || !currentQuestion || mode !== "answer" || isSaving || savedAnswer || isSubmittingRef.current) return;
 
     const answeredAt = new Date();
@@ -258,9 +217,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
         clearTimeout(feedbackTimeoutRef.current);
       }
 
-      feedbackTimeoutRef.current = setTimeout(() => {
-        void continueAfterSave();
-      }, options?.feedbackDelayMs ?? FEEDBACK_DELAY_MS);
+      void continueAfterSave();
     } catch (answerError) {
       isSubmittingRef.current = false;
       setSelectedOptionId(null);
@@ -351,18 +308,6 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
               </div>
             </div>
           ) : null}
-          {savedAnswer && !isPaused ? (
-            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm">
-              <div className={`rounded-lg p-6 text-center ${savedAnswer.isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                <div className={`mb-2 flex justify-center ${savedAnswer.isCorrect ? "text-green-500" : "text-red-500"}`}>
-                  {savedAnswer.isCorrect ? <CheckCircle className="h-14 w-14" /> : <XCircle className="h-14 w-14" />}
-                </div>
-                <h3 className="mb-1 text-xl font-bold">{savedAnswer.isCorrect ? "Correct !" : "Incorrect"}</h3>
-                <p>{savedAnswer.isCorrect ? "Reponse enregistree." : `Bonne reponse : ${correctOptionText ?? "indisponible"}`}</p>
-              </div>
-            </div>
-          ) : null}
-
           <Card className="overflow-hidden">
             <motion.div
               key={`${currentQuestion.id}-${mode}`}

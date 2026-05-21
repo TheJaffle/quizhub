@@ -236,6 +236,7 @@ export type IqAudioIntro = {
     questionCount: number;
     maxStimulusPlays: number;
     timeLimitSeconds: number | null;
+    previewAudioUrl: string | null;
   };
   nextUrl: string;
 };
@@ -349,6 +350,7 @@ type IqAttemptRow = {
 
 type IqQuestionRow = {
   id: number;
+  question_key: string;
   section_id: number;
   section_key: string;
   section_title: string;
@@ -515,15 +517,18 @@ type TestSequenceQuestionStep =
   | {
       type: "question";
       questionKey: string;
+      timeLimitSeconds?: number;
     }
   | {
       type: "question";
       choices: TestSequenceQuestionChoice[];
+      timeLimitSeconds?: number;
     };
 
 type ResolvedTestSequenceQuestionStep = {
   type: "question";
   questionKey: string;
+  timeLimitSeconds?: number;
 };
 
 type TestSequenceMemoryItem =
@@ -536,12 +541,18 @@ type TestSequenceMemoryItem =
 
 type TestSequenceMemoryStep = {
   type: "memory";
+  displayTimeSeconds?: number;
+  timeLimitSeconds?: number;
   items: TestSequenceMemoryItem[];
 };
 
 type ResolvedTestSequenceMemoryStep = {
   type: "memory";
-  questionKeys: string[];
+  items: Array<{
+    questionKey: string;
+    displayTimeSeconds?: number | null;
+    timeLimitSeconds?: number | null;
+  }>;
 };
 
 type TestSequenceSpeedStep = {
@@ -588,8 +599,17 @@ type LongMemoryAttemptState = {
 };
 
 type SequenceEntry =
-  | { type: "block"; blockIndex: number; questionKeys: string[] }
-  | { type: "memory"; questionKeys: string[] | null }
+  | {
+      type: "block";
+      blockIndex: number;
+      questionKeys: string[];
+      questions: Array<{ questionKey: string; displayTimeSeconds: number | null; timeLimitSeconds: number | null }>;
+    }
+  | {
+      type: "memory";
+      questionKeys: string[] | null;
+      questions: Array<{ questionKey: string; displayTimeSeconds: number | null; timeLimitSeconds: number | null }> | null;
+    }
   | { type: "audio_memory"; questionKeys: string[] | null; timeLimitSeconds: number | null }
   | { type: "speed"; questionKeys: string[] | null; timeLimitSeconds: number | null };
 
@@ -597,6 +617,7 @@ type SequencePlan = {
   blocks: Array<{
     blockIndex: number;
     questionKeys: string[];
+    questions: Array<{ questionKey: string; displayTimeSeconds: number | null; timeLimitSeconds: number | null }>;
   }>;
   entries: SequenceEntry[];
   memoryEntryIndex: number | null;
@@ -757,13 +778,17 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
     if ((rawStep as { type?: unknown }).type === "question") {
       const questionKey = typeof (rawStep as { questionKey?: unknown }).questionKey === "string" ? (rawStep as { questionKey: string }).questionKey.trim() : "";
       const rawChoices = Array.isArray((rawStep as { choices?: unknown }).choices) ? (rawStep as { choices: unknown[] }).choices : null;
+      const timeLimitSeconds = parseOptionalPositiveInteger(
+        (rawStep as { timeLimitSeconds?: unknown }).timeLimitSeconds,
+        "Une etape question avec timeLimitSeconds doit definir un entier positif."
+      );
 
       if (questionKey && rawChoices) {
         throw new Error("Une etape question ne peut pas definir questionKey et choices en meme temps.");
       }
 
       if (questionKey) {
-        steps.push({ type: "question", questionKey });
+        steps.push({ type: "question", questionKey, timeLimitSeconds });
         continue;
       }
 
@@ -771,13 +796,21 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
         throw new Error("Une etape question doit definir questionKey ou choices.");
       }
 
-      steps.push({ type: "question", choices: parseWeightedChoices(rawChoices, "une etape question avec choices") });
+      steps.push({ type: "question", choices: parseWeightedChoices(rawChoices, "une etape question avec choices"), timeLimitSeconds });
       continue;
     }
 
     if ((rawStep as { type?: unknown }).type === "memory") {
       memoryCount += 1;
       const rawItems = Array.isArray((rawStep as { items?: unknown }).items) ? (rawStep as { items: unknown[] }).items : null;
+      const displayTimeSeconds = parseOptionalPositiveInteger(
+        (rawStep as { displayTimeSeconds?: unknown }).displayTimeSeconds,
+        "Une etape memory avec displayTimeSeconds doit definir un entier positif."
+      );
+      const timeLimitSeconds = parseOptionalPositiveInteger(
+        (rawStep as { timeLimitSeconds?: unknown }).timeLimitSeconds,
+        "Une etape memory avec timeLimitSeconds doit definir un entier positif."
+      );
 
       if (!rawItems || rawItems.length === 0) {
         throw new Error("Une etape memory doit definir items.");
@@ -808,7 +841,7 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
         } satisfies TestSequenceMemoryItem;
       });
 
-      steps.push({ type: "memory", items });
+      steps.push({ type: "memory", items, displayTimeSeconds, timeLimitSeconds });
       continue;
     }
 
@@ -911,10 +944,14 @@ function parseResolvedTestSequenceDefinition(sequenceDefinition: string | null |
           return step;
         }
 
-        if (Array.isArray(step.questionKeys)) {
+        const legacyQuestionKeys = Array.isArray((step as unknown as { questionKeys?: unknown }).questionKeys)
+          ? (step as unknown as { questionKeys: unknown[] }).questionKeys
+          : null;
+
+        if (legacyQuestionKeys) {
           return {
             type: "memory",
-            items: step.questionKeys
+            items: legacyQuestionKeys
               .filter((questionKey): questionKey is string => typeof questionKey === "string" && questionKey.trim().length > 0)
               .map((questionKey) => ({ questionKey: questionKey.trim() })),
           };
@@ -936,6 +973,10 @@ function parseResolvedTestSequenceDefinition(sequenceDefinition: string | null |
 
 function getQuestionStepReferenceKey(step: TestSequenceQuestionStep | ResolvedTestSequenceQuestionStep) {
   return "questionKey" in step ? step.questionKey : step.choices[0].questionKey;
+}
+
+function getQuestionStepTimeLimitSeconds(step: TestSequenceQuestionStep | ResolvedTestSequenceQuestionStep) {
+  return step.timeLimitSeconds ?? null;
 }
 
 function pickWeightedQuestionKey(choices: TestSequenceQuestionChoice[]) {
@@ -994,6 +1035,18 @@ function parseWeightedChoices(rawChoices: unknown[], errorContext: string) {
   return choices;
 }
 
+function parseOptionalPositiveInteger(value: unknown, errorMessage: string) {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value === "number" && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  throw new Error(errorMessage);
+}
+
 function resolveTestSequenceDefinition(sequence: TestSequenceDefinition): ResolvedTestSequenceDefinition {
   return {
     version: sequence.version,
@@ -1003,7 +1056,11 @@ function resolveTestSequenceDefinition(sequence: TestSequenceDefinition): Resolv
         if (step.type === "memory") {
           return {
             type: "memory",
-            questionKeys: step.items.map((item) => ("questionKey" in item ? item.questionKey : pickWeightedQuestionKey(item.choices))),
+            items: step.items.map((item) => ({
+              questionKey: "questionKey" in item ? item.questionKey : pickWeightedQuestionKey(item.choices),
+              displayTimeSeconds: step.displayTimeSeconds ?? null,
+              timeLimitSeconds: step.timeLimitSeconds ?? null,
+            })),
           };
         }
 
@@ -1011,12 +1068,16 @@ function resolveTestSequenceDefinition(sequence: TestSequenceDefinition): Resolv
       }
 
       if ("questionKey" in step) {
-        return step;
+        return {
+          ...step,
+          timeLimitSeconds: step.timeLimitSeconds ?? undefined,
+        };
       }
 
       return {
         type: "question",
         questionKey: pickWeightedQuestionKey(step.choices),
+        timeLimitSeconds: step.timeLimitSeconds ?? undefined,
       };
     }),
   };
@@ -1221,7 +1282,7 @@ function shouldLongMemoryInterrupt(state: LongMemoryAttemptState, force = false)
 function buildSequencePlan(sequence: TestSequenceDefinition | ResolvedTestSequenceDefinition): SequencePlan {
   const blocks: SequencePlan["blocks"] = [];
   const entries: SequenceEntry[] = [];
-  let questionBuffer: string[] = [];
+  let questionBuffer: Array<{ questionKey: string; displayTimeSeconds: number | null; timeLimitSeconds: number | null }> = [];
   let blockIndex = 0;
 
   const flushQuestionBuffer = () => {
@@ -1229,13 +1290,15 @@ function buildSequencePlan(sequence: TestSequenceDefinition | ResolvedTestSequen
 
     const currentBlock = {
       blockIndex,
-      questionKeys: questionBuffer,
+      questionKeys: questionBuffer.map((question) => question.questionKey),
+      questions: questionBuffer,
     };
     blocks.push(currentBlock);
     entries.push({
       type: "block",
       blockIndex,
-      questionKeys: questionBuffer,
+      questionKeys: currentBlock.questionKeys,
+      questions: questionBuffer,
     });
     questionBuffer = [];
     blockIndex += 1;
@@ -1243,18 +1306,36 @@ function buildSequencePlan(sequence: TestSequenceDefinition | ResolvedTestSequen
 
   for (const step of sequence.steps) {
     if (step.type === "question") {
-      questionBuffer.push(getQuestionStepReferenceKey(step));
+      questionBuffer.push({
+        questionKey: getQuestionStepReferenceKey(step),
+        displayTimeSeconds: null,
+        timeLimitSeconds: getQuestionStepTimeLimitSeconds(step),
+      });
       continue;
     }
 
     flushQuestionBuffer();
     if (step.type === "memory") {
+      const stepDisplayTimeSeconds = "displayTimeSeconds" in step ? step.displayTimeSeconds ?? null : null;
+      const stepTimeLimitSeconds = "timeLimitSeconds" in step ? step.timeLimitSeconds ?? null : null;
+      const questions = step.items.map((item) =>
+        "questionKey" in item
+          ? {
+              questionKey: item.questionKey,
+              displayTimeSeconds: "displayTimeSeconds" in item ? item.displayTimeSeconds ?? null : stepDisplayTimeSeconds,
+              timeLimitSeconds: "timeLimitSeconds" in item ? item.timeLimitSeconds ?? null : stepTimeLimitSeconds,
+            }
+          : {
+              questionKey: pickWeightedQuestionKey(item.choices),
+              displayTimeSeconds: stepDisplayTimeSeconds,
+              timeLimitSeconds: stepTimeLimitSeconds,
+            }
+      );
+
       entries.push({
         type: "memory",
-        questionKeys:
-          "questionKeys" in step
-            ? step.questionKeys ?? null
-            : step.items.map((item) => ("questionKey" in item ? item.questionKey : pickWeightedQuestionKey(item.choices))),
+        questionKeys: questions?.map((question) => question.questionKey) ?? null,
+        questions,
       });
       continue;
     }
@@ -1621,7 +1702,7 @@ async function getSequenceSectionMaxScores(
 
 async function loadPhaseQuestionByKey(connection: mysql.Connection, testId: number, questionKey: string): Promise<IqPhaseQuestion | null> {
   const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
-    `SELECT q.id, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.answer_prompt_text, q.stimulus_text,
+    `SELECT q.id, q.question_key, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.answer_prompt_text, q.stimulus_text,
             q.question_format, COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url, q.difficulty_level, q.weight,
             q.time_limit_seconds, q.display_time_seconds, s.display_time_seconds AS section_display_time_seconds,
             s.time_limit_seconds AS section_time_limit_seconds, q.position,
@@ -2405,6 +2486,15 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
     const selectedSpecialQuestionKeys = phase === "memory" || phase === "audio" || phase === "speed"
       ? resolvedQuestions.specialQuestionKeysByType[phase === "audio" ? "audio_memory" : phase]
       : null;
+    const mainQuestionOverrides = currentQuestionBlock
+      ? new Map(currentQuestionBlock.questions.map((question) => [question.questionKey, question]))
+      : null;
+    const memoryEntry = phase === "memory"
+      ? sequencePlan.entries.find((entry): entry is Extract<SequenceEntry, { type: "memory" }> => entry.type === "memory") ?? null
+      : null;
+    const memoryQuestionOverrides = memoryEntry?.questions
+      ? new Map(memoryEntry.questions.map((question) => [question.questionKey, question]))
+      : null;
     const speedEntry = phase === "speed"
       ? sequencePlan.entries.find((entry): entry is Extract<SequenceEntry, { type: "speed" }> => entry.type === "speed") ?? null
       : null;
@@ -2487,7 +2577,7 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
     }
 
     const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.id, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.answer_prompt_text, q.stimulus_text,
+      `SELECT q.id, q.question_key, q.section_id, s.section_key, s.title AS section_title, q.question_text, q.answer_prompt_text, q.stimulus_text,
               q.question_format, COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url, q.difficulty_level, q.weight,
               q.time_limit_seconds, q.display_time_seconds, s.display_time_seconds AS section_display_time_seconds,
               s.time_limit_seconds AS section_time_limit_seconds, q.position,
@@ -2561,6 +2651,12 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
           const answerCount = normalizeOverlayNumber(question.answer_count, 4);
           const gridColumns = normalizeOverlayNumber(question.grid_columns, answerCount === 6 ? 3 : 2);
           const gridRows = normalizeOverlayNumber(question.grid_rows, 2);
+          const questionOverride =
+            phase === "main"
+              ? mainQuestionOverrides?.get(question.question_key)
+              : phase === "memory"
+                ? memoryQuestionOverrides?.get(question.question_key)
+                : null;
 
           return {
             id: question.id,
@@ -2574,8 +2670,12 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
             imageUrl: question.question_image_url,
             difficultyLevel: question.difficulty_level,
             weight: Number(question.weight),
-            displayTimeSeconds: question.display_time_seconds ?? question.section_display_time_seconds ?? null,
-            timeLimitSeconds: question.time_limit_seconds ?? question.section_time_limit_seconds ?? null,
+            displayTimeSeconds:
+              phase === "memory"
+                ? questionOverride?.displayTimeSeconds ?? question.display_time_seconds ?? question.section_display_time_seconds ?? null
+                : question.display_time_seconds ?? question.section_display_time_seconds ?? null,
+            timeLimitSeconds:
+              questionOverride?.timeLimitSeconds ?? question.time_limit_seconds ?? question.section_time_limit_seconds ?? null,
             position: question.position,
             overlay:
               isOverlayQuestion && question.answers_image_url
@@ -2924,6 +3024,10 @@ export async function getIqAudioIntroByAttemptToken(token: string): Promise<IqAu
     }
     const resolvedQuestions = row && sequencePlan && questionBankTestId ? await resolveSequenceQuestionSections(connection, questionBankTestId, sequencePlan) : null;
     const audioQuestionKeys = resolvedQuestions?.specialQuestionKeysByType.audio_memory ?? null;
+    const previewQuestion =
+      row && questionBankTestId && audioQuestionKeys?.[0]
+        ? await loadPhaseQuestionByKey(connection, questionBankTestId, audioQuestionKeys[0])
+        : null;
 
     if (!row) {
       return { data: null, error: "Introduction sonore introuvable pour cette tentative." };
@@ -2949,6 +3053,7 @@ export async function getIqAudioIntroByAttemptToken(token: string): Promise<IqAu
           timeLimitSeconds:
             sequencePlan?.entries.find((entry): entry is Extract<SequenceEntry, { type: "audio_memory" }> => entry.type === "audio_memory")
               ?.timeLimitSeconds ?? null,
+          previewAudioUrl: previewQuestion?.audio?.promptAudioUrl ?? null,
         },
         nextUrl: `/iq/attempt/${row.attempt_token}/phase/audio`,
       },

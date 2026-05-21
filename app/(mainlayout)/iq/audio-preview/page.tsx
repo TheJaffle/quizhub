@@ -9,6 +9,7 @@ const previewIntro: IqAudioIntroData = {
   questionCount: 1,
   maxStimulusPlays: 1,
   timeLimitSeconds: 20,
+  previewAudioUrl: "/iq/audio-memory/audio-memory-001-stimulus.wav",
   nextUrl: "/iq/audio-preview/play",
 };
 

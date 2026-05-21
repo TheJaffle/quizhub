@@ -30,8 +30,6 @@ type CompletionState = {
 
 type Phase = "stimulus" | "transition" | "answer" | "answered";
 
-const FEEDBACK_DELAY_MS = 1100;
-
 function SoundPulse({ active }: { active: boolean }) {
   return (
     <div className="flex items-end justify-center gap-1.5">
@@ -421,9 +419,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
       setSavedAnswer(payload.answer);
       setTimeoutTriggered(Boolean(options?.timedOut));
       setPhase("answered");
-      feedbackTimeoutRef.current = setTimeout(() => {
-        void continueAfterSave();
-      }, FEEDBACK_DELAY_MS);
+      void continueAfterSave();
     } catch (answerError) {
       isSubmittingRef.current = false;
       setSelectedOptionId(null);
@@ -633,14 +629,6 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
                 );
               })}
 
-              {savedAnswer ? (
-                <div className={`rounded-xl px-4 py-4 ${savedAnswer.isCorrect ? "border border-emerald-200 bg-emerald-50" : "border border-red-200 bg-red-50"}`}>
-                  <div className={`flex items-center gap-2 ${savedAnswer.isCorrect ? "text-emerald-800" : "text-red-800"}`}>
-                    <CheckCircle className="h-5 w-5" />
-                    <p className="font-medium">{savedAnswer.isCorrect ? "Bonne reponse enregistree." : "Reponse enregistree."}</p>
-                  </div>
-                </div>
-              ) : null}
             </div>
           )}
 

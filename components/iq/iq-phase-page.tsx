@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
-import { AlertTriangle, Brain, CheckCircle, ImageIcon, Languages, Loader2, Pause, Play, Sigma, XCircle } from "lucide-react";
+import { AlertTriangle, Brain, ImageIcon, Languages, Loader2, Pause, Play, Sigma } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -24,8 +24,7 @@ type SavedAnswer = {
   pointsEarned: number;
 };
 
-const FEEDBACK_DELAY_MS = 1100;
-const MAIN_QUESTION_SECONDS = 15;
+const DEFAULT_MAIN_QUESTION_SECONDS = 15;
 
 type OverlayGrid = {
   answerCount: number;
@@ -123,7 +122,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [direction, setDirection] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(MAIN_QUESTION_SECONDS);
+  const [timeRemaining, setTimeRemaining] = useState(DEFAULT_MAIN_QUESTION_SECONDS);
   const [pauseRequested, setPauseRequested] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const displayedAtRef = useRef<Date>(new Date());
@@ -132,8 +131,9 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
+  const currentQuestionTimeLimitSeconds = currentQuestion?.timeLimitSeconds ?? DEFAULT_MAIN_QUESTION_SECONDS;
   const isMainPhase = data?.phase === "main";
-  const timeProgress = Math.max(0, Math.min(100, (timeRemaining / MAIN_QUESTION_SECONDS) * 100));
+  const timeProgress = Math.max(0, Math.min(100, (timeRemaining / currentQuestionTimeLimitSeconds) * 100));
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const sectionBadge = currentQuestion ? getSectionBadge(currentQuestion.sectionKey) : null;
   const SectionBadgeIcon = sectionBadge?.icon;
@@ -141,14 +141,14 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   useEffect(() => {
     displayedAtRef.current = new Date();
     isSubmittingRef.current = false;
-    setTimeRemaining(MAIN_QUESTION_SECONDS);
+    setTimeRemaining(currentQuestionTimeLimitSeconds);
     setSelectedOptionId(null);
     setSelectedPosition(null);
     setSavedAnswer(null);
     setSaveError(null);
     setPauseRequested(false);
     setIsPaused(false);
-  }, [currentQuestion?.id]);
+  }, [currentQuestion?.id, currentQuestionTimeLimitSeconds]);
 
   useEffect(() => {
     if (!currentQuestion && data?.nextUrl) {
@@ -160,7 +160,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     if (!isMainPhase || !currentQuestion || isSaving || savedAnswer) return;
 
     if (timeRemaining <= 0) {
-      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: MAIN_QUESTION_SECONDS * 1000 });
+      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: currentQuestionTimeLimitSeconds * 1000 });
       return;
     }
 
@@ -169,7 +169,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isMainPhase, currentQuestion, timeRemaining, isSaving, savedAnswer]);
+  }, [isMainPhase, currentQuestion, currentQuestionTimeLimitSeconds, timeRemaining, isSaving, savedAnswer]);
 
   useEffect(() => {
     return () => {
@@ -178,14 +178,6 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
       }
     };
   }, []);
-
-  const correctOptionText = useMemo(() => {
-    if (!currentQuestion || !savedAnswer?.correctOptionId) return null;
-
-    const correctOption = currentQuestion.options.find((option) => option.id === savedAnswer.correctOptionId);
-
-    return correctOption?.text || correctOption?.key || null;
-  }, [currentQuestion, savedAnswer]);
 
   const isOverlayQuestion = currentQuestion?.format === "visual_overlay" || currentQuestion?.format === "spatial_overlay";
   const hasVisualQuestionImage = Boolean(currentQuestion?.imageUrl);
@@ -198,7 +190,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     ? {
         id: String(currentQuestion.id),
         text: currentQuestion.questionText || "Question sans texte",
-        correctOptionId: savedAnswer?.correctOptionId ? String(savedAnswer.correctOptionId) : "",
+        correctOptionId: "",
         options: currentQuestion.options.map((option) => ({
           id: String(option.id),
           label: option.key,
@@ -261,10 +253,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     setCurrentQuestionIndex((current) => current + 1);
   };
 
-  const saveAnswer = async (
-    body: { questionId: number; selectedOptionId?: number | null; selectedPosition?: number | null; responseTimeMs?: number },
-    options?: { feedbackDelayMs?: number }
-  ) => {
+  const saveAnswer = async (body: { questionId: number; selectedOptionId?: number | null; selectedPosition?: number | null; responseTimeMs?: number }) => {
     if (!data || !currentQuestion || isSaving || savedAnswer || isSubmittingRef.current) return;
 
     const answeredAt = new Date();
@@ -298,9 +287,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
         clearTimeout(feedbackTimeoutRef.current);
       }
 
-      feedbackTimeoutRef.current = setTimeout(() => {
-        void continueAfterSave();
-      }, options?.feedbackDelayMs ?? FEEDBACK_DELAY_MS);
+      void continueAfterSave();
     } catch (answerError) {
       isSubmittingRef.current = false;
       setSelectedOptionId(null);
@@ -395,24 +382,6 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
               </div>
             </div>
           ) : null}
-          {savedAnswer && !isPaused ? (
-            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm">
-              <div className={`rounded-lg p-6 text-center ${savedAnswer.isCorrect ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                <div className={`mb-2 flex justify-center ${savedAnswer.isCorrect ? "text-green-500" : "text-red-500"}`}>
-                  {savedAnswer.isCorrect ? <CheckCircle className="h-14 w-14" /> : <XCircle className="h-14 w-14" />}
-                </div>
-                <h3 className="mb-1 text-xl font-bold">{savedAnswer.isCorrect ? "Correct !" : "Incorrect"}</h3>
-                <p>
-                  {savedAnswer.isCorrect
-                    ? "Réponse enregistrée."
-                    : isOverlayQuestion
-                      ? `Bonne zone : ${savedAnswer.correctPosition ?? "indisponible"}`
-                      : `Bonne réponse : ${correctOptionText ?? "indisponible"}`}
-                </p>
-              </div>
-            </div>
-          ) : null}
-
           <Card className="overflow-hidden">
             <motion.div
               key={currentQuestion.id}
@@ -453,8 +422,6 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
                     <div className="grid gap-3 sm:grid-cols-2">
                       {currentQuestion.options.map((option) => {
                         const isSelected = selectedOptionId === option.id;
-                        const isCorrect = savedAnswer?.correctOptionId === option.id;
-                        const isWrong = Boolean(savedAnswer) && isSelected && !isCorrect;
 
                         return (
                           <button
@@ -464,7 +431,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
                             disabled={Boolean(savedAnswer) || isSaving || isPaused}
                             className={`relative min-h-[120px] overflow-hidden rounded-lg border bg-background p-2 text-left transition-all hover:bg-accent ${
                               isSelected ? "border-2 shadow-md" : ""
-                            } ${isCorrect ? "border-green-500 bg-green-50" : ""} ${isWrong ? "border-red-500 bg-red-50" : ""}`}
+                            }`}
                           >
                             {option.imageUrl ? (
                               <div className="relative h-24 w-full">
@@ -503,8 +470,6 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
                         {Array.from({ length: overlayGrid.answerCount }, (_, index) => {
                           const position = index + 1;
                           const isSelected = selectedPosition === position;
-                          const isCorrect = savedAnswer?.correctPosition === position;
-                          const isWrong = Boolean(savedAnswer) && isSelected && !isCorrect;
 
                           return (
                             <button
@@ -515,7 +480,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
                               disabled={Boolean(savedAnswer) || isSaving || isPaused}
                               className={`border border-transparent bg-transparent transition-all hover:bg-indigo-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
                                 isSelected ? "bg-indigo-500/15 ring-2 ring-indigo-500" : ""
-                              } ${isCorrect ? "bg-green-500/20 ring-2 ring-green-500" : ""} ${isWrong ? "bg-red-500/20 ring-2 ring-red-500" : ""}`}
+                              }`}
                             />
                           );
                         })}
