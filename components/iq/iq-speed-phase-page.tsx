@@ -9,7 +9,7 @@ import { ResultEmailForm } from "@/components/results/result-email-form";
 import { AlertTriangle, Brain, Loader2, Pause, Play, TimerReset, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqSpeedPhasePageProps = {
@@ -66,36 +66,73 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [completionState, setCompletionState] = useState<CompletionState | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(data?.phaseTimeLimitSeconds ?? 120);
+  const [questionTimeRemaining, setQuestionTimeRemaining] = useState(0);
+  const [activeQuestionTimerId, setActiveQuestionTimerId] = useState<number | null>(null);
+  const [isRefreshingPhase, setIsRefreshingPhase] = useState(false);
   const [pauseRequested, setPauseRequested] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [pausedBoundaryAction, setPausedBoundaryAction] = useState<"continue" | "complete" | null>(null);
+  const [pausedBoundaryAction, setPausedBoundaryAction] = useState<"refresh" | "complete" | null>(null);
   const displayedAtRef = useRef<Date>(new Date());
   const hasCompletionStartedRef = useRef(false);
   const isSubmittingRef = useRef(false);
+  const phaseTimeoutRef = useRef(false);
+  const handledTimeoutQuestionIdRef = useRef<number | null>(null);
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
   const questionTimeLimitSeconds = currentQuestion?.timeLimitSeconds ?? data?.phaseTimeLimitSeconds ?? 120;
   const stimulusText = currentQuestion?.stimulusText?.trim() || "";
-  const timeTotal = Math.max(questionTimeLimitSeconds, 1);
-  const timeProgress = Math.max(0, Math.min(100, (timeRemaining / timeTotal) * 100));
+  const phaseTimeTotal = Math.max(data?.phaseTimeLimitSeconds ?? 120, 1);
+  const timeProgress = Math.max(0, Math.min(100, (timeRemaining / phaseTimeTotal) * 100));
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     isSubmittingRef.current = false;
+    handledTimeoutQuestionIdRef.current = null;
     setSelectedOptionId(null);
     setSaveError(null);
     setPauseRequested(false);
     setIsPaused(false);
     setPausedBoundaryAction(null);
-    setTimeRemaining(questionTimeLimitSeconds);
+    setIsRefreshingPhase(false);
+    setActiveQuestionTimerId(currentQuestion?.id ?? null);
+    setQuestionTimeRemaining(questionTimeLimitSeconds);
     displayedAtRef.current = new Date();
-  }, [currentQuestion?.id, questionTimeLimitSeconds]);
+  }, [currentQuestion?.id, currentQuestion, questionTimeLimitSeconds]);
 
   useEffect(() => {
-    if (!data || !currentQuestion || completionState || isCompleting || isPaused || isSaving) return;
+    setTimeRemaining(data?.phaseTimeLimitSeconds ?? 120);
+    phaseTimeoutRef.current = false;
+  }, [data?.attempt.token, data?.phaseTimeLimitSeconds]);
+
+  useEffect(() => {
+    if (!data || !currentQuestion || completionState || isCompleting || isPaused || isSaving || isRefreshingPhase) return;
+    if (activeQuestionTimerId !== currentQuestion.id) return;
+
+    if (questionTimeRemaining <= 0) {
+      if (handledTimeoutQuestionIdRef.current === currentQuestion.id) return;
+      handledTimeoutQuestionIdRef.current = currentQuestion.id;
+      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: questionTimeLimitSeconds * 1000 });
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setQuestionTimeRemaining((current) => Math.max(current - 1, 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeQuestionTimerId, completionState, currentQuestion, data, isCompleting, isPaused, isRefreshingPhase, isSaving, questionTimeLimitSeconds, questionTimeRemaining]);
+
+  useEffect(() => {
+    if (!data || !currentQuestion || completionState || isCompleting || isPaused || isSaving || isRefreshingPhase) return;
 
     if (timeRemaining <= 0) {
-      void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: questionTimeLimitSeconds * 1000 });
+      if (handledTimeoutQuestionIdRef.current === currentQuestion.id) return;
+      handledTimeoutQuestionIdRef.current = currentQuestion.id;
+      phaseTimeoutRef.current = true;
+      void saveAnswer({
+        questionId: currentQuestion.id,
+        responseTimeMs: Math.min(Math.max(new Date().getTime() - displayedAtRef.current.getTime(), 0), questionTimeLimitSeconds * 1000),
+      });
       return;
     }
 
@@ -104,7 +141,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [completionState, currentQuestion, data, isCompleting, isPaused, isSaving, questionTimeLimitSeconds, timeRemaining]);
+  }, [completionState, currentQuestion, data, isCompleting, isPaused, isRefreshingPhase, isSaving, questionTimeLimitSeconds, timeRemaining]);
 
   useEffect(() => {
     if (!data || completionState || isCompleting) return;
@@ -168,24 +205,26 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const continueAfterSave = async () => {
     if (!currentQuestion || !data) return;
 
-    if (pauseRequested) {
-      setPauseRequested(false);
-      setIsPaused(true);
-      setPausedBoundaryAction(currentQuestionIndex >= questions.length - 1 ? "complete" : "continue");
-      return;
-    }
-
-    if (currentQuestionIndex >= questions.length - 1) {
+    if (phaseTimeoutRef.current) {
+      phaseTimeoutRef.current = false;
       if (data.nextUrl) {
         router.push(data.nextUrl);
         return;
       }
-
       await handleComplete();
       return;
     }
 
-    setCurrentQuestionIndex((current) => current + 1);
+    if (pauseRequested) {
+      setPauseRequested(false);
+      setIsPaused(true);
+      setPausedBoundaryAction(phaseTimeoutRef.current ? "complete" : "refresh");
+      return;
+    }
+
+    setCurrentQuestionIndex(0);
+    setIsRefreshingPhase(true);
+    router.refresh();
   };
 
   const saveAnswer = async (body: { questionId: number; selectedOptionId?: number | null; responseTimeMs?: number }) => {
@@ -218,6 +257,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
       await continueAfterSave();
     } catch (answerError) {
       isSubmittingRef.current = false;
+      handledTimeoutQuestionIdRef.current = null;
       setSelectedOptionId(null);
       setSaveError(answerError instanceof Error ? answerError.message : "Impossible d'enregistrer la reponse.");
     } finally {
@@ -248,8 +288,10 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
         return;
       }
 
-      if (action === "continue") {
-        setCurrentQuestionIndex((current) => current + 1);
+      if (action === "refresh") {
+        setCurrentQuestionIndex(0);
+        setIsRefreshingPhase(true);
+        router.refresh();
       }
       return;
     }

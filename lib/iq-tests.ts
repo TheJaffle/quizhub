@@ -210,7 +210,8 @@ export type IqSpeedIntro = {
     title: string;
     description: string | null;
     questionCount: number;
-    timeLimitSeconds: number;
+    totalTimeLimitSeconds: number;
+    timeLimitSeconds: number | null;
   };
   nextUrl: string;
 };
@@ -558,6 +559,7 @@ type ResolvedTestSequenceMemoryStep = {
 type TestSequenceSpeedStep = {
   type: "speed";
   questionKeys?: string[];
+  totalTimeLimitSeconds?: number;
   timeLimitSeconds?: number;
 };
 
@@ -611,7 +613,7 @@ type SequenceEntry =
       questions: Array<{ questionKey: string; displayTimeSeconds: number | null; timeLimitSeconds: number | null }> | null;
     }
   | { type: "audio_memory"; questionKeys: string[] | null; timeLimitSeconds: number | null }
-  | { type: "speed"; questionKeys: string[] | null; timeLimitSeconds: number | null };
+  | { type: "speed"; questionKeys: string[] | null; totalTimeLimitSeconds: number | null; timeLimitSeconds: number | null };
 
 type SequencePlan = {
   blocks: Array<{
@@ -889,6 +891,16 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
         throw new Error("Une etape speed avec questionKeys doit contenir au moins une cle.");
       }
 
+      const totalTimeLimitSecondsValue = (rawStep as { totalTimeLimitSeconds?: unknown }).totalTimeLimitSeconds;
+      const totalTimeLimitSeconds =
+        typeof totalTimeLimitSecondsValue === "number" && Number.isInteger(totalTimeLimitSecondsValue) && totalTimeLimitSecondsValue > 0
+          ? totalTimeLimitSecondsValue
+          : undefined;
+
+      if (totalTimeLimitSecondsValue !== undefined && totalTimeLimitSeconds === undefined) {
+        throw new Error("Une etape speed avec totalTimeLimitSeconds doit definir un entier positif.");
+      }
+
       const timeLimitSecondsValue = (rawStep as { timeLimitSeconds?: unknown }).timeLimitSeconds;
       const timeLimitSeconds =
         typeof timeLimitSecondsValue === "number" && Number.isInteger(timeLimitSecondsValue) && timeLimitSecondsValue > 0
@@ -899,7 +911,7 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
         throw new Error("Une etape speed avec timeLimitSeconds doit definir un entier positif.");
       }
 
-      steps.push({ type: "speed", questionKeys, timeLimitSeconds });
+      steps.push({ type: "speed", questionKeys, totalTimeLimitSeconds, timeLimitSeconds });
       continue;
     }
 
@@ -1348,6 +1360,7 @@ function buildSequencePlan(sequence: TestSequenceDefinition | ResolvedTestSequen
     entries.push({
       type: "speed",
       questionKeys: step.questionKeys ?? null,
+      totalTimeLimitSeconds: step.totalTimeLimitSeconds ?? null,
       timeLimitSeconds: step.timeLimitSeconds ?? null,
     });
   }
@@ -2204,7 +2217,7 @@ export async function getIqTestIntroBySlug(slug: string): Promise<IqTestIntroRes
   }
 }
 
-const ALLOWED_IQ_GENDERS = new Set(["female", "male", "other", "prefer_not_to_say"]);
+const ALLOWED_IQ_GENDERS = new Set(["female", "male"]);
 
 function isValidBirthDate(value: string) {
   if (!/^\d{4}-01-01$/.test(value)) return false;
@@ -2635,7 +2648,7 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
         phase,
         phaseTimeLimitSeconds:
           phase === "speed"
-            ? speedEntry?.timeLimitSeconds ?? (questions[0] ? questions[0].section_time_limit_seconds ?? null : null)
+            ? speedEntry?.totalTimeLimitSeconds ?? (questions[0] ? questions[0].section_time_limit_seconds ?? null : null)
             : phase === "audio"
               ? audioEntry?.timeLimitSeconds ?? (questions[0] ? questions[0].section_time_limit_seconds ?? null : null)
             : questions[0]
@@ -2769,7 +2782,8 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
     const allowsTimeoutAnswer =
       isMainSection ||
       rawAnswerData?.section_key === "memory" ||
-      rawAnswerData?.section_key === "audio_memory";
+      rawAnswerData?.section_key === "audio_memory" ||
+      rawAnswerData?.section_key === "speed";
     const answerCount = rawAnswerData?.overlay_answer_count ? Number(rawAnswerData.overlay_answer_count) : null;
 
     if (rawAnswerData && isTimedOut && !allowsTimeoutAnswer) {
@@ -3125,7 +3139,8 @@ export async function getIqSpeedIntroByAttemptToken(token: string): Promise<IqSp
           title: row.section_title,
           description: row.section_description,
           questionCount: speedQuestionKeys ? speedQuestionKeys.length : row.question_count,
-          timeLimitSeconds: speedEntry?.timeLimitSeconds ?? row.time_limit_seconds ?? 120,
+          totalTimeLimitSeconds: speedEntry?.totalTimeLimitSeconds ?? row.time_limit_seconds ?? 120,
+          timeLimitSeconds: speedEntry?.timeLimitSeconds ?? null,
         },
         nextUrl: `/iq/attempt/${row.attempt_token}/phase/speed`,
       },

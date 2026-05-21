@@ -4,7 +4,7 @@ import type { IqTestIntro } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Brain, Clock, Loader2, Play, Sparkles } from "lucide-react";
 import Image from "next/image";
@@ -29,8 +29,6 @@ const BIRTH_YEARS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, index) =
 const GENDER_OPTIONS = [
   { value: "female", label: "Femme" },
   { value: "male", label: "Homme" },
-  { value: "other", label: "Autre" },
-  { value: "prefer_not_to_say", label: "Je préfère ne pas répondre" },
 ];
 
 export function IqIntroPage({ test, error }: IqIntroPageProps) {
@@ -49,7 +47,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
 
     try {
       if (!birthYear || !gender) {
-        throw new Error("Veuillez renseigner votre année de naissance et votre genre.");
+        throw new Error("Veuillez renseigner votre annee de naissance et votre genre.");
       }
 
       const response = await fetch(`/api/iq/tests/${test.slug}/attempt`, {
@@ -66,7 +64,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
 
       if (!response.ok) {
         if (payload.resultUrl) {
-          setStartError(payload.error || "Vous avez déjà réalisé ce test de logique.");
+          setStartError(payload.error || "Vous avez deja realise ce test de logique.");
           router.push(payload.resultUrl);
           return;
         }
@@ -100,19 +98,21 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
         <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="relative min-h-[260px] bg-indigo-950 text-white">
             {test.imageUrl ? (
-  <Image
-    src="/iq/fond.png"
-    alt="Test de logique complet"
-    fill
-    sizes="(max-width: 1024px) 100vw, 50vw"
-    className="object-cover opacity-60"
-  />
-) : null}
+              <Image
+                src="/iq/fond.png"
+                alt="Test de logique complet"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover opacity-60"
+              />
+            ) : null}
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/90 via-indigo-900/75 to-blue-900/80" />
             <div className="relative z-10 flex h-full flex-col justify-start p-6 md:p-8">
               <Badge className="mb-4 w-fit bg-white/15 text-white hover:bg-white/20">Test de logique</Badge>
               <h1 className="max-w-xl text-3xl font-bold tracking-tight md:text-4xl">{test.title}</h1>
-              <p className="mt-4 max-w-xl text-white/80">{test.description || "Un parcours progressif de raisonnement, sans valeur de diagnostic psychologique."}</p>
+              <p className="mt-4 max-w-xl text-white/80">
+                {test.description || "Un parcours progressif de raisonnement, sans valeur de diagnostic psychologique."}
+              </p>
             </div>
           </div>
 
@@ -155,45 +155,45 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
 
             <div className="rounded-lg border bg-background p-4">
               <p className="mb-4 text-center text-sm text-muted-foreground">
-                Ces informations nous permettent de contextualiser le score indicatif. Le résultat ne constitue pas une évaluation psychologique officielle.
+                Ces informations nous permettent de contextualiser le score indicatif. Le resultat ne constitue pas une evaluation psychologique officielle.
               </p>
               <div className="grid grid-cols-2 items-start gap-4">
                 <div className="flex min-w-0 flex-col items-center space-y-2 text-center">
-                <Label htmlFor="iq-birth-year" className="min-h-10 text-center leading-tight">
-                  Année de naissance
-                </Label>
-                <select
-                  id="iq-birth-year"
-                  value={birthYear}
-                  onChange={(event) => setBirthYear(event.target.value)}
-                  className="h-11 w-full max-w-[180px] rounded-md border border-input bg-background px-3 text-center text-sm shadow-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="">Année</option>
-                  {BIRTH_YEARS.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <Label htmlFor="iq-birth-year" className="min-h-10 text-center leading-tight">
+                    Annee de naissance
+                  </Label>
+                  <select
+                    id="iq-birth-year"
+                    value={birthYear}
+                    onChange={(event) => setBirthYear(event.target.value)}
+                    className="h-11 w-full max-w-[180px] rounded-md border border-input bg-background px-3 text-center text-sm shadow-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">Annee</option>
+                    {BIRTH_YEARS.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <div className="flex min-w-0 flex-col items-center space-y-2 text-center">
-                <Label htmlFor="iq-gender" className="flex min-h-10 items-center text-center leading-tight">
-                  Genre
-                </Label>
-                <select
-                  id="iq-gender"
-                  value={gender}
-                  onChange={(event) => setGender(event.target.value)}
-                  className="h-11 w-full max-w-[180px] rounded-md border border-input bg-background px-3 text-center text-sm shadow-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value="">Choisir</option>
-                  {GENDER_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  <Label htmlFor="iq-gender" className="flex min-h-10 items-center text-center leading-tight">
+                    Genre
+                  </Label>
+                  <select
+                    id="iq-gender"
+                    value={gender}
+                    onChange={(event) => setGender(event.target.value)}
+                    className="h-11 w-full max-w-[180px] rounded-md border border-input bg-background px-3 text-center text-sm shadow-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <option value="">Choisir</option>
+                    {GENDER_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

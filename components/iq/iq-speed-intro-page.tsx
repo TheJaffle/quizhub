@@ -72,8 +72,14 @@ export function IqSpeedIntroPage({ data, error }: IqSpeedIntroPageProps) {
               </div>
               <div className="rounded-lg border bg-background p-4">
                 <p className="text-sm text-muted-foreground">Temps disponible</p>
-                <p className="mt-2 text-2xl font-bold">{formatTimeLimit(data.section.timeLimitSeconds)}</p>
+                <p className="mt-2 text-2xl font-bold">{formatTimeLimit(data.section.totalTimeLimitSeconds)}</p>
               </div>
+              {data.section.timeLimitSeconds ? (
+                <div className="rounded-lg border bg-background p-4 sm:col-span-2">
+                  <p className="text-sm text-muted-foreground">Temps max par question</p>
+                  <p className="mt-2 text-2xl font-bold">{formatTimeLimit(data.section.timeLimitSeconds)}</p>
+                </div>
+              ) : null}
             </div>
 
             <div className="space-y-3">
@@ -82,7 +88,8 @@ export function IqSpeedIntroPage({ data, error }: IqSpeedIntroPageProps) {
                 <h2 className="text-xl font-semibold">Comment ca marche</h2>
               </div>
               <div className="space-y-2 text-sm text-muted-foreground">
-                <p>Vous aurez {formatTimeLimit(data.section.timeLimitSeconds)} pour repondre a un maximum de questions.</p>
+                <p>Vous aurez {formatTimeLimit(data.section.totalTimeLimitSeconds)} pour repondre a un maximum de questions.</p>
+                {data.section.timeLimitSeconds ? <p>Chaque question passera automatiquement apres {formatTimeLimit(data.section.timeLimitSeconds)} si vous ne repondez pas.</p> : null}
                 <p>Repondez vite, mais essayez de rester precis.</p>
                 <p>Chaque reponse sera enregistree immediatement.</p>
                 <p>Lorsque le temps est ecoule, le test se termine automatiquement.</p>
@@ -95,7 +102,7 @@ export function IqSpeedIntroPage({ data, error }: IqSpeedIntroPageProps) {
                 Repere utile
               </div>
               <p className="text-sm text-muted-foreground">
-                Le chronometre global sera lance pour {formatTimeLimit(data.section.timeLimitSeconds)} et les reponses defileront sans attente.
+                Le chronometre global sera lance pour {formatTimeLimit(data.section.totalTimeLimitSeconds)} et les reponses defileront sans attente.
               </p>
             </div>
 
@@ -107,7 +114,7 @@ export function IqSpeedIntroPage({ data, error }: IqSpeedIntroPageProps) {
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Clock3 className="h-3.5 w-3.5" />
               <TimerReset className="h-3.5 w-3.5" />
-              <span>Le temps comptera pour toute la phase, pas question par question.</span>
+              <span>Un chrono global pilote la phase et un chrono court peut aussi faire passer a la question suivante.</span>
             </div>
           </CardContent>
         </div>

@@ -79,7 +79,8 @@
     {
       "type": "speed",
       "questionKeys": ["speed-001", "speed-004", "speed-010"],
-      "timeLimitSeconds": 20
+      "totalTimeLimitSeconds": 20,
+      "timeLimitSeconds": 8
     },
     {
       "type": "audioMemory",
