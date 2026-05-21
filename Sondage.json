@@ -532,9 +532,7 @@
             { "questionKey": "memory-026", "weight": 50 }
           ]
         },
-        {
-          "questionKey": "memory-001"
-        }
+        { "questionKey": "memory-027" }
       ]
     },
     {
@@ -581,7 +579,6 @@
         "speed-039",
         "speed-040",
         "speed-041",
-        "speed-042",
         "speed-043",
         "speed-044",
         "speed-045",
