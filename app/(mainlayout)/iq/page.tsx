@@ -11,9 +11,13 @@ export const dynamic = "force-dynamic";
 
 const BUTTON_LABELS: Record<string, string> = {
   "test-qi-complet": "Test",
-  sondage: "Sondage",
+  sondage: "Sondage de calibration",
   basic: "Basic",
   premium: "Premium",
+};
+
+const CARD_DESCRIPTIONS: Record<string, string> = {
+  sondage: "Phase serieuse pour calibrer les questions, analyser les reponses et ameliorer le futur test de QI.",
 };
 
 const BUTTON_ICONS: Record<string, typeof FlaskConical> = {
@@ -64,7 +68,7 @@ export default async function IqTestsLaunchPage() {
                   <Icon className="h-6 w-6" />
                 </div>
                 <CardTitle>{buttonLabel}</CardTitle>
-                <CardDescription>{test.description || "Parcours de raisonnement indicatif."}</CardDescription>
+                <CardDescription>{CARD_DESCRIPTIONS[test.slug] || test.description || "Parcours de raisonnement indicatif."}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button asChild className="w-full">

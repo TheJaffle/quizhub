@@ -24,7 +24,7 @@ export async function generateMetadata({
 
   return {
     title: `${data.attempt.testTitle} | Phase principale | QuizHub`,
-    description: "Phase principale du test de logique QI-FREE.",
+    description: "Phase principale du test de logique brainspark.",
   };
 }
 

@@ -12,7 +12,7 @@ import ChatDrawer from "../header/ChatDrawer";
 import NotificationDrawer from "../header/NotificationDrawer";
 import { useSidebar } from "./sidebar-context";
 
-const BRAND_NAME = "QI-FREE";
+const BRAND_NAME = "brainspark";
 const SHOW_HEADER_COMMUNICATIONS = false;
 
 export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
@@ -91,6 +91,7 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
   const unreadMessagesCount = recentMessages.filter((m) => m.unread).length;
   const username = currentUser ? `@${currentUser.pseudo}` : null;
+  const brandHref = pathname === "/iq/sondage" ? "/iq/sondage" : "/";
 
   const handleMessageClick = (conversationId: string) => {
     router.push(`/chat?conversation=${conversationId}`);
@@ -123,7 +124,7 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
               {collapsed ? <PanelRightClose className="!text-3xl" /> : <PanelLeftClose className="!text-3xl" />}
             </Button>
           ) : null}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href={brandHref} className="flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold">{BRAND_NAME}</span>
           </Link>

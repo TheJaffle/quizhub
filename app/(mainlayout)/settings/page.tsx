@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Mon compte | QI-FREE",
+  title: "Mon compte | brainspark",
   description: "Gérez vos informations personnelles et vos préférences",
 };
 

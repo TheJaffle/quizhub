@@ -8,7 +8,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { useSidebar } from "./sidebar-context";
 
-const BRAND_NAME = "QI-FREE";
+const BRAND_NAME = "brainspark";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -19,6 +19,7 @@ export function AppSidebar() {
   const isActive = (path: string) => {
     return pathname === path || pathname.startsWith(`${path}/`);
   };
+  const brandHref = pathname === "/iq/sondage" ? "/iq/sondage" : "/";
 
   useEffect(() => {
     let isMounted = true;
@@ -63,7 +64,7 @@ export function AppSidebar() {
   return (
     <aside className={cn("max-xl:fixed max-xl:top-0 max-xl:left-0 max-xl:h-full xl:sticky top-0 flex h-screen flex-col border-r bg-background transition-all duration-300", collapsed ? "w-[250px] xl:w-[70px]" : "w-[250px]", collapsed ? "max-xl:-translate-x-full" : "max-xl:translate-x-0")}>
       <div className={`flex h-16 items-center max-xl:justify-between gap-2 border-b px-4 ${collapsed ? "justify-center" : "justify-between"}`}>
-        <Link href="/" className="flex justify-center items-center gap-2">
+        <Link href={brandHref} className="flex justify-center items-center gap-2">
           <BookOpen className="h-6 w-6 text-primary" />
           {!collapsed && <span className="text-xl font-bold">{BRAND_NAME}</span>}
         </Link>
