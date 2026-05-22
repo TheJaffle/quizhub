@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Cookies | QI-FREE",
-  description: "Informations sur l'utilisation des cookies par QI-FREE.",
+  title: "Cookies | brainspark",
+  description: "Informations sur l'utilisation des cookies par brainspark.",
 };
 
 export default function CookiesPage() {
@@ -14,7 +14,7 @@ export default function CookiesPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-semibold">Utilisation des cookies</h2>
-          <p>QI-FREE peut utiliser des cookies ou technologies similaires nécessaires au fonctionnement du site, notamment pour maintenir une session, sécuriser l'accès et mémoriser certains choix techniques.</p>
+          <p>brainspark peut utiliser des cookies ou technologies similaires nécessaires au fonctionnement du site, notamment pour maintenir une session, sécuriser l'accès et mémoriser certains choix techniques.</p>
         </section>
 
         <section className="space-y-3">

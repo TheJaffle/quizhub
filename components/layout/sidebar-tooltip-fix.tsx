@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSidebar } from "./sidebar-context";
 
-const BRAND_NAME = "QI-FREE";
+const BRAND_NAME = "brainspark";
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -21,6 +21,13 @@ export function AppSidebar() {
   const isActive = (path: string) => {
     return pathname === path;
   };
+  const disableBrandNavigation = pathname === "/iq/sondage" || pathname.startsWith("/iq/attempt/");
+  const brandContent = (
+    <>
+      <BookOpen className="h-6 w-6 text-primary" />
+      {!collapsed && <span className="text-xl font-bold">{BRAND_NAME}</span>}
+    </>
+  );
 
   useEffect(() => {
     let isMounted = true;
@@ -65,10 +72,15 @@ export function AppSidebar() {
   return (
     <aside className={cn("sticky top-0 flex h-screen flex-col border-r bg-background transition-all duration-300", collapsed ? "w-[70px]" : "w-[250px]")}>
       <div className="flex h-16 items-center justify-center border-b px-4">
-        <Link href="/" className="flex items-center space-x-2">
-          <BookOpen className="h-6 w-6 text-primary" />
-          {!collapsed && <span className="text-xl font-bold">{BRAND_NAME}</span>}
-        </Link>
+        {disableBrandNavigation ? (
+          <span className="flex items-center space-x-2" aria-label={BRAND_NAME}>
+            {brandContent}
+          </span>
+        ) : (
+          <Link href="/" className="flex items-center space-x-2">
+            {brandContent}
+          </Link>
+        )}
       </div>
 
       <div className="flex-1 overflow-auto py-4">

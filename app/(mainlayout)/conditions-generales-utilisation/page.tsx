@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Conditions générales d'utilisation | QI-FREE",
-  description: "Conditions générales d'utilisation du service gratuit QI-FREE.",
+  title: "Conditions générales d'utilisation | brainspark",
+  description: "Conditions générales d'utilisation du service gratuit brainspark.",
 };
 
 export default function ConditionsGeneralesUtilisationPage() {
@@ -14,7 +14,7 @@ export default function ConditionsGeneralesUtilisationPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-semibold">Service gratuit</h2>
-          <p>QI-FREE est un service entièrement gratuit édité par Wildspark. Le site ne vend aucun quiz, abonnement, option payante ou contenu premium.</p>
+          <p>brainspark est un service entièrement gratuit édité par Wildspark. Le site ne vend aucun quiz, abonnement, option payante ou contenu premium.</p>
           <p>En conséquence, aucune condition générale de vente n'est applicable à ce jour.</p>
         </section>
 
@@ -26,7 +26,7 @@ export default function ConditionsGeneralesUtilisationPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-semibold">Utilisation autorisée</h2>
-          <p>L'utilisateur s'engage à utiliser QI-FREE de manière loyale, sans perturber le fonctionnement du site, contourner ses protections ou porter atteinte aux droits de tiers.</p>
+          <p>L'utilisateur s'engage à utiliser brainspark de manière loyale, sans perturber le fonctionnement du site, contourner ses protections ou porter atteinte aux droits de tiers.</p>
         </section>
 
         <section className="space-y-3">

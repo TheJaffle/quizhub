@@ -20,7 +20,7 @@ export function DashboardHeader({ activeTab }: DashboardHeaderProps) {
       case "wallet":
         return {
           title: "Portefeuille",
-          description: "Section masquée tant que QI-FREE reste entièrement gratuit.",
+          description: "Section masquée tant que brainspark reste entièrement gratuit.",
           actions: null,
         };
       case "affiliate":

@@ -340,7 +340,7 @@ export async function getLatestQuizzes(): Promise<LatestQuizzesResult> {
       category: row.category_name,
       difficulty: row.difficulty ?? "Medium",
       timeLimit: row.time_limit ?? 15,
-      createdBy: row.created_by || "QI Free",
+      createdBy: row.created_by || "brainspark",
       creatorAvatar: row.creator_avatar || "/placeholder-user.jpg",
     }));
 
