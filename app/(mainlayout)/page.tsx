@@ -4,6 +4,7 @@ import { FeaturedQuizzes } from "@/components/home/featured-quizzes";
 import { HeroSection } from "@/components/home/hero-section";
 import { LatestQuizzes } from "@/components/home/latest-quizzes";
 import { LiveWinners } from "@/components/home/live-winners";
+import { MobileHomeNav } from "@/components/home/mobile-home-nav";
 import { NewsletterSection } from "@/components/home/newsletter-section";
 import { PlayerTestimonials } from "@/components/home/player-testimonials";
 import { QuizzesByDifficulty } from "@/components/home/quizzes-by-difficulty";
@@ -13,9 +14,14 @@ import { TopPlayersCarousel } from "@/components/home/top-players-carousel";
 import { Footer } from "@/components/layout/footer";
 import { getHomeQuizCategories } from "@/lib/quiz-categories";
 import { getRecentQuizPerformanceCards } from "@/lib/quizzes";
-import "swiper/swiper-bundle.css";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "brainspark | Quiz, défis et classements",
+  description: "Choisissez une catégorie, jouez aux quiz, suivez vos scores et défiez vos amis sur brainspark.",
+};
 
 const SHOW_HERO = true;
 const SHOW_CATEGORIES_SLIDER = true;
@@ -37,8 +43,8 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="space-y-4 xl:space-y-8 pb-8">
-      {SHOW_HERO ? <HeroSection /> : null}
+    <div className="-m-3 space-y-5 bg-slate-50 p-3 pb-28 md:-m-4 md:space-y-8 md:p-4 md:pb-8 xxl:-m-6 xxl:p-6">
+      {SHOW_HERO ? <HeroSection categories={categories} /> : null}
       {SHOW_CATEGORIES_SLIDER ? <CategoriesSlider categories={categories} error={error} /> : null}
       {SHOW_LATEST_QUIZZES ? <LatestQuizzes /> : null}
       {SHOW_TOP_AVERAGE_PLAYERS ? <TopAveragePlayers /> : null}
@@ -51,6 +57,7 @@ export default async function Home() {
       {SHOW_RESOURCES_AND_REFERRAL ? <ResourcesAndReferral /> : null}
       {SHOW_NEWSLETTER_SECTION ? <NewsletterSection /> : null}
       <Footer />
+      <MobileHomeNav />
     </div>
   );
 }
