@@ -62,19 +62,19 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
         </span>
       </div>
 
-      <div className="mb-6 rounded-xl border border-red-400 bg-red-200 px-4 py-3 text-center shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-red-900">Encodage memoire longue</p>
+      <div className="mb-6 rounded-xl bg-[#BA0B1E] px-4 py-3 text-center shadow-sm">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white">Encodage memoire longue</p>
       </div>
 
-      <Card className="overflow-hidden border-red-400 bg-red-200/80 p-6 shadow-lg shadow-red-300/60 md:p-8">
+      <Card className="overflow-hidden border bg-[#BA0B1E] p-6 shadow-lg shadow-slate-200 md:p-8">
         {data.question.questionText ? (
-          <div className="mb-4 rounded-xl border border-red-400 bg-white px-4 py-3 text-center shadow-sm">
-            <p className="text-base font-semibold text-red-950">{data.question.questionText}</p>
+          <div className="mb-4 rounded-xl border bg-white px-4 py-3 text-center shadow-sm">
+            <p className="text-base font-semibold text-[#BA0B1E]">{data.question.questionText}</p>
           </div>
         ) : null}
 
         {data.question.imageUrl ? (
-          <div className="rounded-lg border border-red-300 bg-white p-3 text-center">
+          <div className="rounded-lg border bg-white p-3 text-center">
             <img
               src={data.question.imageUrl}
               alt="Stimulus memoire longue"
@@ -83,7 +83,7 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
           </div>
         ) : (
           <div className="space-y-5 text-center">
-            <div className="rounded-lg border border-red-300 bg-white px-3 py-6 sm:px-5 md:p-10">
+            <div className="rounded-lg border bg-white px-3 py-6 sm:px-5 md:p-10">
               <p className="mx-auto max-w-full whitespace-nowrap text-[clamp(1.45rem,7vw,2.25rem)] font-bold tracking-normal sm:tracking-wide md:text-5xl">
                 {data.question.stimulusText || data.question.questionText || ""}
               </p>

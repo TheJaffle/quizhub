@@ -254,12 +254,12 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
         </div>
       </div>
 
-      <div className="mb-4 rounded-xl border border-red-400 bg-red-200 px-4 py-3 text-center shadow-sm">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-red-900">Reponse memoire longue</p>
+      <div className="mb-4 rounded-xl bg-[#BA0B1E] px-4 py-3 text-center shadow-sm">
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white">Reponse memoire longue</p>
       </div>
 
       {pauseRequested && !isPaused && !savedAnswer ? (
-        <div className="mb-4 rounded-lg border border-red-400 bg-red-200 px-4 py-3 text-sm text-red-950">
+        <div className="mb-4 rounded-lg bg-[#BA0B1E] px-4 py-3 text-sm text-white">
           Pause demandee : elle prendra effet a la fin de la question en cours.
         </div>
       ) : null}
@@ -276,7 +276,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
             </div>
           </div>
         ) : null}
-      <Card className="overflow-hidden border-red-400 bg-red-200/80 shadow-lg shadow-red-300/60">
+      <Card className="overflow-hidden border bg-[#BA0B1E] shadow-lg shadow-slate-200">
         <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.2 }} className="space-y-6 p-6">
           {templateQuestion ? (
             <QuizQuestion
@@ -293,12 +293,12 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
 
           {isOverlayQuestion && currentQuestion.overlay ? (
             <div className="space-y-6">
-              <div className="rounded-xl border border-red-400 bg-white px-4 py-3 text-center shadow-sm">
-                <h2 className="mt-1 text-xl font-semibold leading-tight text-red-950 md:text-2xl">
+              <div className="rounded-xl border bg-white px-4 py-3 text-center shadow-sm">
+                <h2 className="mt-1 text-xl font-semibold leading-tight text-[#BA0B1E] md:text-2xl">
                   {currentQuestion.answerPromptText || currentQuestion.questionText || "Selectionnez la bonne reponse."}
                 </h2>
               </div>
-              <div className="relative overflow-hidden rounded-lg border border-red-300 bg-white">
+              <div className="relative overflow-hidden rounded-lg border bg-white">
                 <Image
                   src={currentQuestion.overlay.answersImageUrl}
                   alt="Reponses memoire longue"
@@ -328,8 +328,8 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
                           void saveAnswer({ questionId: currentQuestion.id, selectedPosition: position });
                         }}
                         disabled={Boolean(savedAnswer) || isSaving || isPaused}
-                        className={`border border-transparent bg-transparent transition-all hover:bg-red-600/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 ${
-                          isSelected ? "bg-red-600/20 ring-2 ring-red-600" : ""
+                        className={`border border-transparent bg-transparent transition-all hover:bg-[#BA0B1E]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#BA0B1E] ${
+                          isSelected ? "bg-[#BA0B1E]/20 ring-2 ring-[#BA0B1E]" : ""
                         }`}
                       />
                     );
@@ -338,7 +338,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
               </div>
             </div>
           ) : currentQuestion.imageUrl ? (
-            <div className="flex min-h-[220px] items-center justify-center rounded-lg border border-red-300 bg-white">
+            <div className="flex min-h-[220px] items-center justify-center rounded-lg border bg-white">
               <div className="text-center text-muted-foreground">
                 <ImageIcon className="mx-auto mb-3 h-10 w-10" />
                 <p className="text-sm">Question visuelle</p>

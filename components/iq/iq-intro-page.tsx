@@ -113,7 +113,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
               <h1 className="max-w-xl text-3xl font-bold tracking-tight md:text-4xl">{test.title}</h1>
               <p className="mt-4 max-w-xl text-white/80">
                 {isSurveyIntro
-                  ? "Une premiere session pour ajuster les questions, analyser les reponses et preparer le futur test de QI."
+                  ? "Une premiere session pour ajuster les questions, analyser les reponses et preparer le futur test."
                   : test.description || "Un parcours progressif de raisonnement, sans valeur de diagnostic psychologique."}
               </p>
             </div>
@@ -247,10 +247,12 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
               {isSurveyIntro ? "Commencer le sondage" : "Commencer le test"}
             </Button>
 
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Clock className="h-3.5 w-3.5" />
-              <span>Votre progression sera conservee avec une tentative separee des quiz classiques.</span>
-            </div>
+            {!isSurveyIntro ? (
+              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Votre progression sera conservee avec une tentative separee des quiz classiques.</span>
+              </div>
+            ) : null}
           </CardContent>
         </div>
       </Card>
