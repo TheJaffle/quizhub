@@ -77,15 +77,15 @@ export function DailyLeaderboard() {
   return (
     <Card className="shadow-sm">
       <CardHeader className="pb-2 px-2 md:px-4">
-        <CardTitle className="text-xl">Leaderboard</CardTitle>
+        <CardTitle className="text-xl">Classement</CardTitle>
       </CardHeader>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="px-2 md:px-4">
           <TabsList className="grid grid-cols-3 w-full">
-            <TabsTrigger value="today">Today</TabsTrigger>
-            <TabsTrigger value="week">Week</TabsTrigger>
-            <TabsTrigger value="allTime">All Time</TabsTrigger>
+            <TabsTrigger value="today">Aujourd'hui</TabsTrigger>
+            <TabsTrigger value="week">Semaine</TabsTrigger>
+            <TabsTrigger value="allTime">Global</TabsTrigger>
           </TabsList>
         </div>
 

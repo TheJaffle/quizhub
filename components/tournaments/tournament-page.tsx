@@ -17,14 +17,14 @@ export function TournamentPage() {
   return (
     <>
       <div className="container mx-auto">
-        <h1 className="text-3xl font-bold mb-2">Quiz Tournaments</h1>
-        <p className="text-muted-foreground mb-8">Compete against other quiz enthusiasts and win amazing prizes</p>
+        <h1 className="text-3xl font-bold mb-2">Tournois de quiz</h1>
+        <p className="text-muted-foreground mb-8">Affrontez d’autres passionnés de quiz et tentez de gagner des récompenses</p>
 
         <FeaturedTournament />
 
         <div className="mt-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <h2 className="text-2xl font-bold">All Tournaments</h2>
+            <h2 className="text-2xl font-bold">Tous les tournois</h2>
             <TournamentFilters activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
           </div>
 

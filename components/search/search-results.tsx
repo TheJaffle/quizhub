@@ -208,14 +208,14 @@ export function SearchResults({ query }: { query: string }) {
   return (
     <div className="container py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-6">Search Results</h1>
+        <h1 className="text-3xl font-bold mb-6">Résultats de recherche</h1>
 
         <form onSubmit={handleSearch} className="flex gap-2 max-w-2xl">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input type="search" placeholder="Search quizzes, categories, creators..." className="pl-10" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <Input type="search" placeholder="Rechercher des quiz, catégories, créateurs..." className="pl-10" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
-          <Button type="submit">Search</Button>
+          <Button type="submit">Rechercher</Button>
         </form>
       </div>
 
@@ -223,32 +223,32 @@ export function SearchResults({ query }: { query: string }) {
         <>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <p className="text-muted-foreground">
-              {totalResults} results for "{searchQuery}"
+              {totalResults} résultat(s) pour "{searchQuery}"
             </p>
 
             <div className="flex flex-wrap gap-2">
               <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
                 <SelectTrigger className="w-[180px]">
                   <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Difficulty" />
+                  <SelectValue placeholder="Difficulté" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Difficulties</SelectItem>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
+                  <SelectItem value="all">Toutes les difficultés</SelectItem>
+                  <SelectItem value="easy">Facile</SelectItem>
+                  <SelectItem value="medium">Moyen</SelectItem>
+                  <SelectItem value="hard">Difficile</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={sortOption} onValueChange={setSortOption}>
                 <SelectTrigger className="w-[180px]">
                   <Clock className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="relevance">Relevance</SelectItem>
-                  <SelectItem value="plays">Most Played</SelectItem>
-                  <SelectItem value="rating">Highest Rated</SelectItem>
+                  <SelectItem value="relevance">Pertinence</SelectItem>
+                  <SelectItem value="plays">Les plus joués</SelectItem>
+                  <SelectItem value="rating">Les mieux notés</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -256,10 +256,10 @@ export function SearchResults({ query }: { query: string }) {
 
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-8">
             <TabsList className="mb-6 overflow-x-auto w-full">
-              <TabsTrigger value="all">All Results ({totalResults})</TabsTrigger>
-              <TabsTrigger value="quizzes">Quizzes ({results.quizzes.length})</TabsTrigger>
-              <TabsTrigger value="categories">Categories ({results.categories.length})</TabsTrigger>
-              <TabsTrigger value="creators">Creators ({results.creators.length})</TabsTrigger>
+              <TabsTrigger value="all">Tous les résultats ({totalResults})</TabsTrigger>
+              <TabsTrigger value="quizzes">Quiz ({results.quizzes.length})</TabsTrigger>
+              <TabsTrigger value="categories">Catégories ({results.categories.length})</TabsTrigger>
+              <TabsTrigger value="creators">Créateurs ({results.creators.length})</TabsTrigger>
               <TabsTrigger value="pages">Pages ({results.pages.length})</TabsTrigger>
             </TabsList>
 
@@ -270,11 +270,11 @@ export function SearchResults({ query }: { query: string }) {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold flex items-center gap-2">
                       <FileQuestion className="h-5 w-5" />
-                      Quizzes
+                      Quiz
                     </h2>
                     {results.quizzes.length > 4 && (
                       <Button variant="ghost" size="sm" onClick={() => setActiveTab("quizzes")}>
-                        View all ({results.quizzes.length})
+                        Tout voir ({results.quizzes.length})
                       </Button>
                     )}
                   </div>
@@ -291,7 +291,7 @@ export function SearchResults({ query }: { query: string }) {
                               <Badge variant="outline">{quiz.category}</Badge>
                               <Badge variant="outline">{quiz.difficulty}</Badge>
                             </div>
-                            <p className="text-sm text-muted-foreground">By @{quiz.creator}</p>
+                            <p className="text-sm text-muted-foreground">Par @{quiz.creator}</p>
                           </CardContent>
                           <CardFooter className="flex justify-between text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
@@ -300,7 +300,7 @@ export function SearchResults({ query }: { query: string }) {
                             </div>
                             <div className="flex items-center gap-1">
                               <User className="h-4 w-4" />
-                              <span>{quiz.plays.toLocaleString()} plays</span>
+                              <span>{quiz.plays.toLocaleString()} parties</span>
                             </div>
                           </CardFooter>
                         </Card>
@@ -316,11 +316,11 @@ export function SearchResults({ query }: { query: string }) {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold flex items-center gap-2">
                       <Tag className="h-5 w-5" />
-                      Categories
+                      Catégories
                     </h2>
                     {results.categories.length > 3 && (
                       <Button variant="ghost" size="sm" onClick={() => setActiveTab("categories")}>
-                        View all ({results.categories.length})
+                        Tout voir ({results.categories.length})
                       </Button>
                     )}
                   </div>
@@ -333,7 +333,7 @@ export function SearchResults({ query }: { query: string }) {
                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl">{category.icon}</div>
                             <div>
                               <h3 className="text-lg font-semibold">{category.name}</h3>
-                              <p className="text-sm text-muted-foreground">{category.quizCount} quizzes</p>
+                              <p className="text-sm text-muted-foreground">{category.quizCount} quiz</p>
                             </div>
                           </CardContent>
                         </Card>
@@ -349,11 +349,11 @@ export function SearchResults({ query }: { query: string }) {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold flex items-center gap-2">
                       <User className="h-5 w-5" />
-                      Creators
+                      Créateurs
                     </h2>
                     {results.creators.length > 2 && (
                       <Button variant="ghost" size="sm" onClick={() => setActiveTab("creators")}>
-                        View all ({results.creators.length})
+                        Tout voir ({results.creators.length})
                       </Button>
                     )}
                   </div>
@@ -371,8 +371,8 @@ export function SearchResults({ query }: { query: string }) {
                               <p className="text-sm text-muted-foreground mb-1">@{creator.username}</p>
                               <p className="text-sm line-clamp-2">{creator.bio}</p>
                               <div className="flex gap-4 mt-2 text-sm text-muted-foreground">
-                                <span>{creator.quizCount} quizzes</span>
-                                <span>{creator.followers} followers</span>
+                                <span>{creator.quizCount} quiz</span>
+                                <span>{creator.followers} abonnés</span>
                               </div>
                             </div>
                           </CardContent>
@@ -393,7 +393,7 @@ export function SearchResults({ query }: { query: string }) {
                     </h2>
                     {results.pages.length > 3 && (
                       <Button variant="ghost" size="sm" onClick={() => setActiveTab("pages")}>
-                        View all ({results.pages.length})
+                        Tout voir ({results.pages.length})
                       </Button>
                     )}
                   </div>
@@ -419,8 +419,8 @@ export function SearchResults({ query }: { query: string }) {
               {totalResults === 0 && (
                 <div className="text-center py-12">
                   <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h2 className="text-2xl font-semibold mb-2">No results found</h2>
-                  <p className="text-muted-foreground max-w-md mx-auto">We couldn't find anything matching "{searchQuery}". Try different keywords or check your spelling.</p>
+                  <h2 className="text-2xl font-semibold mb-2">Aucun résultat trouvé</h2>
+                  <p className="text-muted-foreground max-w-md mx-auto">Aucun élément ne correspond à "{searchQuery}". Essayez avec d'autres mots-clés.</p>
                 </div>
               )}
             </TabsContent>
@@ -439,7 +439,7 @@ export function SearchResults({ query }: { query: string }) {
                             <Badge variant="outline">{quiz.category}</Badge>
                             <Badge variant="outline">{quiz.difficulty}</Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground">By @{quiz.creator}</p>
+                          <p className="text-sm text-muted-foreground">Par @{quiz.creator}</p>
                         </CardContent>
                         <CardFooter className="flex justify-between text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
@@ -448,7 +448,7 @@ export function SearchResults({ query }: { query: string }) {
                           </div>
                           <div className="flex items-center gap-1">
                             <User className="h-4 w-4" />
-                            <span>{quiz.plays.toLocaleString()} plays</span>
+                            <span>{quiz.plays.toLocaleString()} parties</span>
                           </div>
                         </CardFooter>
                       </Card>
@@ -458,8 +458,8 @@ export function SearchResults({ query }: { query: string }) {
               ) : (
                 <div className="text-center py-12">
                   <FileQuestion className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h2 className="text-xl font-semibold mb-2">No quizzes found</h2>
-                  <p className="text-muted-foreground">We couldn't find any quizzes matching "{searchQuery}".</p>
+                  <h2 className="text-xl font-semibold mb-2">Aucun quiz trouvé</h2>
+                  <p className="text-muted-foreground">Aucun quiz ne correspond à "{searchQuery}".</p>
                 </div>
               )}
             </TabsContent>
@@ -474,7 +474,7 @@ export function SearchResults({ query }: { query: string }) {
                           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-3xl">{category.icon}</div>
                           <div>
                             <h3 className="text-xl font-semibold">{category.name}</h3>
-                            <p className="text-muted-foreground">{category.quizCount} quizzes</p>
+                            <p className="text-muted-foreground">{category.quizCount} quiz</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -484,8 +484,8 @@ export function SearchResults({ query }: { query: string }) {
               ) : (
                 <div className="text-center py-12">
                   <Tag className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h2 className="text-xl font-semibold mb-2">No categories found</h2>
-                  <p className="text-muted-foreground">We couldn't find any categories matching "{searchQuery}".</p>
+                  <h2 className="text-xl font-semibold mb-2">Aucune catégorie trouvée</h2>
+                  <p className="text-muted-foreground">Aucune catégorie ne correspond à "{searchQuery}".</p>
                 </div>
               )}
             </TabsContent>
@@ -507,11 +507,11 @@ export function SearchResults({ query }: { query: string }) {
                             <div className="flex gap-6 text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <FileQuestion className="h-4 w-4" />
-                                <span>{creator.quizCount} quizzes</span>
+                                <span>{creator.quizCount} quiz</span>
                               </div>
                               <div className="flex items-center gap-1">
                                 <Users className="h-4 w-4" />
-                                <span>{creator.followers} followers</span>
+                                <span>{creator.followers} abonnés</span>
                               </div>
                             </div>
                           </div>
@@ -523,8 +523,8 @@ export function SearchResults({ query }: { query: string }) {
               ) : (
                 <div className="text-center py-12">
                   <User className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h2 className="text-xl font-semibold mb-2">No creators found</h2>
-                  <p className="text-muted-foreground">We couldn't find any creators matching "{searchQuery}".</p>
+                  <h2 className="text-xl font-semibold mb-2">Aucun créateur trouvé</h2>
+                  <p className="text-muted-foreground">Aucun créateur ne correspond à "{searchQuery}".</p>
                 </div>
               )}
             </TabsContent>
@@ -549,8 +549,8 @@ export function SearchResults({ query }: { query: string }) {
               ) : (
                 <div className="text-center py-12">
                   <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <h2 className="text-xl font-semibold mb-2">No pages found</h2>
-                  <p className="text-muted-foreground">We couldn't find any pages matching "{searchQuery}".</p>
+                  <h2 className="text-xl font-semibold mb-2">Aucune page trouvée</h2>
+                  <p className="text-muted-foreground">Aucune page ne correspond à "{searchQuery}".</p>
                 </div>
               )}
             </TabsContent>
@@ -559,13 +559,13 @@ export function SearchResults({ query }: { query: string }) {
       ) : (
         <div className="text-center py-16">
           <Search className="h-16 w-16 mx-auto mb-6 text-muted-foreground opacity-30" />
-          <h2 className="text-2xl font-semibold mb-3">Search for quizzes, categories, and more</h2>
-          <p className="text-muted-foreground max-w-md mx-auto mb-8">Enter a search term above to find quizzes, categories, creators, and pages across QuizMaker.</p>
+          <h2 className="text-2xl font-semibold mb-3">Recherchez des quiz, catégories et plus encore</h2>
+          <p className="text-muted-foreground max-w-md mx-auto mb-8">Saisissez un mot-clé pour trouver des quiz, catégories, créateurs et pages sur brainspark.</p>
 
           <div className="max-w-3xl mx-auto">
-            <h3 className="text-lg font-medium mb-4">Popular searches</h3>
+            <h3 className="text-lg font-medium mb-4">Recherches populaires</h3>
             <div className="flex flex-wrap justify-center gap-2">
-              {["History", "Science", "Geography", "Entertainment", "Sports", "Technology", "Art", "Music", "Food", "Movies"].map((term) => (
+              {["Histoire", "Sciences", "Géographie", "Divertissement", "Sport", "Technologie", "Art", "Musique", "Cuisine", "Cinéma"].map((term) => (
                 <Button
                   key={term}
                   variant="outline"

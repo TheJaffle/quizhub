@@ -10,16 +10,16 @@ interface TournamentCategoriesProps {
 
 export function TournamentCategories({ activeCategory, setActiveCategory }: TournamentCategoriesProps) {
   const categories = [
-    { id: "all", name: "All Categories" },
-    { id: "general", name: "General Knowledge" },
-    { id: "science", name: "Science" },
-    { id: "history", name: "History" },
-    { id: "geography", name: "Geography" },
-    { id: "entertainment", name: "Entertainment" },
-    { id: "sports", name: "Sports" },
-    { id: "literature", name: "Literature" },
-    { id: "technology", name: "Technology" },
-    { id: "art", name: "Art & Culture" },
+    { id: "all", name: "Toutes les catégories" },
+    { id: "general", name: "Culture générale" },
+    { id: "science", name: "Sciences" },
+    { id: "history", name: "Histoire" },
+    { id: "geography", name: "Géographie" },
+    { id: "entertainment", name: "Divertissement" },
+    { id: "sports", name: "Sport" },
+    { id: "literature", name: "Littérature" },
+    { id: "technology", name: "Technologie" },
+    { id: "art", name: "Art et culture" },
   ]
 
   return (

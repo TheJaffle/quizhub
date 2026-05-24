@@ -37,8 +37,8 @@ export function DailyChallengeHeader() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Daily Challenge</h1>
-        <p className="text-muted-foreground">A new quiz every day. Test your knowledge and compete with others!</p>
+        <h1 className="text-3xl font-bold tracking-tight">Défi du jour</h1>
+        <p className="text-muted-foreground">Un nouveau quiz chaque jour. Testez vos connaissances et comparez votre score.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -48,7 +48,7 @@ export function DailyChallengeHeader() {
               <Clock className="h-5 w-5 text-purple-600 dark:text-purple-300" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Time Remaining</p>
+              <p className="text-sm font-medium text-muted-foreground">Temps restant</p>
               <p className="text-xl font-bold">
                 {formatTime(timeLeft.hours)}:{formatTime(timeLeft.minutes)}:{formatTime(timeLeft.seconds)}
               </p>
@@ -62,8 +62,8 @@ export function DailyChallengeHeader() {
               <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-300" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Today's Theme</p>
-              <p className="text-xl font-bold">Science & Technology</p>
+              <p className="text-sm font-medium text-muted-foreground">Thème du jour</p>
+              <p className="text-xl font-bold">Sciences et technologie</p>
             </div>
           </CardContent>
         </Card>
@@ -74,8 +74,8 @@ export function DailyChallengeHeader() {
               <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-300" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Top Prize</p>
-              <p className="text-xl font-bold">500 Coins</p>
+              <p className="text-sm font-medium text-muted-foreground">Meilleure récompense</p>
+              <p className="text-xl font-bold">500 pièces</p>
             </div>
           </CardContent>
         </Card>
@@ -86,8 +86,8 @@ export function DailyChallengeHeader() {
               <Flame className="h-5 w-5 text-red-600 dark:text-red-300" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Your Streak</p>
-              <p className="text-xl font-bold">4 Days</p>
+              <p className="text-sm font-medium text-muted-foreground">Votre série</p>
+              <p className="text-xl font-bold">4 jours</p>
             </div>
           </CardContent>
         </Card>

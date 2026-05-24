@@ -51,16 +51,16 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">{battleState.mode === "1v1" ? "1v1 Battle" : "Group Battle"} Lobby</h1>
-        <p className="text-muted-foreground">{countdown > 0 ? `Battle starts in ${countdown} seconds` : "Ready to start battle!"}</p>
+        <h1 className="text-3xl font-bold mb-2">{battleState.mode === "1v1" ? "Défi 1 contre 1" : "Défi de groupe"}</h1>
+        <p className="text-muted-foreground">{countdown > 0 ? `Le défi commence dans ${countdown} secondes` : "Prêt à commencer !"}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Players</CardTitle>
-              <CardDescription>{battleState.mode === "1v1" ? "You and your opponent" : `${battleState.players.length} players in the lobby`}</CardDescription>
+              <CardTitle>Joueurs</CardTitle>
+              <CardDescription>{battleState.mode === "1v1" ? "Vous et votre adversaire" : `${battleState.players.length} joueurs dans le salon`}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -73,7 +73,7 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
                     <div className="text-center">
                       <div className="font-medium">{player.name}</div>
                       <Badge variant={player.isReady ? "default" : "outline"} className="mt-1">
-                        {player.isReady ? "Ready" : "Waiting..."}
+                        {player.isReady ? "Prêt" : "En attente..."}
                       </Badge>
                     </div>
                   </div>
@@ -83,10 +83,10 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
             <CardFooter className="flex justify-between">
               <Button variant="outline" onClick={onCancel}>
                 <X className="mr-2 h-4 w-4" />
-                Cancel
+                Annuler
               </Button>
               <Button onClick={onStartBattle} disabled={!allReady && countdown > 0}>
-                {countdown > 0 ? `Starting in ${countdown}s` : "Start Battle Now"}
+                {countdown > 0 ? `Départ dans ${countdown}s` : "Commencer maintenant"}
               </Button>
             </CardFooter>
           </Card>
@@ -95,12 +95,12 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
         <div className="space-y-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Battle Settings</CardTitle>
+              <CardTitle className="text-lg">Paramètres du défi</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Mode</div>
-                <div className="font-medium">{battleState.mode === "1v1" ? "1v1 Battle" : "Group Battle"}</div>
+                <div className="font-medium">{battleState.mode === "1v1" ? "Défi 1 contre 1" : "Défi de groupe"}</div>
               </div>
 
               <div className="space-y-1">
@@ -108,7 +108,7 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
                 <div className="font-medium flex items-center">
                   {battleState.type === "private" ? (
                     <>
-                      <span>Private Room</span>
+                      <span>Salon privé</span>
                       {battleState.roomCode && (
                         <Button variant="ghost" size="sm" className="ml-2 h-6 px-2" onClick={copyRoomCode}>
                           {copied ? <CheckCircle2 className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
@@ -116,19 +116,19 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
                       )}
                     </>
                   ) : (
-                    "Public Match"
+                    "Partie publique"
                   )}
                 </div>
               </div>
 
               <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">Category</div>
-                <div className="font-medium capitalize">{battleState.category || "Random"}</div>
+                <div className="text-sm text-muted-foreground">Catégorie</div>
+                <div className="font-medium capitalize">{battleState.category || "Aléatoire"}</div>
               </div>
 
               <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">Difficulty</div>
-                <div className="font-medium capitalize">{battleState.difficulty || "Medium"}</div>
+                <div className="text-sm text-muted-foreground">Difficulté</div>
+                <div className="font-medium capitalize">{battleState.difficulty || "Moyen"}</div>
               </div>
 
               <div className="space-y-1">
@@ -137,8 +137,8 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
               </div>
 
               <div className="space-y-1">
-                <div className="text-sm text-muted-foreground">Time per question</div>
-                <div className="font-medium">{battleState.timePerQuestion} seconds</div>
+                <div className="text-sm text-muted-foreground">Temps par question</div>
+                <div className="font-medium">{battleState.timePerQuestion} secondes</div>
               </div>
             </CardContent>
           </Card>
@@ -147,22 +147,22 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Trophy className="h-5 w-5 text-yellow-500" />
-                Battle Rules
+                Règles du défi
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-blue-500" />
-                  <span>Answer quickly for bonus points</span>
+                  <span>Répondez vite pour gagner des points bonus</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <ListChecks className="h-4 w-4 text-green-500" />
-                  <span>No changing answers once submitted</span>
+                  <span>Une réponse validée ne peut plus être changée</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Trophy className="h-4 w-4 text-purple-500" />
-                  <span>Win streaks earn bonus XP</span>
+                  <span>Les séries de victoires donnent de l'XP bonus</span>
                 </li>
               </ul>
             </CardContent>
@@ -172,8 +172,8 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
 
       <div className="mt-6">
         <div className="flex justify-between text-sm mb-2">
-          <span>Waiting for players...</span>
-          <span>{allReady ? "All players ready!" : "Getting ready..."}</span>
+          <span>En attente des joueurs...</span>
+          <span>{allReady ? "Tous les joueurs sont prêts !" : "Préparation..."}</span>
         </div>
         <Progress value={allReady ? 100 : 66} className="h-2" />
       </div>

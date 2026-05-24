@@ -50,7 +50,7 @@ export function BattlePage() {
   const mockPlayers: Player[] = [
     {
       id: "1",
-      name: "You",
+      name: "Vous",
       avatar: "/avatars/wizard.webp",
       score: 0,
       isReady: true,

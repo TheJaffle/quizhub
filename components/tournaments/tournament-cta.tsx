@@ -15,13 +15,13 @@ export function TournamentCta() {
 
         <div className="relative grid md:grid-cols-2 gap-8 p-8 md:p-12 items-center">
           <div className="space-y-6">
-            <div className="inline-block rounded-lg bg-white/10 backdrop-blur-sm px-4 py-2 text-white font-medium text-sm">Ready for the challenge?</div>
+            <div className="inline-block rounded-lg bg-white/10 backdrop-blur-sm px-4 py-2 text-white font-medium text-sm">Prêt pour le défi ?</div>
 
             <h2 className="text-3xl md:text-4xl font-bold text-white leading-tight">
-              Join the ultimate <span className="text-yellow-200">quiz competition!</span>
+              Rejoignez la grande <span className="text-yellow-200">compétition de quiz !</span>
             </h2>
 
-            <p className="text-indigo-100 text-lg max-w-md">Compete with players from around the world, showcase your knowledge, and win amazing prizes in our tournaments.</p>
+            <p className="text-indigo-100 text-lg max-w-md">Affrontez d’autres joueurs, montrez vos connaissances et gagnez des récompenses dans nos tournois.</p>
 
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
@@ -30,7 +30,7 @@ export function TournamentCta() {
                     <Trophy className="h-4 w-4 text-yellow-200" />
                   </div>
                 </div>
-                <p className="text-indigo-100">Win exclusive prizes and climb the global leaderboard</p>
+                <p className="text-indigo-100">Gagnez des récompenses et montez dans le classement global</p>
               </div>
 
               <div className="flex items-start space-x-3">
@@ -39,7 +39,7 @@ export function TournamentCta() {
                     <Users className="h-4 w-4 text-yellow-200" />
                   </div>
                 </div>
-                <p className="text-indigo-100">Connect with a community of quiz enthusiasts</p>
+                <p className="text-indigo-100">Rejoignez une communauté de passionnés de quiz</p>
               </div>
 
               <div className="flex items-start space-x-3">
@@ -48,19 +48,19 @@ export function TournamentCta() {
                     <Award className="h-4 w-4 text-yellow-200" />
                   </div>
                 </div>
-                <p className="text-indigo-100">Earn special badges and achievements</p>
+                <p className="text-indigo-100">Débloquez des badges et réussites spéciales</p>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-4 pt-2">
               <Button asChild size="lg" className="bg-white text-indigo-600 hover:bg-indigo-50">
                 <Link href="/tournaments/register">
-                  Register Now <ArrowRight className="ml-2 h-4 w-4" />
+                  S’inscrire <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
 
               <Button asChild size="lg" variant={"secondary"}>
-                <Link href="/tournaments/create">Host a Tournament</Link>
+                <Link href="/tournaments/create">Organiser un tournoi</Link>
               </Button>
             </div>
           </div>

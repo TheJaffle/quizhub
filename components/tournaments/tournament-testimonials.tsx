@@ -21,55 +21,55 @@ export function TournamentTestimonials() {
       id: 1,
       name: "Alex Johnson",
       avatar: "/avatars/alex.png",
-      role: "History Enthusiast",
+      role: "Passionné d’histoire",
       rating: 5,
-      text: "The World History Tournament was incredibly well-organized! The questions were challenging but fair, and the live competition format kept me on the edge of my seat. I learned so much while having fun.",
-      tournament: "World History Championship",
+      text: "Le tournoi d’histoire était très bien organisé. Les questions étaient exigeantes mais justes, et le format en direct rendait chaque manche captivante.",
+      tournament: "Championnat d’histoire mondiale",
     },
     {
       id: 2,
       name: "Sarah Williams",
       avatar: "/avatars/sarah.webp",
-      role: "Science Teacher",
+      role: "Professeure de sciences",
       rating: 5,
-      text: "As a science teacher, I was impressed by the depth and accuracy of questions in the Science Spectacular tournament. My students and I participated together, and it became a wonderful learning experience for all of us.",
-      tournament: "Science Spectacular",
+      text: "En tant que professeure de sciences, j’ai apprécié la précision des questions. C’était une excellente expérience d’apprentissage.",
+      tournament: "Grand tournoi sciences",
     },
     {
       id: 3,
       name: "Michael Chen",
       avatar: "/avatars/wizard.webp",
-      role: "Quiz Champion",
+      role: "Champion de quiz",
       rating: 4,
-      text: "I've participated in dozens of online quiz competitions, and this platform offers the best tournament experience by far. The real-time scoring and global competition make every round exciting!",
-      tournament: "General Knowledge Masters",
+      text: "J’ai participé à de nombreuses compétitions de quiz en ligne, et le suivi en temps réel rend les manches vraiment motivantes.",
+      tournament: "Maîtres de culture générale",
     },
     {
       id: 4,
       name: "Emily Rodriguez",
       avatar: "/avatars/guru.png",
-      role: "Literature Lover",
+      role: "Passionnée de littérature",
       rating: 5,
-      text: "The Classic Literature tournament exceeded my expectations. The questions were thoughtfully crafted and covered a wide range of works. I connected with other book lovers and even won some amazing prizes!",
-      tournament: "Classic Literature Challenge",
+      text: "Le tournoi de littérature a dépassé mes attentes. Les questions étaient bien construites et couvraient beaucoup d’œuvres.",
+      tournament: "Défi littérature classique",
     },
     {
       id: 5,
       name: "David Kim",
       avatar: "/avatars/king.webp",
-      role: "Math Enthusiast",
+      role: "Passionné de maths",
       rating: 4,
-      text: "The Math & Logic tournament was both challenging and rewarding. The timed rounds really tested my problem-solving abilities under pressure. The community is supportive and the prizes were great!",
-      tournament: "Math & Logic Masters",
+      text: "Le tournoi maths et logique était stimulant. Les manches chronométrées testent vraiment la réflexion sous pression.",
+      tournament: "Maîtres maths et logique",
     },
     {
       id: 6,
       name: "Jessica Taylor",
       avatar: "/testimonials/jessica.png",
-      role: "Trivia Buff",
+      role: "Fan de quiz",
       rating: 5,
-      text: "I love how the tournaments are structured with qualifying rounds and finals. It gives everyone a fair chance while still rewarding skill and knowledge. The Pop Culture tournament was my favorite so far!",
-      tournament: "Pop Culture Showdown",
+      text: "J’aime le format avec qualifications et finale. Tout le monde a sa chance, tout en récompensant les connaissances.",
+      tournament: "Duel pop culture",
     },
   ];
 
@@ -104,12 +104,12 @@ export function TournamentTestimonials() {
   return (
     <section className="py-16 mt-8">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold mb-4">What Tournament Players Say</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">Hear from our community of quiz enthusiasts who have participated in our tournaments</p>
+        <h2 className="text-3xl font-bold mb-4">Ce que disent les joueurs</h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto">Quelques retours de joueurs qui ont participé aux tournois</p>
       </div>
 
       <div className="relative max-w-4xl mx-auto px-4" onMouseEnter={() => setAutoplay(false)} onMouseLeave={() => setAutoplay(true)}>
-        <button onClick={handlePrev} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm p-2 rounded-full shadow-md border border-border hover:bg-muted transition-colors" aria-label="Previous testimonial">
+        <button onClick={handlePrev} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm p-2 rounded-full shadow-md border border-border hover:bg-muted transition-colors" aria-label="Témoignage précédent">
           <ChevronLeft className="h-6 w-6" />
         </button>
 
@@ -140,7 +140,7 @@ export function TournamentTestimonials() {
 
                   <div className="mt-6 pt-4 border-t border-border">
                     <p className="text-sm font-medium">
-                      Tournament: <span className="text-primary">{testimonial.tournament}</span>
+                      Tournoi : <span className="text-primary">{testimonial.tournament}</span>
                     </p>
                   </div>
                 </motion.div>
@@ -149,21 +149,21 @@ export function TournamentTestimonials() {
           </div>
         </div>
 
-        <button onClick={handleNext} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm p-2 rounded-full shadow-md border border-border hover:bg-muted transition-colors" aria-label="Next testimonial">
+        <button onClick={handleNext} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-background/80 backdrop-blur-sm p-2 rounded-full shadow-md border border-border hover:bg-muted transition-colors" aria-label="Témoignage suivant">
           <ChevronRight className="h-6 w-6" />
         </button>
 
         {/* Dots navigation */}
         <div className="flex justify-center mt-6 space-x-2">
           {testimonials.map((_, index) => (
-            <button key={index} onClick={() => handleDotClick(index)} className={`w-3 h-3 rounded-full transition-colors ${index === currentIndex ? "bg-primary" : "bg-muted hover:bg-primary/50"}`} aria-label={`Go to testimonial ${index + 1}`} />
+            <button key={index} onClick={() => handleDotClick(index)} className={`w-3 h-3 rounded-full transition-colors ${index === currentIndex ? "bg-primary" : "bg-muted hover:bg-primary/50"}`} aria-label={`Voir le témoignage ${index + 1}`} />
           ))}
         </div>
       </div>
 
       <div className="text-center mt-12">
-        <p className="text-lg font-medium mb-4">Join over 50,000 quiz enthusiasts in our tournaments</p>
-        <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-full font-medium">View Upcoming Tournaments</button>
+        <p className="text-lg font-medium mb-4">Rejoignez plus de 50 000 passionnés de quiz dans nos tournois</p>
+        <button className="bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 rounded-full font-medium">Voir les tournois à venir</button>
       </div>
     </section>
   );

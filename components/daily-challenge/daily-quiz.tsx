@@ -10,38 +10,38 @@ import { useEffect, useState } from "react";
 
 // Mock data for the daily quiz
 export const dailyQuizData = {
-  title: "Science & Technology Challenge",
-  description: "Test your knowledge of scientific discoveries and technological innovations.",
+  title: "Défi sciences et technologie",
+  description: "Testez vos connaissances sur les découvertes scientifiques et les innovations technologiques.",
   questions: [
     {
       id: 1,
-      question: "Which of these is NOT a programming language?",
+      question: "Lequel de ces éléments n'est PAS un langage de programmation ?",
       options: ["Java", "Python", "HTML", "Jaguar"],
       correctAnswer: "Jaguar",
     },
     {
       id: 2,
-      question: "What does CPU stand for?",
-      options: ["Central Processing Unit", "Computer Personal Unit", "Central Processor Utility", "Core Processing Unit"],
-      correctAnswer: "Central Processing Unit",
+      question: "Que signifie CPU en informatique ?",
+      options: ["Unité centrale de traitement", "Unité personnelle d'ordinateur", "Utilitaire de processeur central", "Unité de traitement principale"],
+      correctAnswer: "Unité centrale de traitement",
     },
     {
       id: 3,
-      question: "Which planet has the most moons?",
-      options: ["Jupiter", "Saturn", "Uranus", "Neptune"],
-      correctAnswer: "Saturn",
+      question: "Quelle planète possède le plus grand nombre de lunes connues ?",
+      options: ["Jupiter", "Saturne", "Uranus", "Neptune"],
+      correctAnswer: "Saturne",
     },
     {
       id: 4,
-      question: "What is the chemical symbol for gold?",
+      question: "Quel est le symbole chimique de l'or ?",
       options: ["Go", "Gd", "Au", "Ag"],
       correctAnswer: "Au",
     },
     {
       id: 5,
-      question: "Which of these is a renewable energy source?",
-      options: ["Coal", "Natural Gas", "Solar", "Petroleum"],
-      correctAnswer: "Solar",
+      question: "Laquelle de ces sources d'énergie est renouvelable ?",
+      options: ["Charbon", "Gaz naturel", "Solaire", "Pétrole"],
+      correctAnswer: "Solaire",
     },
   ],
 };
@@ -137,9 +137,9 @@ export function DailyQuiz({ onComplete }: DailyQuizProps) {
           <Progress value={progress} className="h-2" />
           <div className="flex justify-between mt-1 text-xs text-muted-foreground">
             <span>
-              Question {currentQuestion + 1} of {dailyQuizData.questions.length}
+              Question {currentQuestion + 1} sur {dailyQuizData.questions.length}
             </span>
-            <span>{Math.round(progress)}% Complete</span>
+            <span>{Math.round(progress)}% terminé</span>
           </div>
         </div>
       </CardHeader>
@@ -165,17 +165,17 @@ export function DailyQuiz({ onComplete }: DailyQuizProps) {
 
       <CardFooter className="flex justify-between pt-4">
         <Button variant="outline" onClick={handlePrevious} disabled={currentQuestion === 0}>
-          Previous
+          Précédent
         </Button>
 
         <div className="flex space-x-2">
           {isLastQuestion ? (
             <Button onClick={handleSubmit} disabled={!canSubmit || isSubmitting} className="bg-green-600 hover:bg-green-700">
-              {isSubmitting ? "Submitting..." : "Submit Challenge"}
+              {isSubmitting ? "Validation..." : "Valider le défi"}
             </Button>
           ) : (
             <Button onClick={handleNext} disabled={!selectedAnswers[currentQuestion]}>
-              Next Question
+              Question suivante
             </Button>
           )}
         </div>
@@ -184,14 +184,14 @@ export function DailyQuiz({ onComplete }: DailyQuizProps) {
       {isLastQuestion && !canSubmit && (
         <div className="px-6 pb-4 flex items-center text-amber-600 text-sm">
           <AlertCircle className="h-4 w-4 mr-2" />
-          <span>Please answer all questions before submitting</span>
+          <span>Répondez à toutes les questions avant de valider.</span>
         </div>
       )}
 
       {isLastQuestion && canSubmit && !isSubmitting && (
         <div className="px-6 pb-4 flex items-center text-green-600 text-sm">
           <CheckCircle2 className="h-4 w-4 mr-2" />
-          <span>All questions answered! You can submit your challenge.</span>
+          <span>Toutes les questions sont complétées. Vous pouvez valider le défi.</span>
         </div>
       )}
     </Card>

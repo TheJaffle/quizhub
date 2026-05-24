@@ -7,40 +7,40 @@ import { ChevronRight } from "lucide-react";
 const pastChallenges = [
   {
     id: 1,
-    date: "May 19, 2025",
-    theme: "History & Culture",
+    date: "19 mai 2025",
+    theme: "Histoire et culture",
     score: 80,
     rank: 15,
     completed: true,
   },
   {
     id: 2,
-    date: "May 18, 2025",
-    theme: "Entertainment",
+    date: "18 mai 2025",
+    theme: "Divertissement",
     score: 60,
     rank: 42,
     completed: true,
   },
   {
     id: 3,
-    date: "May 17, 2025",
-    theme: "Geography",
+    date: "17 mai 2025",
+    theme: "Géographie",
     score: 90,
     rank: 7,
     completed: true,
   },
   {
     id: 4,
-    date: "May 16, 2025",
-    theme: "Science & Technology",
+    date: "16 mai 2025",
+    theme: "Sciences et technologie",
     score: 70,
     rank: 23,
     completed: true,
   },
   {
     id: 5,
-    date: "May 15, 2025",
-    theme: "Sports & Games",
+    date: "15 mai 2025",
+    theme: "Sport et jeux",
     score: 85,
     rank: 12,
     completed: true,
@@ -51,9 +51,9 @@ export function DailyHistory() {
   return (
     <Card className="shadow-sm">
       <CardHeader className="pb-2 flex flex-wrap gap-2 flex-row items-center justify-between">
-        <CardTitle className="text-xl">Challenge History</CardTitle>
+        <CardTitle className="text-xl">Historique des défis</CardTitle>
         <Button variant="ghost" size="sm" className="text-xs">
-          View All
+          Tout voir
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </CardHeader>
@@ -74,7 +74,7 @@ export function DailyHistory() {
 
               <div className="text-right">
                 <div className="font-medium">{challenge.score}%</div>
-                <div className="text-sm text-muted-foreground">Rank #{challenge.rank}</div>
+                <div className="text-sm text-muted-foreground">Rang #{challenge.rank}</div>
               </div>
             </div>
           ))}

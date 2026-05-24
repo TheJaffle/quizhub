@@ -10,26 +10,26 @@ export function TournamentHowItWorks() {
     {
       number: "01",
       icon: <Calendar className="h-5 w-5" />,
-      title: "Register",
-      description: "Browse upcoming tournaments and register for those that match your interests and skill level.",
+      title: "Inscription",
+      description: "Parcourez les tournois à venir et inscrivez-vous à ceux qui correspondent à vos envies et à votre niveau.",
     },
     {
       number: "02",
       icon: <Users className="h-5 w-5" />,
-      title: "Prepare",
-      description: "Study the tournament topic, practice with similar quizzes, and review the rules.",
+      title: "Préparation",
+      description: "Révisez le thème, entraînez-vous avec des quiz proches et consultez les règles.",
     },
     {
       number: "03",
       icon: <CheckCircle className="h-5 w-5" />,
-      title: "Compete",
-      description: "Participate in multiple rounds of challenging quizzes against players from around the world.",
+      title: "Participation",
+      description: "Participez à plusieurs manches contre d’autres joueurs.",
     },
     {
       number: "04",
       icon: <Trophy className="h-5 w-5" />,
-      title: "Win",
-      description: "Top performers win prizes, badges, and recognition on the global leaderboard.",
+      title: "Victoire",
+      description: "Les meilleurs gagnent des récompenses, badges et places dans le classement global.",
     },
   ];
 
@@ -37,8 +37,8 @@ export function TournamentHowItWorks() {
     <section className="py-10 xl:py-16 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold mb-4">How Tournaments Work</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">Our quiz tournaments offer a fun and competitive way to test your knowledge and win prizes.</p>
+          <h2 className="text-3xl font-bold mb-4">Comment fonctionnent les tournois</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">Les tournois rendent les quiz plus ludiques, compétitifs et motivants.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -60,9 +60,9 @@ export function TournamentHowItWorks() {
         </div>
 
         <div className="text-center mt-12">
-          <p className="text-lg mb-4">Ready to test your knowledge?</p>
+          <p className="text-lg mb-4">Prêt à tester vos connaissances ?</p>
           <Button size="lg" className="px-6">
-            Join a Tournament Today
+            Rejoindre un tournoi
           </Button>
         </div>
       </div>

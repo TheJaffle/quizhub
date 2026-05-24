@@ -22,81 +22,81 @@ export function TournamentList({ activeCategory, activeFilter }: TournamentListP
   const tournaments = [
     {
       id: "science-showdown",
-      title: "Science Showdown",
-      description: "Test your scientific knowledge across physics, chemistry, biology and more.",
+      title: "Duel de sciences",
+      description: "Testez vos connaissances en physique, chimie, biologie et plus encore.",
       image: "/space-exploration-quiz.png", // Fixed image path to use an existing image
       category: "science",
       status: "registration",
-      dates: "June 1 - June 15, 2023",
+      dates: "1 juin - 15 juin 2023",
       participants: 342,
       prize: "$1,000",
-      registrationEnds: "2 days",
-      difficulty: "Medium",
+      registrationEnds: "2 jours",
+      difficulty: "Moyen",
     },
     {
       id: "history-heroes",
-      title: "History Heroes",
-      description: "Journey through time and test your knowledge of historical events and figures.",
+      title: "Héros de l’histoire",
+      description: "Voyagez dans le temps et testez vos connaissances sur les événements et personnages historiques.",
       image: "/ancient-civilizations-quiz.png", // Using existing history quiz image
       category: "history",
       status: "upcoming",
-      dates: "June 5 - June 20, 2023",
+      dates: "5 juin - 20 juin 2023",
       participants: 215,
       prize: "$750",
-      registrationEnds: "5 days",
-      difficulty: "Hard",
+      registrationEnds: "5 jours",
+      difficulty: "Difficile",
     },
     {
       id: "pop-culture-party",
-      title: "Pop Culture Party",
-      description: "From movies to music, test your knowledge of all things entertainment.",
+      title: "Pop culture party",
+      description: "Du cinéma à la musique, testez votre culture divertissement.",
       image: "/space-exploration-quiz.png", // Using existing entertainment quiz image
       category: "entertainment",
       status: "ongoing",
-      dates: "May 20 - June 5, 2023",
+      dates: "20 mai - 5 juin 2023",
       participants: 567,
       prize: "$1,500",
-      registrationEnds: "Closed",
-      difficulty: "Easy",
+      registrationEnds: "Fermé",
+      difficulty: "Facile",
     },
     {
       id: "geography-genius",
-      title: "Geography Genius",
-      description: "Navigate through countries, capitals, landmarks and geographical wonders.",
+      title: "Génie de la géographie",
+      description: "Explorez pays, capitales, monuments et merveilles géographiques.",
       image: "/world-map-quiz.png", // Using existing geography quiz image
       category: "geography",
       status: "upcoming",
-      dates: "June 10 - June 25, 2023",
+      dates: "10 juin - 25 juin 2023",
       participants: 189,
       prize: "$800",
-      registrationEnds: "8 days",
-      difficulty: "Medium",
+      registrationEnds: "8 jours",
+      difficulty: "Moyen",
     },
     {
       id: "sports-spectacular",
-      title: "Sports Spectacular",
-      description: "From football to Olympics, test your knowledge of sporting events and athletes.",
+      title: "Grand quiz sport",
+      description: "Du football aux Jeux olympiques, testez vos connaissances sportives.",
       image: "/sports-trivia-quiz.png", // Using existing sports quiz image
       category: "sports",
       status: "registration",
-      dates: "June 15 - July 1, 2023",
+      dates: "15 juin - 1 juillet 2023",
       participants: 412,
       prize: "$1,200",
-      registrationEnds: "10 days",
-      difficulty: "Medium",
+      registrationEnds: "10 jours",
+      difficulty: "Moyen",
     },
     {
       id: "tech-titans",
-      title: "Tech Titans",
-      description: "Challenge yourself with questions about technology, coding, and digital innovation.",
+      title: "Titans de la tech",
+      description: "Répondez à des questions sur la technologie, le code et l’innovation numérique.",
       image: "/technology-quiz.png", // Using existing technology quiz image
       category: "technology",
       status: "completed",
-      dates: "May 1 - May 15, 2023",
+      dates: "1 mai - 15 mai 2023",
       participants: 623,
       prize: "$2,000",
-      registrationEnds: "Closed",
-      difficulty: "Hard",
+      registrationEnds: "Fermé",
+      difficulty: "Difficile",
     },
   ];
 
@@ -117,10 +117,10 @@ export function TournamentList({ activeCategory, activeFilter }: TournamentListP
 
   // Status text mapping
   const statusText: Record<string, string> = {
-    registration: "Registration Open",
-    upcoming: "Upcoming",
-    ongoing: "Ongoing",
-    completed: "Completed",
+    registration: "Inscriptions ouvertes",
+    upcoming: "À venir",
+    ongoing: "En cours",
+    completed: "Terminé",
   };
 
   return (
@@ -128,8 +128,8 @@ export function TournamentList({ activeCategory, activeFilter }: TournamentListP
       {filteredTournaments.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-5xl mb-4">🏆</div>
-          <h3 className="text-xl font-medium mb-2">No tournaments found</h3>
-          <p className="text-muted-foreground">Try changing your category or filter selection</p>
+          <h3 className="text-xl font-medium mb-2">Aucun tournoi trouvé</h3>
+          <p className="text-muted-foreground">Essayez de modifier la catégorie ou le filtre</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -161,7 +161,7 @@ export function TournamentList({ activeCategory, activeFilter }: TournamentListP
                   </div>
                   <div className="flex items-center gap-1">
                     <Trophy className="h-4 w-4 text-muted-foreground" />
-                    <span>{tournament.prize} prize</span>
+                    <span>{tournament.prize} de récompense</span>
                   </div>
                 </div>
 
@@ -170,18 +170,18 @@ export function TournamentList({ activeCategory, activeFilter }: TournamentListP
                     {tournament.status === "registration" && (
                       <div className="flex items-center text-sm">
                         <Clock className="h-4 w-4 mr-1 text-amber-500" />
-                        <span>Closes in {tournament.registrationEnds}</span>
+                        <span>Ferme dans {tournament.registrationEnds}</span>
                       </div>
                     )}
                     <Button onClick={() => router.push(`/tournaments/${tournament.id}`)} className="ml-auto" size="sm">
-                      View Details <ArrowRight className="ml-1 h-4 w-4" />
+                      Voir le détail <ArrowRight className="ml-1 h-4 w-4" />
                     </Button>
                   </div>
                 )}
 
                 {tournament.status === "completed" && (
                   <Button onClick={() => router.push(`/tournaments/${tournament.id}`)} variant="outline" className="w-full" size="sm">
-                    View Results <ArrowRight className="ml-1 h-4 w-4" />
+                    Voir les résultats <ArrowRight className="ml-1 h-4 w-4" />
                   </Button>
                 )}
               </CardContent>

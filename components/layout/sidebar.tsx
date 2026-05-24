@@ -86,18 +86,18 @@ export function AppSidebar() {
 
       <div className="flex-1 overflow-auto py-4">
         <nav className="grid gap-1 px-2">
-          <NavItem href="/" icon={<Home className="size-5" />} label="Home" active={isActive("/")} />
-          <NavItem href="/daily-challenge" icon={<Trophy className="size-5" />} label="Today's Challenge" active={isActive("/daily-challenge")} />
-          <NavItem href="/categories" icon={<BookOpen className="size-5" />} label="Categories" active={isActive("/categories")} />
-          <NavItem href="/battle" icon={<Swords className="size-5" />} label="Quiz Battle" active={isActive("/battle")} />
-          <NavItem href="/news" icon={<Newspaper className="size-5" />} label="News & Updates" active={isActive("/news")} />
-          <NavItem href="/explore" icon={<Compass className="size-5" />} label="Explore Quizzes" active={isActive("/explore")} />
-          <NavItem href="/tournaments" icon={<Award className="size-5" />} label="Quiz Tournament" active={isActive("/tournaments")} />
-          <NavItem href="/leaderboard" icon={<Medal className="size-5" />} label="Leaderboard" active={isActive("/leaderboard")} />
-          <NavItem href="/creator-tips" icon={<Lightbulb className="size-5" />} label="Quiz Creator Tips" active={isActive("/creator-tips")} />
-          <NavItem href="/quiz-discussions" icon={<FileQuestion className="size-5" />} label="Quiz Discussions" active={isActive("/quiz-discussions")} />
-          <NavItem href="/affiliate" icon={<Users className="size-5" />} label="Affiliate Page" active={isActive("/affiliate")} />
-          <NavItem href="/pricing" icon={<DollarSign className="size-5" />} label="Pricing Plan" active={isActive("/pricing")} />
+          <NavItem href="/" icon={<Home className="size-5" />} label="Accueil" active={isActive("/")} />
+          <NavItem href="/daily-challenge" icon={<Trophy className="size-5" />} label="Défi du jour" active={isActive("/daily-challenge")} />
+          <NavItem href="/categories" icon={<BookOpen className="size-5" />} label="Catégories" active={isActive("/categories")} />
+          <NavItem href="/battle" icon={<Swords className="size-5" />} label="Défi quiz" active={isActive("/battle")} />
+          <NavItem href="/news" icon={<Newspaper className="size-5" />} label="Actualités" active={isActive("/news")} />
+          <NavItem href="/explore" icon={<Compass className="size-5" />} label="Explorer les quiz" active={isActive("/explore")} />
+          <NavItem href="/tournaments" icon={<Award className="size-5" />} label="Tournois" active={isActive("/tournaments")} />
+          <NavItem href="/leaderboard" icon={<Medal className="size-5" />} label="Classement" active={isActive("/leaderboard")} />
+          <NavItem href="/creator-tips" icon={<Lightbulb className="size-5" />} label="Conseils créateurs" active={isActive("/creator-tips")} />
+          <NavItem href="/quiz-discussions" icon={<FileQuestion className="size-5" />} label="Discussions quiz" active={isActive("/quiz-discussions")} />
+          <NavItem href="/affiliate" icon={<Users className="size-5" />} label="Affiliation" active={isActive("/affiliate")} />
+          <NavItem href="/pricing" icon={<DollarSign className="size-5" />} label="Offres" active={isActive("/pricing")} />
           <NavItem href="/support" icon={<LifeBuoy className="size-5" />} label="Support" active={isActive("/support")} />
         </nav>
       </div>

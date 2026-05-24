@@ -21,6 +21,23 @@ interface LeaderboardPodiumProps {
 export function LeaderboardPodium({ leaderboardData }: LeaderboardPodiumProps) {
   if (leaderboardData.length < 3) return null;
 
+  const getBadgeLabel = (badge: string) => {
+    switch (badge) {
+      case "Diamond":
+        return "Diamant";
+      case "Platinum":
+        return "Platine";
+      case "Gold":
+        return "Or";
+      case "Silver":
+        return "Argent";
+      case "Bronze":
+        return "Bronze";
+      default:
+        return badge;
+    }
+  };
+
   const podiumOrder = [1, 0, 2]; // 2nd, 1st, 3rd places
   const podiumHeights = ["h-28", "h-36", "h-24"];
   const avatarSizes = ["h-16 w-16", "h-24 w-24", "h-14 w-14"];
@@ -56,7 +73,7 @@ export function LeaderboardPodium({ leaderboardData }: LeaderboardPodiumProps) {
               <div className="mt-1 flex items-center gap-1.5">
                 <Badge variant={i === 1 ? "default" : i === 0 ? "secondary" : "outline"} className="px-2 py-0.5">
                   {i === 1 && <Medal className="mr-1 h-3 w-3" />}
-                  {user.badge}
+                  {getBadgeLabel(user.badge)}
                 </Badge>
                 <div className="flex items-center rounded-full bg-muted/80 px-1.5 py-0.5 text-xs">
                   <Star className="mr-0.5 h-3 w-3 text-amber-500" />

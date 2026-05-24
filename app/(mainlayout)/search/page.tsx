@@ -1,8 +1,8 @@
 import { SearchResults } from "@/components/search/search-results";
 
 export const metadata = {
-  title: "Search Results | QuizMaker",
-  description: "Search for quizzes, categories, creators, and more on QuizMaker.",
+  title: "Recherche | brainspark",
+  description: "Recherchez des quiz, catégories, créateurs et pages sur brainspark.",
 };
 
 export default function SearchPage({ searchParams }: { searchParams: { q: string } }) {

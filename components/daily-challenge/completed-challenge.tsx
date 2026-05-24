@@ -42,10 +42,10 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
   };
 
   const getScoreMessage = (score: number) => {
-    if (score >= 90) return "Excellent! You're a quiz master!";
-    if (score >= 70) return "Great job! You know your stuff!";
-    if (score >= 50) return "Good effort! Keep learning!";
-    return "Nice try! There's room for improvement.";
+    if (score >= 90) return "Excellent, vous maîtrisez le sujet !";
+    if (score >= 70) return "Très bon résultat, vous connaissez bien le thème.";
+    if (score >= 50) return "Bel effort, continuez à progresser.";
+    return "Bien essayé, il reste une belle marge de progression.";
   };
 
   const getRankEmoji = (rank: number) => {
@@ -56,26 +56,26 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
   };
 
   const handleShare = (platform: string) => {
-    const message = `I scored ${result.score}% and ranked #${result.rank} in today's quiz challenge! Can you beat me?`;
+    const message = `J'ai obtenu ${result.score}% et je suis #${result.rank} au défi quiz du jour. Peux-tu me battre ?`;
 
     // In a real app, these would open share dialogs or copy to clipboard
     if (platform === "twitter") {
       console.log("Sharing to Twitter:", message);
       toast({
-        title: "Shared to Twitter",
-        description: "Your results have been shared to Twitter.",
+        title: "Partagé sur Twitter",
+        description: "Vos résultats ont été partagés sur Twitter.",
       });
     } else if (platform === "facebook") {
       console.log("Sharing to Facebook:", message);
       toast({
-        title: "Shared to Facebook",
-        description: "Your results have been shared to Facebook.",
+        title: "Partagé sur Facebook",
+        description: "Vos résultats ont été partagés sur Facebook.",
       });
     } else if (platform === "copy") {
       navigator.clipboard.writeText(message);
       toast({
-        title: "Link Copied",
-        description: "Challenge link copied to clipboard.",
+        title: "Lien copié",
+        description: "Le lien du défi a été copié.",
       });
     }
   };
@@ -118,7 +118,7 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
   return (
     <Card className="shadow-md">
       <CardHeader className="pb-4">
-        <CardTitle className="text-center">Challenge Completed!</CardTitle>
+        <CardTitle className="text-center">Défi terminé !</CardTitle>
         <CardDescription className="text-center">{getScoreMessage(result.score)}</CardDescription>
       </CardHeader>
 
@@ -128,7 +128,7 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
             <CircularProgress value={result.score} size={180} strokeWidth={10} />
             <div className="absolute inset-0 flex items-center justify-center flex-col">
               <span className="text-4xl font-bold">{result.score}%</span>
-              <span className="text-sm text-muted-foreground">Your Score</span>
+              <span className="text-sm text-muted-foreground">Votre score</span>
             </div>
           </div>
         </div>
@@ -136,7 +136,7 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="flex flex-col items-center p-3 bg-muted/30 rounded-lg">
             <Trophy className="h-5 w-5 text-amber-500 mb-1" />
-            <span className="text-sm text-muted-foreground">Rank</span>
+            <span className="text-sm text-muted-foreground">Classement</span>
             <span className="text-xl font-bold">
               {getRankEmoji(result.rank)} #{result.rank}
             </span>
@@ -144,13 +144,13 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
 
           <div className="flex flex-col items-center p-3 bg-muted/30 rounded-lg">
             <Clock className="h-5 w-5 text-blue-500 mb-1" />
-            <span className="text-sm text-muted-foreground">Time</span>
+            <span className="text-sm text-muted-foreground">Temps</span>
             <span className="text-xl font-bold">{formatTime(result.timeTaken)}</span>
           </div>
 
           <div className="flex flex-col items-center p-3 bg-muted/30 rounded-lg">
             <Award className="h-5 w-5 text-green-500 mb-1" />
-            <span className="text-sm text-muted-foreground">Correct</span>
+            <span className="text-sm text-muted-foreground">Réponses justes</span>
             <span className="text-xl font-bold">
               {result.correctAnswers}/{result.totalQuestions}
             </span>
@@ -158,38 +158,38 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
 
           <div className="flex flex-col items-center p-3 bg-muted/30 rounded-lg">
             <Medal className="h-5 w-5 text-purple-500 mb-1" />
-            <span className="text-sm text-muted-foreground">Earned</span>
+            <span className="text-sm text-muted-foreground">Gagné</span>
             <span className="text-xl font-bold">+125 XP</span>
           </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="summary">Summary</TabsTrigger>
-            <TabsTrigger value="rewards">Rewards</TabsTrigger>
-            <TabsTrigger value="answers">Answers</TabsTrigger>
+            <TabsTrigger value="summary">Résumé</TabsTrigger>
+            <TabsTrigger value="rewards">Récompenses</TabsTrigger>
+            <TabsTrigger value="answers">Réponses</TabsTrigger>
           </TabsList>
 
           <TabsContent value="summary" className="space-y-4">
             <div className="space-y-2">
-              <h3 className="font-medium">Your Performance</h3>
-              <p className="text-sm text-muted-foreground">You completed today's challenge in {formatTime(result.timeTaken)}, which is faster than 65% of participants.</p>
+              <h3 className="font-medium">Votre performance</h3>
+              <p className="text-sm text-muted-foreground">Vous avez terminé le défi du jour en {formatTime(result.timeTaken)}, plus vite que 65% des participants.</p>
               <p className="text-sm text-muted-foreground">
-                Your score of {result.score}% places you in the top {result.rank <= 10 ? "10%" : "30%"} of today's participants.
+                Votre score de {result.score}% vous place dans le top {result.rank <= 10 ? "10%" : "30%"} des participants du jour.
               </p>
             </div>
 
             <Separator />
 
             <div className="space-y-2">
-              <h3 className="font-medium">Streak Update</h3>
-              <p className="text-sm text-muted-foreground">You've maintained a 4-day streak! Keep it up to earn bonus rewards.</p>
+              <h3 className="font-medium">Série en cours</h3>
+              <p className="text-sm text-muted-foreground">Vous avez maintenu une série de 4 jours. Continuez pour gagner des récompenses bonus.</p>
               <div className="flex space-x-1 mt-2">
                 {[1, 2, 3, 4, 5, 6, 7].map((day) => (
                   <div key={day} className={`h-2 w-full rounded-full ${day <= 4 ? "bg-green-500" : "bg-muted"}`} />
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground text-right mt-1">3 days until 7-day streak badge</p>
+              <p className="text-xs text-muted-foreground text-right mt-1">Encore 3 jours avant le badge des 7 jours</p>
             </div>
           </TabsContent>
 
@@ -200,8 +200,8 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
                   <Trophy className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
-                  <h4 className="font-medium">Daily Participant</h4>
-                  <p className="text-sm text-muted-foreground">+50 Coins</p>
+                  <h4 className="font-medium">Participation du jour</h4>
+                  <p className="text-sm text-muted-foreground">+50 pièces</p>
                 </div>
               </div>
 
@@ -210,7 +210,7 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
                   <Award className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h4 className="font-medium">Score Bonus</h4>
+                  <h4 className="font-medium">Bonus de score</h4>
                   <p className="text-sm text-muted-foreground">+{result.score} XP</p>
                 </div>
               </div>
@@ -220,8 +220,8 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
                   <Medal className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <h4 className="font-medium">Streak Bonus</h4>
-                  <p className="text-sm text-muted-foreground">+25 Coins (4-day streak)</p>
+                  <h4 className="font-medium">Bonus de série</h4>
+                  <p className="text-sm text-muted-foreground">+25 pièces (série de 4 jours)</p>
                 </div>
               </div>
 
@@ -230,7 +230,7 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
                   <Trophy className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
-                  <h4 className="font-medium">Top 50 Rank</h4>
+                  <h4 className="font-medium">Top 50</h4>
                   <p className="text-sm text-muted-foreground">+50 XP</p>
                 </div>
               </div>
@@ -239,13 +239,13 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
             <Separator />
 
             <div className="text-center">
-              <p className="font-medium">Total Earned</p>
+              <p className="font-medium">Total gagné</p>
               <div className="flex justify-center space-x-4 mt-2">
                 <div className="flex items-center">
                   <div className="bg-amber-100 dark:bg-amber-900 p-1 rounded-full mr-2">
                     <span className="text-amber-600 dark:text-amber-400 text-xs font-bold">$</span>
                   </div>
-                  <span className="font-bold">+75 Coins</span>
+                  <span className="font-bold">+75 pièces</span>
                 </div>
                 <div className="flex items-center">
                   <div className="bg-blue-100 dark:bg-blue-900 p-1 rounded-full mr-2">
@@ -258,11 +258,11 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
           </TabsContent>
 
           <TabsContent value="answers" className="space-y-4">
-            <p className="text-sm text-muted-foreground mb-4">Review your answers and see the correct solutions.</p>
+            <p className="text-sm text-muted-foreground mb-4">Revoyez vos réponses et consultez les bonnes solutions.</p>
 
             <div className="space-y-4">
               {dailyQuizData.questions.map((q, index) => {
-                const userAnswer = selectedAnswers[index] || "Not answered";
+                const userAnswer = selectedAnswers[index] || "Non répondu";
                 const isCorrect = userAnswer === q.correctAnswer;
 
                 return (
@@ -271,18 +271,18 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
                       <h4 className="font-medium">
                         {index + 1}. {q.question}
                       </h4>
-                      <span className={`text-xs px-2 py-1 rounded-full ${isCorrect ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"}`}>{isCorrect ? "Correct" : "Incorrect"}</span>
+                      <span className={`text-xs px-2 py-1 rounded-full ${isCorrect ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300" : "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"}`}>{isCorrect ? "Juste" : "Incorrect"}</span>
                     </div>
 
                     <div className="mt-2 space-y-1 text-sm">
                       <p>
-                        <span className="text-muted-foreground">Your answer: </span>
+                        <span className="text-muted-foreground">Votre réponse : </span>
                         <span className={isCorrect ? "text-green-600 dark:text-green-400 font-medium" : "text-red-600 dark:text-red-400 font-medium"}>{userAnswer}</span>
                       </p>
 
                       {!isCorrect && (
                         <p>
-                          <span className="text-muted-foreground">Correct answer: </span>
+                          <span className="text-muted-foreground">Bonne réponse : </span>
                           <span className="text-green-600 dark:text-green-400 font-medium">{q.correctAnswer}</span>
                         </p>
                       )}
@@ -297,7 +297,7 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
 
       <CardFooter className="flex flex-col sm:flex-row justify-between gap-4 pt-4">
         <Button variant="outline" onClick={onReset}>
-          View Challenge Details
+          Voir le détail du défi
         </Button>
 
         <div className="flex space-x-2">
@@ -305,7 +305,7 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
             <PopoverTrigger asChild>
               <Button className="bg-green-600 hover:bg-green-700">
                 <Share2 className="h-4 w-4 mr-2" />
-                Share Results
+                Partager le résultat
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-2" align="end">
@@ -320,7 +320,7 @@ export function CompletedChallenge({ result, onReset, dailyQuizData, selectedAns
                 </Button>
                 <Button size="sm" variant="outline" className="flex items-center" onClick={() => handleShare("copy")}>
                   <Link className="h-4 w-4 mr-2" />
-                  Copy
+                  Copier
                 </Button>
               </div>
             </PopoverContent>

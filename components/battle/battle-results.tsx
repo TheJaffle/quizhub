@@ -60,8 +60,8 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Battle Results</h1>
-        <p className="text-muted-foreground">{isWinner ? "Congratulations! You won the battle!" : `You placed ${currentPlayerRank}${currentPlayerRank === 2 ? "nd" : currentPlayerRank === 3 ? "rd" : "th"} in the battle`}</p>
+        <h1 className="text-3xl font-bold mb-2">Résultats du défi</h1>
+        <p className="text-muted-foreground">{isWinner ? "Bravo, vous avez remporté le défi !" : `Vous terminez à la place #{currentPlayerRank}`}</p>
       </div>
 
       {battleState.mode === "group" && (
@@ -88,7 +88,7 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
                     <span className="text-2xl font-bold text-primary-foreground">#{position}</span>
                     {player.isCurrentUser && (
                       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <Badge className="bg-yellow-500">You</Badge>
+                        <Badge className="bg-yellow-500">Vous</Badge>
                       </div>
                     )}
                   </div>
@@ -103,8 +103,8 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Final Rankings</CardTitle>
-              <CardDescription>{battleState.mode === "1v1" ? "You vs your opponent" : `All ${battleState.players.length} players ranked by score`}</CardDescription>
+              <CardTitle>Classement final</CardTitle>
+              <CardDescription>{battleState.mode === "1v1" ? "Vous contre votre adversaire" : `Tous les joueurs classés par score`}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -118,7 +118,7 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
                     <div className="flex-1">
                       <div className="font-medium">{player.name}</div>
                       <div className="text-sm text-muted-foreground">
-                        {player.correctAnswers} correct • {player.timeElapsed}s total time
+                        {player.correctAnswers} bonne(s) réponse(s) • {player.timeElapsed}s au total
                       </div>
                     </div>
                     <div className="text-right">
@@ -132,16 +132,16 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
             <CardFooter className="flex justify-between flex-wrap gap-4">
               <Button variant="outline" onClick={onReturnHome}>
                 <Home className="mr-2 h-4 w-4" />
-                Return Home
+                Retour à l'accueil
               </Button>
               <div className="flex gap-2 flex-wrap">
                 <Button variant="outline">
                   <Share2 className="mr-2 h-4 w-4" />
-                  Share Results
+                  Partager le résultat
                 </Button>
                 <Button onClick={onRematch}>
                   <RotateCw className="mr-2 h-4 w-4" />
-                  Rematch
+                  Revanche
                 </Button>
               </div>
             </CardFooter>
@@ -152,13 +152,13 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
           {currentPlayer && (
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Your Performance</CardTitle>
+                <CardTitle className="text-lg">Votre performance</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Trophy className="h-5 w-5 text-yellow-500" />
-                    <span>Final Score</span>
+                    <span>Score final</span>
                   </div>
                   <span className="font-bold text-xl">{currentPlayer.score}</span>
                 </div>
@@ -166,7 +166,7 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-green-500" />
-                    <span>Correct Answers</span>
+                    <span>Bonnes réponses</span>
                   </div>
                   <span className="font-bold">
                     {currentPlayer.correctAnswers}/{battleState.totalQuestions}
@@ -176,7 +176,7 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Clock className="h-5 w-5 text-blue-500" />
-                    <span>Total Time</span>
+                    <span>Temps total</span>
                   </div>
                   <span className="font-bold">{currentPlayer.timeElapsed}s</span>
                 </div>
@@ -184,7 +184,7 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Award className="h-5 w-5 text-purple-500" />
-                    <span>Final Rank</span>
+                    <span>Rang final</span>
                   </div>
                   <span className="font-bold">#{currentPlayerRank}</span>
                 </div>
@@ -194,13 +194,13 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Rewards Earned</CardTitle>
+              <CardTitle className="text-lg">Récompenses gagnées</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
                 <div className="flex items-center gap-2">
                   <Trophy className="h-5 w-5 text-yellow-500" />
-                  <span>XP Points</span>
+                  <span>Points XP</span>
                 </div>
                 <span className="font-bold">+{Math.floor(currentPlayer?.score || 0 / 10)}</span>
               </div>
@@ -209,9 +209,9 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
                 <div className="flex items-center justify-between p-2 rounded-lg bg-green-500/10 border border-green-500/20">
                   <div className="flex items-center gap-2">
                     <Award className="h-5 w-5 text-green-500" />
-                    <span>Victory Badge</span>
+                    <span>Badge de victoire</span>
                   </div>
-                  <span className="font-bold">Unlocked</span>
+                  <span className="font-bold">Débloqué</span>
                 </div>
               )}
 
@@ -219,16 +219,16 @@ export function BattleResults({ battleState, onRematch, onReturnHome }: BattleRe
                 <div className="flex items-center justify-between p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
                   <div className="flex items-center gap-2">
                     <Award className="h-5 w-5 text-blue-500" />
-                    <span>Streak Master</span>
+                    <span>Maître des séries</span>
                   </div>
-                  <span className="font-bold">Unlocked</span>
+                  <span className="font-bold">Débloqué</span>
                 </div>
               )}
 
               <div className="flex items-center justify-between p-2 rounded-lg bg-purple-500/10 border border-purple-500/20">
                 <div className="flex items-center gap-2">
                   <Award className="h-5 w-5 text-purple-500" />
-                  <span>Battle Coins</span>
+                  <span>Pièces de défi</span>
                 </div>
                 <span className="font-bold">+{Math.floor((currentPlayer?.score || 0) / 20)}</span>
               </div>

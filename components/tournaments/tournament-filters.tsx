@@ -12,14 +12,14 @@ export function TournamentFilters({ activeFilter, setActiveFilter }: TournamentF
     <div className="flex items-center space-x-4">
       <Select value={activeFilter} onValueChange={setActiveFilter}>
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Filter tournaments" />
+          <SelectValue placeholder="Filtrer les tournois" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Tournaments</SelectItem>
-          <SelectItem value="upcoming">Upcoming</SelectItem>
-          <SelectItem value="ongoing">Ongoing</SelectItem>
-          <SelectItem value="completed">Completed</SelectItem>
-          <SelectItem value="registration">Registration Open</SelectItem>
+          <SelectItem value="all">Tous les tournois</SelectItem>
+          <SelectItem value="upcoming">À venir</SelectItem>
+          <SelectItem value="ongoing">En cours</SelectItem>
+          <SelectItem value="completed">Terminés</SelectItem>
+          <SelectItem value="registration">Inscriptions ouvertes</SelectItem>
         </SelectContent>
       </Select>
     </div>

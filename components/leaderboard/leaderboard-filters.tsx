@@ -25,7 +25,7 @@ export function LeaderboardFilters({
           size="sm"
           onClick={() => setTimeFilter("all-time")}
         >
-          All Time
+          Tout le temps
         </Button>
         <Button
           variant={timeFilter === "monthly" ? "default" : "outline"}
@@ -33,7 +33,7 @@ export function LeaderboardFilters({
           onClick={() => setTimeFilter("monthly")}
         >
           <Calendar className="mr-2 h-4 w-4" />
-          Monthly
+          Mensuel
         </Button>
         <Button
           variant={timeFilter === "weekly" ? "default" : "outline"}
@@ -41,24 +41,24 @@ export function LeaderboardFilters({
           onClick={() => setTimeFilter("weekly")}
         >
           <Calendar className="mr-2 h-4 w-4" />
-          Weekly
+          Hebdomadaire
         </Button>
       </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm">
-            {categoryFilter === "all" ? "All Categories" : categoryFilter}
+            {categoryFilter === "all" ? "Toutes les catégories" : categoryFilter}
             <ChevronDown className="ml-2 h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setCategoryFilter("all")}>All Categories</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setCategoryFilter("Science")}>Science</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setCategoryFilter("History")}>History</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setCategoryFilter("Mathematics")}>Mathematics</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setCategoryFilter("Literature")}>Literature</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setCategoryFilter("Sports")}>Sports</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setCategoryFilter("all")}>Toutes les catégories</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setCategoryFilter("Sciences")}>Sciences</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setCategoryFilter("Histoire")}>Histoire</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setCategoryFilter("Mathématiques")}>Mathématiques</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setCategoryFilter("Littérature")}>Littérature</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setCategoryFilter("Sport")}>Sport</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

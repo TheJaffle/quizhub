@@ -148,61 +148,61 @@ export function ActiveBattle({ battleState, onBattleComplete }: ActiveBattleProp
   const questions: Question[] = [
     {
       id: 1,
-      text: "What is the capital of France?",
-      options: ["London", "Berlin", "Paris", "Madrid"],
+      text: "Quelle est la capitale de la France ?",
+      options: ["Londres", "Berlin", "Paris", "Madrid"],
       correctAnswer: 2,
     },
     {
       id: 2,
-      text: "Which planet is known as the Red Planet?",
-      options: ["Venus", "Mars", "Jupiter", "Saturn"],
+      text: "Quelle planète est surnommée la planète rouge ?",
+      options: ["Vénus", "Mars", "Jupiter", "Saturne"],
       correctAnswer: 1,
     },
     {
       id: 3,
-      text: "What is the largest mammal?",
-      options: ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"],
+      text: "Quel est le plus grand mammifère ?",
+      options: ["Éléphant", "Baleine bleue", "Girafe", "Hippopotame"],
       correctAnswer: 1,
     },
     {
       id: 4,
-      text: "Which element has the chemical symbol 'O'?",
-      options: ["Gold", "Oxygen", "Osmium", "Oganesson"],
+      text: "Quel élément a pour symbole chimique 'O' ?",
+      options: ["Or", "Oxygène", "Osmium", "Oganesson"],
       correctAnswer: 1,
     },
     {
       id: 5,
-      text: "Who painted the Mona Lisa?",
-      options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+      text: "Qui a peint la Joconde ?",
+      options: ["Vincent van Gogh", "Pablo Picasso", "Léonard de Vinci", "Michel-Ange"],
       correctAnswer: 2,
     },
     {
       id: 6,
-      text: "What is the largest ocean on Earth?",
-      options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+      text: "Quel est le plus grand océan sur Terre ?",
+      options: ["Océan Atlantique", "Océan Indien", "Océan Arctique", "Océan Pacifique"],
       correctAnswer: 3,
     },
     {
       id: 7,
-      text: "Which country is home to the kangaroo?",
-      options: ["New Zealand", "South Africa", "Australia", "Brazil"],
+      text: "Dans quel pays vit naturellement le kangourou ?",
+      options: ["Nouvelle-Zélande", "Afrique du Sud", "Australie", "Brésil"],
       correctAnswer: 2,
     },
     {
       id: 8,
-      text: "What is the hardest natural substance on Earth?",
-      options: ["Gold", "Iron", "Diamond", "Platinum"],
+      text: "Quelle est la substance naturelle la plus dure sur Terre ?",
+      options: ["Or", "Fer", "Diamant", "Platine"],
       correctAnswer: 2,
     },
     {
       id: 9,
-      text: "Who wrote 'Romeo and Juliet'?",
+      text: "Qui a écrit 'Roméo et Juliette' ?",
       options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
       correctAnswer: 1,
     },
     {
       id: 10,
-      text: "What is the smallest prime number?",
+      text: "Quel est le plus petit nombre premier ?",
       options: ["0", "1", "2", "3"],
       correctAnswer: 2,
     },
@@ -282,7 +282,7 @@ export function ActiveBattle({ battleState, onBattleComplete }: ActiveBattleProp
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
           <div className="text-sm font-medium">
-            Question {state.currentQuestion + 1} of {questions.length}
+            Question {state.currentQuestion + 1} sur {questions.length}
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-orange-500" />
@@ -294,7 +294,7 @@ export function ActiveBattle({ battleState, onBattleComplete }: ActiveBattleProp
 
       {battleState.mode === "group" && (
         <div className="mb-6">
-          <h3 className="text-sm font-medium mb-2">Live Rankings</h3>
+          <h3 className="text-sm font-medium mb-2">Classement en direct</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {state.playerRankings.slice(0, 5).map((player, index) => (
               <div key={player.id} className={`flex flex-col items-center p-2 rounded-lg border ${player.isCurrentUser ? "border-primary bg-primary/5" : "border-border"}`}>
@@ -339,13 +339,13 @@ export function ActiveBattle({ battleState, onBattleComplete }: ActiveBattleProp
           </div>
           {state.streak > 1 && (
             <Badge variant="outline" className="bg-orange-500/10 text-orange-500 border-orange-500/20">
-              {state.streak}x Streak!
+              Série x{state.streak} !
             </Badge>
           )}
         </div>
 
         <Button onClick={() => handleAnswerSubmit(state.selectedAnswer)} disabled={state.selectedAnswer === null || state.showFeedback}>
-          Submit Answer
+          Valider la réponse
         </Button>
       </div>
 
@@ -354,12 +354,12 @@ export function ActiveBattle({ battleState, onBattleComplete }: ActiveBattleProp
           {state.isCorrect ? (
             <>
               <CheckCircle className="h-5 w-5" />
-              <span>Correct! {state.streak > 1 ? `${state.streak}x streak bonus!` : ""}</span>
+              <span>Bonne réponse ! {state.streak > 1 ? `Bonus de série x${state.streak} !` : ""}</span>
             </>
           ) : (
             <>
               <AlertCircle className="h-5 w-5" />
-              <span>Incorrect! The correct answer was {currentQ.options[currentQ.correctAnswer]}</span>
+              <span>Incorrect. La bonne réponse était {currentQ.options[currentQ.correctAnswer]}</span>
             </>
           )}
         </div>

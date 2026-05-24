@@ -40,6 +40,23 @@ export function LeaderboardTable({ leaderboardData, showPagination = false, enha
     }
   };
 
+  const getBadgeLabel = (badge: string) => {
+    switch (badge) {
+      case "Diamond":
+        return "Diamant";
+      case "Platinum":
+        return "Platine";
+      case "Gold":
+        return "Or";
+      case "Silver":
+        return "Argent";
+      case "Bronze":
+        return "Bronze";
+      default:
+        return badge;
+    }
+  };
+
   const getProgressColor = (rank: number) => {
     if (rank === 1) return "bg-amber-500";
     if (rank === 2) return "bg-gray-300";
@@ -52,11 +69,11 @@ export function LeaderboardTable({ leaderboardData, showPagination = false, enha
     <div className="space-y-4 w-full overflow-x-auto whitespace-nowrap">
       <div className={cn(enhanced ? "rounded-xl overflow-hidden" : "rounded-md border", "min-w-[600px]")}>
         <div className={`grid grid-cols-12 gap-2 border-b ${enhanced ? "bg-muted/30 p-5 font-medium" : "bg-muted/50 p-4 font-medium"}`}>
-          <div className="col-span-1">Rank</div>
-          <div className="col-span-3">User</div>
+          <div className="col-span-1">Rang</div>
+          <div className="col-span-3">Joueur</div>
           <div className="col-span-2 text-right">Score</div>
-          <div className="hidden md:col-span-2 md:block md:text-right">Level</div>
-          <div className="col-span-2 text-right">Quizzes</div>
+          <div className="hidden md:col-span-2 md:block md:text-right">Niveau</div>
+          <div className="col-span-2 text-right">Quiz</div>
           <div className="col-span-2 text-right">Badge</div>
         </div>
         {currentData.map((user) => (
@@ -78,7 +95,7 @@ export function LeaderboardTable({ leaderboardData, showPagination = false, enha
                   {user.winStreak >= 3 && (
                     <div className="ml-2 flex items-center text-amber-500">
                       <Fire className="mr-1 h-3 w-3" />
-                      {user.winStreak} streak
+                      {user.winStreak} série
                     </div>
                   )}
                 </div>
@@ -106,7 +123,7 @@ export function LeaderboardTable({ leaderboardData, showPagination = false, enha
                 {enhanced && user.rank <= 5 && (
                   <div className="mt-1 text-xs text-muted-foreground">
                     <TrendingUp className="mr-1 inline h-3 w-3 text-green-500" />
-                    Active
+                    Actif
                   </div>
                 )}
               </div>
@@ -114,7 +131,7 @@ export function LeaderboardTable({ leaderboardData, showPagination = false, enha
             <div className="col-span-2 flex items-center justify-end">
               <Badge variant={getBadgeVariant(user.badge)} className={enhanced ? "px-3 py-1" : ""}>
                 {(user.badge === "Diamond" || user.badge === "Platinum" || user.badge === "Gold") && <Trophy className="mr-1.5 h-3.5 w-3.5" />}
-                {user.badge}
+                {getBadgeLabel(user.badge)}
               </Badge>
             </div>
           </div>
@@ -124,15 +141,15 @@ export function LeaderboardTable({ leaderboardData, showPagination = false, enha
       {showPagination && totalPages > 1 && (
         <div className="flex items-center justify-between pt-2">
           <div className="text-sm text-muted-foreground">
-            Showing {startIndex + 1}-{Math.min(endIndex, leaderboardData.length)} of {leaderboardData.length} users
+            Affichage de {startIndex + 1}-{Math.min(endIndex, leaderboardData.length)} sur {leaderboardData.length} joueurs
           </div>
           <div className="flex items-center space-x-2">
             <Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
               <ChevronLeft className="mr-1 h-4 w-4" />
-              Previous
+              Précédent
             </Button>
             <Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
-              Next
+              Suivant
               <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           </div>

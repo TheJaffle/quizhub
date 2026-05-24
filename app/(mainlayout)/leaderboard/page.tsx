@@ -2,8 +2,8 @@ import { LeaderboardPage } from "@/components/leaderboard/leaderboard-page";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Leaderboard | QuizHub",
-  description: "See who's leading the pack in our global quiz rankings.",
+  title: "Classement | brainspark",
+  description: "Découvrez les meilleurs joueurs dans les classements de quiz.",
 };
 
 export default function LeaderboardRoute() {

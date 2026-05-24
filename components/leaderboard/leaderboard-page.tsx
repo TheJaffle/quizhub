@@ -23,8 +23,8 @@ export const leaderboardData = [
     rank: 1,
     badge: "Diamond",
     winStreak: 15,
-    lastActive: "Today",
-    country: "United States",
+    lastActive: "Aujourd’hui",
+    country: "États-Unis",
     level: 78,
   },
   {
@@ -36,7 +36,7 @@ export const leaderboardData = [
     rank: 2,
     badge: "Platinum",
     winStreak: 8,
-    lastActive: "Today",
+    lastActive: "Aujourd’hui",
     country: "Canada",
     level: 65,
   },
@@ -49,8 +49,8 @@ export const leaderboardData = [
     rank: 3,
     badge: "Gold",
     winStreak: 6,
-    lastActive: "Yesterday",
-    country: "United Kingdom",
+    lastActive: "Hier",
+    country: "Royaume-Uni",
     level: 59,
   },
   {
@@ -62,8 +62,8 @@ export const leaderboardData = [
     rank: 4,
     badge: "Gold",
     winStreak: 4,
-    lastActive: "Today",
-    country: "Australia",
+    lastActive: "Aujourd’hui",
+    country: "Australie",
     level: 52,
   },
   {
@@ -75,8 +75,8 @@ export const leaderboardData = [
     rank: 5,
     badge: "Silver",
     winStreak: 3,
-    lastActive: "2 days ago",
-    country: "Germany",
+    lastActive: "il y a 2 jours",
+    country: "Allemagne",
     level: 48,
   },
   {
@@ -88,7 +88,7 @@ export const leaderboardData = [
     rank: 6,
     badge: "Silver",
     winStreak: 5,
-    lastActive: "Today",
+    lastActive: "Aujourd’hui",
     country: "France",
     level: 45,
   },
@@ -101,8 +101,8 @@ export const leaderboardData = [
     rank: 7,
     badge: "Bronze",
     winStreak: 2,
-    lastActive: "Yesterday",
-    country: "Spain",
+    lastActive: "Hier",
+    country: "Espagne",
     level: 41,
   },
   {
@@ -114,8 +114,8 @@ export const leaderboardData = [
     rank: 8,
     badge: "Bronze",
     winStreak: 0,
-    lastActive: "3 days ago",
-    country: "Italy",
+    lastActive: "il y a 3 jours",
+    country: "Italie",
     level: 38,
   },
   {
@@ -127,8 +127,8 @@ export const leaderboardData = [
     rank: 9,
     badge: "Bronze",
     winStreak: 1,
-    lastActive: "Today",
-    country: "Japan",
+    lastActive: "Aujourd’hui",
+    country: "Japon",
     level: 36,
   },
   {
@@ -140,8 +140,8 @@ export const leaderboardData = [
     rank: 10,
     badge: "Bronze",
     winStreak: 2,
-    lastActive: "Yesterday",
-    country: "Brazil",
+    lastActive: "Hier",
+    country: "Brésil",
     level: 33,
   },
   {
@@ -153,8 +153,8 @@ export const leaderboardData = [
     rank: 11,
     badge: "Bronze",
     winStreak: 0,
-    lastActive: "4 days ago",
-    country: "Mexico",
+    lastActive: "il y a 4 jours",
+    country: "Mexique",
     level: 31,
   },
   {
@@ -166,8 +166,8 @@ export const leaderboardData = [
     rank: 12,
     badge: "Bronze",
     winStreak: 1,
-    lastActive: "Today",
-    country: "South Korea",
+    lastActive: "Aujourd’hui",
+    country: "Corée du Sud",
     level: 30,
   },
   {
@@ -179,8 +179,8 @@ export const leaderboardData = [
     rank: 13,
     badge: "Bronze",
     winStreak: 0,
-    lastActive: "Yesterday",
-    country: "India",
+    lastActive: "Hier",
+    country: "Inde",
     level: 28,
   },
   {
@@ -192,8 +192,8 @@ export const leaderboardData = [
     rank: 14,
     badge: "Bronze",
     winStreak: 0,
-    lastActive: "5 days ago",
-    country: "Russia",
+    lastActive: "il y a 5 jours",
+    country: "Russie",
     level: 27,
   },
   {
@@ -205,8 +205,8 @@ export const leaderboardData = [
     rank: 15,
     badge: "Bronze",
     winStreak: 2,
-    lastActive: "Today",
-    country: "China",
+    lastActive: "Aujourd’hui",
+    country: "Chine",
     level: 26,
   },
 ];
@@ -221,17 +221,17 @@ export function LeaderboardPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
-          <p className="text-muted-foreground">See who's leading the pack in our global quiz rankings.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Classement</h1>
+          <p className="text-muted-foreground">Découvrez les meilleurs joueurs dans les classements de quiz.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">
             <Users className="mr-2 h-4 w-4" />
-            Find Friends
+            Trouver des amis
           </Button>
           <Button size="sm">
             <Trophy className="mr-2 h-4 w-4" />
-            Your Ranking
+            Votre classement
           </Button>
         </div>
       </div>
@@ -240,8 +240,8 @@ export function LeaderboardPage() {
         <LeaderboardStats />
         <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
-            <CardTitle>Leaderboard Highlights</CardTitle>
-            <CardDescription>Top performers across different categories and time periods</CardDescription>
+            <CardTitle>Temps forts du classement</CardTitle>
+            <CardDescription>Les meilleurs joueurs selon les catégories et les périodes</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="global" className="w-full">
@@ -252,11 +252,11 @@ export function LeaderboardPage() {
                 </TabsTrigger>
                 <TabsTrigger value="categories">
                   <BadgeCheck className="mr-2 h-4 w-4" />
-                  By Category
+                  Par catégorie
                 </TabsTrigger>
                 <TabsTrigger value="trending">
                   <TrendingUp className="mr-2 h-4 w-4" />
-                  Trending
+                  En progression
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="global" className="pt-4">
@@ -265,20 +265,20 @@ export function LeaderboardPage() {
               </TabsContent>
               <TabsContent value="categories" className="pt-4">
                 <div className="mb-6 flex items-center justify-between">
-                  <h3 className="text-lg font-medium">Science Category Leaders</h3>
+                  <h3 className="text-lg font-medium">Meilleurs joueurs en sciences</h3>
                   <Button variant="outline" size="sm">
                     <Calendar className="mr-2 h-4 w-4" />
-                    This Month
+                    Ce mois-ci
                   </Button>
                 </div>
                 <LeaderboardTable leaderboardData={leaderboardData.slice(0, 5)} />
               </TabsContent>
               <TabsContent value="trending" className="pt-4">
                 <div className="mb-6 flex items-center justify-between">
-                  <h3 className="text-lg font-medium">Rising Stars This Week</h3>
+                  <h3 className="text-lg font-medium">Joueurs en progression cette semaine</h3>
                   <Button variant="outline" size="sm">
                     <Calendar className="mr-2 h-4 w-4" />
-                    This Week
+                    Cette semaine
                   </Button>
                 </div>
                 <LeaderboardTable leaderboardData={[...leaderboardData].sort(() => Math.random() - 0.5).slice(0, 5)} />
@@ -288,22 +288,22 @@ export function LeaderboardPage() {
         </Card>
       </div>
 
-      {/* Enhanced Global Leaderboard Section */}
+      {/* Enhanced Classement global Section */}
       <Card className="overflow-hidden border-0 shadow-lg">
         <div className="bg-gradient-to-r from-purple-600 to-blue-500 p-6 text-white">
           <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">Global Leaderboard</h2>
-              <p className="text-white/80">Compete with the best quiz masters from around the world</p>
+              <h2 className="text-2xl font-bold tracking-tight">Classement global</h2>
+              <p className="text-white/80">Mesurez-vous aux meilleurs joueurs du site</p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="secondary" size="sm">
                 <Medal className="mr-2 h-4 w-4" />
-                Hall of Fame
+                Hall of fame
               </Button>
               <Button variant="secondary" size="sm">
                 <Trophy className="mr-2 h-4 w-4" />
-                Seasonal Awards
+                Récompenses de saison
               </Button>
             </div>
           </div>
@@ -313,21 +313,21 @@ export function LeaderboardPage() {
           <div className="mb-6 flex flex-wrap flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search players..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              <Input placeholder="Rechercher un joueur..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
-                    Sort by: {sortBy === "score" ? "Score" : sortBy === "level" ? "Level" : "Quizzes"}
+                    Trier par : {sortBy === "score" ? "Score" : sortBy === "level" ? "Niveau" : "Quiz"}
                     <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setSortBy("score")}>Score</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy("level")}>Level</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setSortBy("quizzes")}>Quizzes Completed</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy("level")}>Niveau</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy("quizzes")}>Quiz terminés</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
@@ -335,14 +335,14 @@ export function LeaderboardPage() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     <Calendar className="mr-2 h-4 w-4" />
-                    {timeFilter === "all-time" ? "All Time" : timeFilter === "monthly" ? "This Month" : "This Week"}
+                    {timeFilter === "all-time" ? "Tout le temps" : timeFilter === "monthly" ? "Ce mois-ci" : "Cette semaine"}
                     <ChevronDown className="ml-2 h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setTimeFilter("all-time")}>All Time</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTimeFilter("monthly")}>This Month</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTimeFilter("weekly")}>This Week</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTimeFilter("all-time")}>Tout le temps</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTimeFilter("monthly")}>Ce mois-ci</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTimeFilter("weekly")}>Cette semaine</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

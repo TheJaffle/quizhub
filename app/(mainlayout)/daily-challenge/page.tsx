@@ -1,8 +1,8 @@
 import DailyChallengePage from "@/components/daily-challenge/daily-challenge-page";
 
 export const metadata = {
-  title: "Daily Challenge | Quizhub",
-  description: "Take on today's quiz challenge and compete with others for the top spot on the leaderboard.",
+  title: "Défi du jour | brainspark",
+  description: "Relevez le défi quiz du jour, comparez votre score et tentez de monter dans le classement.",
 };
 
 export default function DailyChallenge() {

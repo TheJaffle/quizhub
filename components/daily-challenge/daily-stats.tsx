@@ -6,21 +6,21 @@ import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveCo
 
 // Mock data for the stats
 const performanceData = [
-  { day: "Mon", score: 80, avgScore: 65 },
-  { day: "Tue", score: 60, avgScore: 68 },
-  { day: "Wed", score: 90, avgScore: 70 },
-  { day: "Thu", score: 70, avgScore: 67 },
-  { day: "Fri", score: 85, avgScore: 72 },
-  { day: "Sat", score: 75, avgScore: 69 },
-  { day: "Sun", score: 95, avgScore: 71 },
+  { day: "Lun", score: 80, avgScore: 65 },
+  { day: "Mar", score: 60, avgScore: 68 },
+  { day: "Mer", score: 90, avgScore: 70 },
+  { day: "Jeu", score: 70, avgScore: 67 },
+  { day: "Ven", score: 85, avgScore: 72 },
+  { day: "Sam", score: 75, avgScore: 69 },
+  { day: "Dim", score: 95, avgScore: 71 },
 ];
 
 const categoryData = [
-  { name: "Science", value: 35 },
-  { name: "History", value: 25 },
-  { name: "Geography", value: 20 },
-  { name: "Entertainment", value: 15 },
-  { name: "Sports", value: 5 },
+  { name: "Sciences", value: 35 },
+  { name: "Histoire", value: 25 },
+  { name: "Géographie", value: 20 },
+  { name: "Divertissement", value: 15 },
+  { name: "Sport", value: 5 },
 ];
 
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088fe"];
@@ -29,14 +29,14 @@ export function DailyStats() {
   return (
     <Card className="shadow-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl">Your Challenge Stats</CardTitle>
+        <CardTitle className="text-xl">Vos statistiques de défi</CardTitle>
       </CardHeader>
 
       <Tabs defaultValue="performance">
         <div className="px-6">
           <TabsList className="grid grid-cols-2 w-full">
             <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="categories">Catégories</TabsTrigger>
           </TabsList>
         </div>
 
@@ -48,14 +48,14 @@ export function DailyStats() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
                   <YAxis />
-                  <Tooltip formatter={(value) => [`${value}%`, "Score"]} labelFormatter={(label) => `${label}day`} />
+                  <Tooltip formatter={(value) => [`${value}%`, "Score"]} labelFormatter={(label) => `${label}`} />
                   <Legend />
-                  <Bar name="Your Score" dataKey="score" fill="#8884d8" />
-                  <Bar name="Average Score" dataKey="avgScore" fill="#82ca9d" />
+                  <Bar name="Votre score" dataKey="score" fill="#8884d8" />
+                  <Bar name="Score moyen" dataKey="avgScore" fill="#82ca9d" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">Your daily challenge performance compared to the average</p>
+            <p className="text-xs text-muted-foreground text-center mt-2">Votre performance au défi du jour comparée à la moyenne</p>
           </CardContent>
         </TabsContent>
 
@@ -69,12 +69,12 @@ export function DailyStats() {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value}%`, "Percentage"]} />
+                  <Tooltip formatter={(value) => [`${value}%`, "Pourcentage"]} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">Distribution of your correct answers by category</p>
+            <p className="text-xs text-muted-foreground text-center mt-2">Répartition de vos bonnes réponses par catégorie</p>
           </CardContent>
         </TabsContent>
       </Tabs>
