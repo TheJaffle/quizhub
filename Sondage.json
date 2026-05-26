@@ -594,7 +594,7 @@
         "speed-055"
       ],
       "totalTimeLimitSeconds": 180,
-      "timeLimitSeconds": 8
+      "timeLimitSeconds": 0
     },
     {
       "type": "audioMemory",

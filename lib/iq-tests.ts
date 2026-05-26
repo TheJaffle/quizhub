@@ -903,12 +903,12 @@ function parseTestSequenceDefinition(sequenceDefinition: string | null | undefin
 
       const timeLimitSecondsValue = (rawStep as { timeLimitSeconds?: unknown }).timeLimitSeconds;
       const timeLimitSeconds =
-        typeof timeLimitSecondsValue === "number" && Number.isInteger(timeLimitSecondsValue) && timeLimitSecondsValue > 0
+        typeof timeLimitSecondsValue === "number" && Number.isInteger(timeLimitSecondsValue) && timeLimitSecondsValue >= 0
           ? timeLimitSecondsValue
           : undefined;
 
       if (timeLimitSecondsValue !== undefined && timeLimitSeconds === undefined) {
-        throw new Error("Une etape speed avec timeLimitSeconds doit definir un entier positif.");
+        throw new Error("Une etape speed avec timeLimitSeconds doit definir un entier positif ou zero.");
       }
 
       steps.push({ type: "speed", questionKeys, totalTimeLimitSeconds, timeLimitSeconds });
