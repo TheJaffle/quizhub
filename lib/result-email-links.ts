@@ -1,7 +1,7 @@
 import "server-only";
+import { getBrevoPresence, sendBrevoEmail } from "@/lib/brevo";
 import crypto from "crypto";
 import mysql from "mysql2/promise";
-import nodemailer from "nodemailer";
 
 export type ResultEmailType = "quiz" | "iq";
 
@@ -52,37 +52,6 @@ function mapRow(row: ResultEmailLinkRow): ResultEmailLink {
     email: row.email,
     emailToken: row.email_token,
     expiresAt: row.expires_at,
-  };
-}
-
-function getSmtpConfig() {
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT ?? 587);
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASSWORD;
-  const from = process.env.SMTP_FROM ?? user;
-
-  if (!host || !user || !pass || !from) return null;
-
-  return {
-    host,
-    port,
-    secure: port === 465,
-    auth: {
-      user,
-      pass,
-    },
-    from,
-  };
-}
-
-function getSmtpPresence() {
-  return {
-    SMTP_HOST: Boolean(process.env.SMTP_HOST),
-    SMTP_PORT: Boolean(process.env.SMTP_PORT),
-    SMTP_USER: Boolean(process.env.SMTP_USER),
-    SMTP_PASSWORD: Boolean(process.env.SMTP_PASSWORD),
-    SMTP_FROM: Boolean(process.env.SMTP_FROM),
   };
 }
 
@@ -256,45 +225,26 @@ export async function sendResultEmail(link: ResultEmailLink, baseUrl: string) {
     <p>Ce lien expire dans ${EMAIL_LINK_TTL_HOURS} heures.</p>
     <p>brainspark</p>
   `;
-  const smtpConfig = getSmtpConfig();
+  const delivery = await sendBrevoEmail({
+    to: link.email,
+    subject,
+    textContent: text,
+    htmlContent: html,
+  });
 
-  if (!smtpConfig) {
-    console.info("RESULT EMAIL SMTP CONFIG MISSING", getSmtpPresence());
+  if (!delivery.sent) {
+    console.error("RESULT EMAIL BREVO ERROR", {
+      to: link.email,
+      accessUrl,
+      error: delivery.error ?? "Erreur Brevo inconnue",
+      details: delivery.details ?? null,
+      brevo: getBrevoPresence(),
+    });
     console.info("RESULT EMAIL LINK", { to: link.email, accessUrl });
     return { sent: false, accessUrl };
   }
 
-  try {
-    const transporter = nodemailer.createTransport({
-      host: smtpConfig.host,
-      port: smtpConfig.port,
-      secure: smtpConfig.secure,
-      auth: smtpConfig.auth,
-    });
+  console.info("RESULT EMAIL SENT VIA BREVO", { to: link.email, accessUrl, messageId: delivery.messageId });
 
-    await transporter.sendMail({
-      from: smtpConfig.from,
-      to: link.email,
-      subject,
-      text,
-      html,
-    });
-
-    console.info("RESULT EMAIL SENT", { to: link.email, accessUrl });
-
-    return { sent: true, accessUrl };
-  } catch (error) {
-    const smtpError = error as { message?: string; stack?: string; code?: string };
-
-    console.error("RESULT EMAIL ERROR", {
-      to: link.email,
-      accessUrl,
-      code: smtpError.code ?? null,
-      message: smtpError.message ?? "Erreur SMTP inconnue",
-      stack: smtpError.stack ?? null,
-      smtp: getSmtpPresence(),
-    });
-
-    return { sent: false, accessUrl };
-  }
+  return { sent: true, accessUrl };
 }

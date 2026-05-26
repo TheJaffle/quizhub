@@ -329,7 +329,7 @@ export async function getLatestQuizzes(): Promise<LatestQuizzesResult> {
        INNER JOIN quiz_categories c ON c.id = q.category_id
        WHERE q.is_active = 1 AND c.is_active = 1
        ORDER BY q.created_at DESC, q.id DESC
-       LIMIT 4`
+       LIMIT 2`
     );
 
     const quizzes = (rows as (QuizRow & { category_name: string })[]).map((row) => ({
