@@ -2,10 +2,9 @@ import type { IqResult } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { IqResultCategoryChart } from "@/components/iq/iq-result-category-chart";
-import { AlertTriangle, BarChart3, Brain, Calendar, Gauge, RotateCcw, Timer, User, WalletCards } from "lucide-react";
+import { AlertTriangle, Brain, Gauge, RotateCcw, Share2, Sparkles, Trophy, WalletCards } from "lucide-react";
 import Link from "next/link";
 
 type IqResultPageProps = {
@@ -27,27 +26,30 @@ const sectionScores = [
 
 const SPEED_REFERENCE_MS = 15000;
 
-function formatDate(date: Date | null) {
-  if (!date) return "Non finalise";
-
-  return new Intl.DateTimeFormat("fr-FR", {
-    dateStyle: "long",
-    timeStyle: "short",
-  }).format(date);
-}
-
-function formatDuration(milliseconds: number | null) {
-  if (!milliseconds) return "Aucune donnee";
-
-  if (milliseconds < 1000) return `${milliseconds} ms`;
-
-  return `${(milliseconds / 1000).toFixed(1)} s`;
-}
-
 function clampScore(value: number) {
   if (!Number.isFinite(value)) return 0;
 
   return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function estimateIqRange(score: number) {
+  const center = Math.round(80 + score * 0.45);
+  return {
+    min: Math.max(70, center - 6),
+    max: Math.min(145, center + 6),
+  };
+}
+
+function getProfileLabel(score: number) {
+  if (score >= 82) return "Très beau profil";
+  if (score >= 68) return "Profil solide";
+  if (score >= 52) return "Bon potentiel";
+  if (score >= 35) return "Profil en construction";
+  return "Résultat à reprendre au calme";
+}
+
+function getCategoryNote(percentage: number) {
+  return Math.max(0, Math.min(20, Math.round(percentage / 5)));
 }
 
 function getErrorText(error?: IqResultPageProps["error"]) {
@@ -79,17 +81,32 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
   const totalPossibleScore = result.sectionBreakdown.reduce((total, section) => total + section.maxScore, 0);
   const precisionProgress = totalPossibleScore > 0 ? clampScore((result.rawScore / totalPossibleScore) * 100) : 0;
   const speedProgress = result.averageResponseTimeMs ? clampScore((1 - result.averageResponseTimeMs / SPEED_REFERENCE_MS) * 100) : 0;
-  const cognitiveScore = clampScore(precisionProgress * 0.8 + speedProgress * 0.2);
+  const cognitiveScore = result.averageResponseTimeMs ? clampScore(precisionProgress * 0.85 + speedProgress * 0.15) : precisionProgress;
+  const iqRange = estimateIqRange(cognitiveScore);
+  const rankedSections = sectionScores
+    .map((section) => {
+      const value = result.sectionBreakdown.find((item) => item.key === section.key);
+
+      return {
+        ...section,
+        score: value?.score ?? 0,
+        maxScore: value?.maxScore ?? 0,
+        percentage: value?.percentage ?? 0,
+        note: getCategoryNote(value?.percentage ?? 0),
+      };
+    })
+    .filter((section) => section.maxScore > 0);
+  const strongestSections = [...rankedSections].sort((a, b) => b.percentage - a.percentage).slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-5xl py-8">
+    <div className="mx-auto max-w-5xl py-4 md:py-8">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
             <Brain className="mr-1 h-3.5 w-3.5" />
-            Score indicatif
+            Résultat indicatif
           </Badge>
-          <h1 className="text-3xl font-bold tracking-tight">Votre résultat de logique</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Votre résultat brainspark</h1>
           {userPseudo ? <p className="text-muted-foreground">Connecte en tant que {userPseudo}</p> : null}
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -102,120 +119,123 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
           <Button asChild>
             <Link href="/iq">
               <RotateCcw className="mr-2 h-4 w-4" />
-              Recommencer le test de logique
+              Recommencer
             </Link>
           </Button>
         </div>
       </div>
 
-      <Card className="mb-6 overflow-hidden border-0 shadow-xl">
-        <CardHeader>
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-500">
-              <Gauge className="h-6 w-6" />
-            </div>
+      <Card className="mb-6 overflow-hidden border-0 bg-slate-950 text-white shadow-xl">
+        <CardContent className="p-5 md:p-8">
+          <div className="grid gap-6 md:grid-cols-[1.15fr_0.85fr] md:items-center">
             <div>
-              <CardTitle className="text-2xl">{result.testTitle}</CardTitle>
-              <CardDescription>Score indicatif basé sur les réponses enregistrées. Il ne s'agit pas d'une évaluation psychologique officielle.</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="rounded-lg border bg-background p-4">
-              <p className="text-sm text-muted-foreground">Score cognitif provisoire</p>
-              <p className="mt-2 text-3xl font-bold">{cognitiveScore}%</p>
-              <p className="mt-1 text-xs text-muted-foreground">Precision 80% + vitesse 20%</p>
-            </div>
-            <div className="rounded-lg border bg-background p-4">
-              <p className="text-sm text-muted-foreground">Bonnes reponses</p>
-              <p className="mt-2 text-3xl font-bold">{precisionProgress}%</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {result.rawScore} / {totalPossibleScore || result.totalQuestions}
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#E91663]">
+                <Trophy className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-white/60">{result.testTitle}</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">
+                QI probablement entre {iqRange.min} et {iqRange.max}
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75 md:text-base">
+                Estimation ludique basée sur vos réponses, votre régularité par catégorie et la rapidité quand elle est disponible.
               </p>
             </div>
-            <div className="rounded-lg border bg-background p-4">
-              <p className="text-sm text-muted-foreground">Score vitesse</p>
-              <p className="mt-2 text-3xl font-bold">{speedProgress}%</p>
-              <p className="mt-1 text-xs text-muted-foreground">Reference 15 s/question</p>
-            </div>
-            <div className="rounded-lg border bg-background p-4">
-              <p className="text-sm text-muted-foreground">Temps moyen</p>
-              <p className="mt-2 text-3xl font-bold">{formatDuration(result.averageResponseTimeMs)}</p>
-            </div>
-          </div>
 
-          <div className="rounded-lg border bg-muted/40 p-4">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <p className="font-medium">Questions repondues</p>
-              <Badge variant="secondary">
-                {result.answeredQuestions} / {result.totalQuestions}
-              </Badge>
+            <div className="rounded-2xl bg-white p-5 text-slate-950">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-slate-500">Score brainspark</p>
+                  <p className="mt-1 text-5xl font-black">{cognitiveScore}</p>
+                </div>
+                <Gauge className="h-10 w-10 text-[#E91663]" />
+              </div>
+              <Progress value={cognitiveScore} className="mt-4 h-2" />
+              <p className="mt-3 text-sm font-semibold text-slate-700">{getProfileLabel(cognitiveScore)}</p>
+              <p className="mt-1 text-xs text-slate-500">
+                {result.answeredQuestions}/{result.totalQuestions} questions répondues
+              </p>
             </div>
-            <Progress value={answeredProgress} className="h-2" />
-          </div>
-
-          <div className="rounded-lg border bg-muted/40 p-4">
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <p className="font-medium">Score cognitif provisoire</p>
-              <Badge variant="outline">{cognitiveScore}%</Badge>
-            </div>
-            <Progress value={cognitiveScore} className="h-2" />
           </div>
         </CardContent>
       </Card>
 
-      <IqResultCategoryChart sections={result.sectionBreakdown} />
+      <div className="mb-6 grid gap-4 md:grid-cols-3">
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">Réussite</p>
+            <p className="mt-2 text-3xl font-bold">{precisionProgress}%</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {result.rawScore} / {totalPossibleScore || result.totalQuestions} points
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">Réponses données</p>
+            <p className="mt-2 text-3xl font-bold">{answeredProgress}%</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {result.answeredQuestions} / {result.totalQuestions}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <p className="text-sm text-muted-foreground">Points forts</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {strongestSections.map((section) => (
+                <Badge key={section.key} variant="secondary">
+                  {section.label}
+                </Badge>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Les catégories où vous avez le mieux performé.</p>
+          </CardContent>
+        </Card>
+      </div>
 
-      <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
-        {sectionScores.map((section) => {
-          const value = result.sectionBreakdown.find((item) => item.key === section.key);
+      <Card className="mb-6 border-0 shadow-sm">
+        <CardContent className="p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-[#E91663]" />
+            <h2 className="text-xl font-bold">Vos notes par catégorie</h2>
+          </div>
 
-          return (
-            <Card key={section.key}>
-              <CardContent className="p-4">
-                <div className={`mb-3 flex items-center gap-2 ${section.color}`}>
-                  <BarChart3 className="h-4 w-4" />
-                  <p className="font-medium">{section.label}</p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {rankedSections.map((section) => (
+              <div key={section.key} className="rounded-xl border bg-background p-4">
+                <div className={`mb-2 flex items-center justify-between gap-2 ${section.color}`}>
+                  <p className="font-semibold">{section.label}</p>
+                  <Badge variant="outline">{section.note}/20</Badge>
                 </div>
-                <p className="text-3xl font-bold">{value?.percentage ?? 0}%</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {value?.score ?? 0} / {value?.maxScore ?? 0} points
+                <Progress value={section.percentage} className="h-2" />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {section.score} / {section.maxScore} points
                 </p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border bg-background p-4">
-          <div className="mb-2 flex items-center gap-2 text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <p className="text-sm">Debut</p>
+      <Card className="border-0 bg-[#fff1f6] shadow-sm">
+        <CardContent className="flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <div className="flex items-center gap-2 font-bold text-slate-950">
+              <Share2 className="h-5 w-5 text-[#E91663]" />
+              À comparer avec vos amis
+            </div>
+            <p className="mt-1 text-sm text-slate-600">
+              Votre score partageable : {cognitiveScore}/100, QI estimé {iqRange.min}-{iqRange.max}.
+            </p>
           </div>
-          <p className="font-medium">{formatDate(result.startedAt)}</p>
-        </div>
-        <div className="rounded-lg border bg-background p-4">
-          <div className="mb-2 flex items-center gap-2 text-muted-foreground">
-            <Timer className="h-4 w-4" />
-            <p className="text-sm">Fin</p>
-          </div>
-          <p className="font-medium">{formatDate(result.completedAt)}</p>
-        </div>
-        <div className="rounded-lg border bg-background p-4">
-          <div className="mb-2 flex items-center gap-2 text-muted-foreground">
-            <User className="h-4 w-4" />
-            <p className="text-sm">Statut</p>
-          </div>
-          <Badge variant={result.status === "completed" ? "success" : "secondary"}>{result.status}</Badge>
-        </div>
-      </div>
+          <Badge className="w-fit bg-[#E91663] text-white hover:bg-[#E91663]">{getProfileLabel(cognitiveScore)}</Badge>
+        </CardContent>
+      </Card>
 
       <Alert className="mt-6">
         <AlertTriangle className="h-5 w-5" />
-        <AlertTitle>Resultat indicatif</AlertTitle>
-        <AlertDescription>Ce resultat est indicatif et ne constitue pas un test psychometrique officiel.</AlertDescription>
+        <AlertTitle>Estimation non officielle</AlertTitle>
+        <AlertDescription>Cette fourchette est une estimation ludique issue du sondage brainspark. Elle ne remplace pas un test psychométrique officiel.</AlertDescription>
       </Alert>
     </div>
   );
