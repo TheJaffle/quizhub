@@ -1,7 +1,12 @@
 START TRANSACTION;
 
 SET @test_debug_id := (SELECT id FROM iq_tests WHERE slug = 'test-qi-complet' LIMIT 1);
-SET @sondage_test_id := (SELECT id FROM iq_tests WHERE slug = 'sondage' LIMIT 1);
+SET @question_bank_test_id := (
+  SELECT COALESCE(question_bank_test_id, id)
+  FROM iq_tests
+  WHERE slug = 'test-qi-complet'
+  LIMIT 1
+);
 
 INSERT INTO iq_sections (
   test_id,
@@ -29,9 +34,7 @@ SELECT
   NOW(),
   NOW()
 FROM (
-  SELECT @test_debug_id AS test_id
-  UNION ALL
-  SELECT @sondage_test_id AS test_id
+  SELECT @question_bank_test_id AS test_id
 ) source
 LEFT JOIN iq_sections logic_section
   ON logic_section.test_id = source.test_id
@@ -51,26 +54,26 @@ SET title = 'Quantitatif',
     is_active = 1,
     updated_at = NOW()
 WHERE section_key = 'quantitative'
-  AND test_id IN (@test_debug_id, @sondage_test_id);
+  AND test_id = @question_bank_test_id;
 
 DELETE overlay
 FROM iq_spatial_overlay_questions overlay
 INNER JOIN iq_questions q ON q.id = overlay.question_id
 INNER JOIN iq_sections s ON s.id = q.section_id
-WHERE q.test_id IN (@test_debug_id, @sondage_test_id)
+WHERE q.test_id = @question_bank_test_id
   AND s.section_key = 'quantitative';
 
 DELETE opt
 FROM iq_question_options opt
 INNER JOIN iq_questions q ON q.id = opt.question_id
 INNER JOIN iq_sections s ON s.id = q.section_id
-WHERE q.test_id IN (@test_debug_id, @sondage_test_id)
+WHERE q.test_id = @question_bank_test_id
   AND s.section_key = 'quantitative';
 
 DELETE q
 FROM iq_questions q
 INNER JOIN iq_sections s ON s.id = q.section_id
-WHERE q.test_id IN (@test_debug_id, @sondage_test_id)
+WHERE q.test_id = @question_bank_test_id
   AND s.section_key = 'quantitative';
 
 INSERT INTO iq_questions (
@@ -111,9 +114,7 @@ SELECT
   NOW(),
   NOW()
 FROM (
-  SELECT @test_debug_id AS test_id, (SELECT id FROM iq_sections WHERE test_id = @test_debug_id AND section_key = 'quantitative' LIMIT 1) AS section_id
-  UNION ALL
-  SELECT @sondage_test_id AS test_id, (SELECT id FROM iq_sections WHERE test_id = @sondage_test_id AND section_key = 'quantitative' LIMIT 1) AS section_id
+  SELECT @question_bank_test_id AS test_id, (SELECT id FROM iq_sections WHERE test_id = @question_bank_test_id AND section_key = 'quantitative' LIMIT 1) AS section_id
 ) section_ref
 INNER JOIN (
   SELECT 'quantitative-001' AS question_key, '4 machines fabriquent 24 pieces en 6 minutes. A la meme vitesse, combien de pieces fabriqueront 8 machines en 3 minutes ?' AS question_text, 'text' AS question_format, 1 AS difficulty_level, 1 AS weight, 45 AS time_limit_seconds, 'Doubler machines x2. Diviser temps /2. Effets s''annulent.' AS explanation, 1 AS position
@@ -194,7 +195,7 @@ INNER JOIN (
   UNION ALL SELECT 'quantitative-010', 'D', '32', 0, 4
 ) option_ref
   ON option_ref.question_key = q.question_key
-WHERE q.test_id IN (@test_debug_id, @sondage_test_id)
+WHERE q.test_id = @question_bank_test_id
   AND s.section_key = 'quantitative'
 ORDER BY q.test_id, q.position, option_ref.position;
 
@@ -226,14 +227,14 @@ SELECT
 FROM iq_questions q
 INNER JOIN iq_sections s ON s.id = q.section_id
 INNER JOIN (
-  SELECT 'quantitative-003' AS question_key, '/iq/quantitative/quantitative-003-question.png' AS question_image_url, '/iq/quantitative/quantitative-003-answers.png' AS answers_image_url, 2 AS correct_position
+  SELECT 'quantitative-003' AS question_key, '/iq/quantitative/quantitative-003-question.png' AS question_image_url, '/iq/quantitative/quantitative-003-answer.png' AS answers_image_url, 2 AS correct_position
   UNION ALL
-  SELECT 'quantitative-006', '/iq/quantitative/quantitative-006-question.png', '/iq/quantitative/quantitative-006-answers.png', 1
+  SELECT 'quantitative-006', '/iq/quantitative/quantitative-006-question.png', '/iq/quantitative/quantitative-006-answer.png', 1
   UNION ALL
-  SELECT 'quantitative-009', '/iq/quantitative/quantitative-009-question.png', '/iq/quantitative/quantitative-009-answers.png', 3
+  SELECT 'quantitative-009', '/iq/quantitative/quantitative-009-question.png', '/iq/quantitative/quantitative-009-answer.png', 3
 ) overlay_ref
   ON overlay_ref.question_key = q.question_key
-WHERE q.test_id IN (@test_debug_id, @sondage_test_id)
+WHERE q.test_id = @question_bank_test_id
   AND s.section_key = 'quantitative'
 ORDER BY q.test_id, q.position;
 
