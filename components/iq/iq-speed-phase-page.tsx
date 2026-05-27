@@ -80,10 +80,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
-  const questionTimeLimitSeconds =
-    currentQuestion?.timeLimitSeconds && currentQuestion.timeLimitSeconds > 0
-      ? currentQuestion.timeLimitSeconds
-      : null;
+  const questionTimeLimitSeconds = currentQuestion?.timeLimitSeconds ?? data?.phaseTimeLimitSeconds ?? 120;
   const stimulusText = currentQuestion?.stimulusText?.trim() || "";
   const phaseTimeTotal = Math.max(data?.phaseTimeLimitSeconds ?? 120, 1);
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / phaseTimeTotal) * 100));
@@ -98,7 +95,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
     setPausedBoundaryAction(null);
     setIsRefreshingPhase(false);
     setActiveQuestionTimerId(currentQuestion?.id ?? null);
-    setQuestionTimeRemaining(questionTimeLimitSeconds ?? 0);
+    setQuestionTimeRemaining(questionTimeLimitSeconds);
     displayedAtRef.current = new Date();
   }, [currentQuestion?.id, currentQuestion, questionTimeLimitSeconds]);
 
@@ -110,7 +107,6 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   useEffect(() => {
     if (!data || !currentQuestion || completionState || isCompleting || isPaused || isSaving || isRefreshingPhase) return;
     if (activeQuestionTimerId !== currentQuestion.id) return;
-    if (!questionTimeLimitSeconds || questionTimeLimitSeconds <= 0) return;
 
     if (questionTimeRemaining <= 0) {
       if (handledTimeoutQuestionIdRef.current === currentQuestion.id) return;
@@ -135,10 +131,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
       phaseTimeoutRef.current = true;
       void saveAnswer({
         questionId: currentQuestion.id,
-        responseTimeMs:
-          questionTimeLimitSeconds && questionTimeLimitSeconds > 0
-            ? Math.min(Math.max(new Date().getTime() - displayedAtRef.current.getTime(), 0), questionTimeLimitSeconds * 1000)
-            : Math.max(new Date().getTime() - displayedAtRef.current.getTime(), 0),
+        responseTimeMs: Math.min(Math.max(new Date().getTime() - displayedAtRef.current.getTime(), 0), questionTimeLimitSeconds * 1000),
       });
       return;
     }

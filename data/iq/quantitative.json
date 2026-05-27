@@ -1,68 +1,32 @@
 [
   {
     "questionKey": "quantitative-001",
-    "questionText": "4 machines fabriquent 24 pièces en 6 minutes. À la même vitesse, combien de pièces fabriqueront 8 machines en 3 minutes ? ",
+    "questionText": "4 machines fabriquent 24 pieces en 6 minutes. A la meme vitesse, combien de pieces fabriqueront 8 machines en 3 minutes ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
-    "stimulusText": null,
-    "questionImageUrl": null,
-    "explanation": "Doubler machines ×2. Diviser temps /2. Effets s’annulent. ",
+    "explanation": "Doubler machines x2. Diviser temps /2. Effets s'annulent.",
     "options": [
-      {
-        "key": "A",
-        "text": "24",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "36",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "48",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "96",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "24", "isCorrect": true },
+      { "key": "B", "text": "36", "isCorrect": false },
+      { "key": "C", "text": "48", "isCorrect": false },
+      { "key": "D", "text": "96", "isCorrect": false }
     ]
   },
   {
     "questionKey": "quantitative-002",
-    "questionText": "Dans un groupe le ratio hommes/femmes est 3:2. Il y a 20 femmes. Combien y'a-t-il d’hommes ?  ",
+    "questionText": "Dans un groupe le ratio hommes/femmes est 3:2. Il y a 20 femmes. Combien y a-t-il d'hommes ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
-    "stimulusText": null,
-    "questionImageUrl": null,
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "25",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "30",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "35",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "40",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "25", "isCorrect": false },
+      { "key": "B", "text": "30", "isCorrect": true },
+      { "key": "C", "text": "35", "isCorrect": false },
+      { "key": "D", "text": "40", "isCorrect": false }
     ]
   },
   {
@@ -85,73 +49,37 @@
   },
   {
     "questionKey": "quantitative-004",
-    "questionText": "Une population augmente de 50%, puis diminue de 50%. Par rapport au départ, elle est :",
+    "questionText": "Une population augmente de 50%, puis diminue de 50%. Par rapport au depart, elle est :",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
-    "stimulusText": null,
-    "questionImageUrl": null,
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "identique",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "plus grande",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "plus petite",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "impossible à savoir",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "identique", "isCorrect": false },
+      { "key": "B", "text": "plus grande", "isCorrect": false },
+      { "key": "C", "text": "plus petite", "isCorrect": true },
+      { "key": "D", "text": "impossible a savoir", "isCorrect": false }
     ]
   },
   {
     "questionKey": "quantitative-005",
-    "questionText": "Un objet coûte 120€ après une réduction de 20%. Quel était son prix initial ?",
+    "questionText": "Un objet coute 120 EUR apres une reduction de 20%. Quel etait son prix initial ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
-    "stimulusText": null,
-    "questionImageUrl": null,
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "140",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "144",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "150",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "160",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "140", "isCorrect": false },
+      { "key": "B", "text": "144", "isCorrect": false },
+      { "key": "C", "text": "150", "isCorrect": true },
+      { "key": "D", "text": "160", "isCorrect": false }
     ]
   },
   {
     "questionKey": "quantitative-006",
-    "questionText": "Si on colore 50% des carrés grisés, combien de carrés seront colorés ?",
+    "questionText": "",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -169,68 +97,32 @@
   },
   {
     "questionKey": "quantitative-007",
-    "questionText": "Si 5 personnes terminent un travail en 12 jours, combien faudra-t-il de jours à 15 personnes ?",
+    "questionText": "Si 5 personnes terminent un travail en 12 jours, combien faudra-t-il de jours a 15 personnes ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
-    "stimulusText": null,
-    "questionImageUrl": null,
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "2",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "4",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "6",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "8",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "2", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": true },
+      { "key": "C", "text": "6", "isCorrect": false },
+      { "key": "D", "text": "8", "isCorrect": false }
     ]
   },
   {
     "questionKey": "quantitative-008",
-    "questionText": "La moyenne de 5 nombres est 18. Quatre nombres valent : 12, 15, 20 et 23. Le cinquième vaut :",
+    "questionText": "La moyenne de 5 nombres est 18. Quatre nombres valent : 12, 15, 20 et 23. Le cinquieme vaut :",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
-    "stimulusText": null,
-    "questionImageUrl": null,
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "18",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "20",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "22",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "24",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "18", "isCorrect": false },
+      { "key": "B", "text": "20", "isCorrect": true },
+      { "key": "C", "text": "22", "isCorrect": false },
+      { "key": "D", "text": "24", "isCorrect": false }
     ]
   },
   {
@@ -253,35 +145,17 @@
   },
   {
     "questionKey": "quantitative-010",
-    "questionText": "Une feuille est pliée en deux 4 fois. Son épaisseur est multipliée par :",
+    "questionText": "Une feuille est pliee en deux 4 fois. Son epaisseur est multipliee par :",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
-    "stimulusText": null,
-    "questionImageUrl": null,
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "4",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "8",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "16",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "32",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "4", "isCorrect": false },
+      { "key": "B", "text": "8", "isCorrect": false },
+      { "key": "C", "text": "16", "isCorrect": true },
+      { "key": "D", "text": "32", "isCorrect": false }
     ]
   }
 ]

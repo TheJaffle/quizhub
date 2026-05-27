@@ -5,20 +5,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "4 + 3 = 7",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Vrai",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Faux",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Vrai", "isCorrect": true },
+      { "key": "B", "text": "Faux", "isCorrect": false }
     ]
   },
   {
@@ -27,20 +19,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "🔴▲ et 🔴▲",
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔴▲ vs 🔴▲",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Identique",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Différent",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Identique", "isCorrect": true },
+      { "key": "B", "text": "Différent", "isCorrect": false }
     ]
   },
   {
@@ -49,20 +33,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "8",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -71,20 +47,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "→ et ←",
+    "timeLimitSeconds": 8,
+    "stimulusText": "→ vs ←",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -93,20 +61,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "9 8 7",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -115,30 +75,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "🔴 🔴 🔵 🔴",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "🔴",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "🔵",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "🟢",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "🟡",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "🔴", "isCorrect": false },
+      { "key": "B", "text": "🔵", "isCorrect": true },
+      { "key": "C", "text": "🟢", "isCorrect": false },
+      { "key": "D", "text": "🟡", "isCorrect": false }
     ]
   },
   {
@@ -147,30 +91,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "A→1 B→2 C→3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "1",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "2",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "3",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "4",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "1", "isCorrect": false },
+      { "key": "B", "text": "2", "isCorrect": true },
+      { "key": "C", "text": "3", "isCorrect": false },
+      { "key": "D", "text": "4", "isCorrect": false }
     ]
   },
   {
@@ -179,30 +107,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "9 − 5",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "3",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "4",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "5",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "6",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "3", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": true },
+      { "key": "C", "text": "5", "isCorrect": false },
+      { "key": "D", "text": "6", "isCorrect": false }
     ]
   },
   {
@@ -211,20 +123,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "🔵■ et ■🔵",
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔵■ vs ■🔵",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Même",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Différent",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Même", "isCorrect": false },
+      { "key": "B", "text": "Différent", "isCorrect": true }
     ]
   },
   {
@@ -233,64 +137,41 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "7 et 5",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
+  
   {
     "questionKey": "speed-011",
     "questionText": "Même orientation ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "↑ et ↓",
+    "timeLimitSeconds": 8,
+    "stimulusText": "↑ vs ↓",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
     "questionKey": "speed-012",
-    "questionText": "Le symbole ▲ est-il présent ?",
+    "questionText": "Cible présente ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "▲ ■ ● ▲",
+    "timeLimitSeconds": 8,
+    "stimulusText": "cible ▲ → ▲ ■ ● ▲",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -299,30 +180,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "4 6 8 9",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "4",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "6",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "8",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "9",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "4", "isCorrect": false },
+      { "key": "B", "text": "6", "isCorrect": false },
+      { "key": "C", "text": "8", "isCorrect": false },
+      { "key": "D", "text": "9", "isCorrect": true }
     ]
   },
   {
@@ -331,30 +196,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "A→1 B→2 C→3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "3",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "4",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "5",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "6",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "3", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": false },
+      { "key": "C", "text": "5", "isCorrect": true },
+      { "key": "D", "text": "6", "isCorrect": false }
     ]
   },
   {
@@ -363,30 +212,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "6 + 2",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "6",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "7",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "8",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "9",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "6", "isCorrect": false },
+      { "key": "B", "text": "7", "isCorrect": false },
+      { "key": "C", "text": "8", "isCorrect": true },
+      { "key": "D", "text": "9", "isCorrect": false }
     ]
   },
   {
@@ -395,20 +228,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "🟢● et 🟢●",
+    "timeLimitSeconds": 8,
+    "stimulusText": "🟢● vs 🟢●",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Identique",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Différent",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Identique", "isCorrect": true },
+      { "key": "B", "text": "Différent", "isCorrect": false }
     ]
   },
   {
@@ -417,20 +242,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -439,20 +256,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "← et ←",
+    "timeLimitSeconds": 8,
+    "stimulusText": "← vs ←",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -461,30 +270,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "■ → ● ■ ● ▲",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "1",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "2",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "3",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "4",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "1", "isCorrect": false },
+      { "key": "B", "text": "2", "isCorrect": true },
+      { "key": "C", "text": "3", "isCorrect": false },
+      { "key": "D", "text": "4", "isCorrect": false }
     ]
   },
   {
@@ -493,52 +286,29 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "A A B A",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "A",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "B",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "A", "isCorrect": false },
+      { "key": "B", "text": "B", "isCorrect": true }
     ]
   },
+  
   {
     "questionKey": "speed-021",
     "questionText": "D = ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "A→1 B→2 C→3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "3",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "4",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "5",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "6",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "3", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": true },
+      { "key": "C", "text": "5", "isCorrect": false },
+      { "key": "D", "text": "6", "isCorrect": false }
     ]
   },
   {
@@ -547,30 +317,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "8 − 3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "4",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "5",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "6",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "7",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "4", "isCorrect": false },
+      { "key": "B", "text": "5", "isCorrect": true },
+      { "key": "C", "text": "6", "isCorrect": false },
+      { "key": "D", "text": "7", "isCorrect": false }
     ]
   },
   {
@@ -579,20 +333,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "🔴▲ et ▲🔴",
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔴▲ vs ▲🔴",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Identique",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Différent",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Identique", "isCorrect": false },
+      { "key": "B", "text": "Différent", "isCorrect": true }
     ]
   },
   {
@@ -601,20 +347,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "9 et 4",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -623,42 +361,26 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "↓ et ↑",
+    "timeLimitSeconds": 8,
+    "stimulusText": "↓ vs ↑",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
     "questionKey": "speed-026",
-    "questionText": "L'objet 🟢 est-il présent ?",
+    "questionText": "Objet présent ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "🟢 🔴 🟢 🔴",
+    "timeLimitSeconds": 8,
+    "stimulusText": "cible 🟢 → 🔴 🟢 🔴",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -667,20 +389,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "N M O",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -689,30 +403,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "A→1 B→2 C→3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "1",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "2",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "3",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "4",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "1", "isCorrect": false },
+      { "key": "B", "text": "2", "isCorrect": true },
+      { "key": "C", "text": "3", "isCorrect": false },
+      { "key": "D", "text": "4", "isCorrect": false }
     ]
   },
   {
@@ -721,30 +419,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "5 + 4",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "7",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "8",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "9",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "10",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "7", "isCorrect": false },
+      { "key": "B", "text": "8", "isCorrect": false },
+      { "key": "C", "text": "9", "isCorrect": true },
+      { "key": "D", "text": "10", "isCorrect": false }
     ]
   },
   {
@@ -753,42 +435,27 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "🔵● et 🔵■",
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔵● vs 🔵■",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Identique",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Différent",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Identique", "isCorrect": false },
+      { "key": "B", "text": "Différent", "isCorrect": true }
     ]
   },
+  
   {
     "questionKey": "speed-031",
     "questionText": "Nombre pair ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "6",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -797,20 +464,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "→ et →",
+    "timeLimitSeconds": 8,
+    "stimulusText": "→ vs →",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -819,20 +478,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "● → ■ ● ■ ● ■",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -841,20 +492,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "2 6 8",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -863,30 +506,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "A→1 B→2 C→3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "24",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "25",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "26",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "27",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "24", "isCorrect": false },
+      { "key": "B", "text": "25", "isCorrect": false },
+      { "key": "C", "text": "26", "isCorrect": true },
+      { "key": "D", "text": "27", "isCorrect": false }
     ]
   },
   {
@@ -895,30 +522,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "7 − 2",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "4",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "5",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "6",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "7",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "4", "isCorrect": false },
+      { "key": "B", "text": "5", "isCorrect": true },
+      { "key": "C", "text": "6", "isCorrect": false },
+      { "key": "D", "text": "7", "isCorrect": false }
     ]
   },
   {
@@ -927,20 +538,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "🟡■ et 🟡■",
+    "timeLimitSeconds": 8,
+    "stimulusText": "🟡■ vs 🟡■",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Identique",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Différent",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Identique", "isCorrect": true },
+      { "key": "B", "text": "Différent", "isCorrect": false }
     ]
   },
   {
@@ -949,20 +552,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "10 et 8",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -971,20 +566,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "● ● ■ ●",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "●",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "■",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "●", "isCorrect": false },
+      { "key": "B", "text": "■", "isCorrect": true }
     ]
   },
   {
@@ -993,74 +580,27 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "2 4 6",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
+  
   {
     "questionKey": "speed-041",
     "questionText": "Ordre alphabétique ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "Q S T",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
-    ]
-  },
-  {
-    "questionKey": "speed-042",
-    "questionText": "Resultat",
-    "questionFormat": "text",
-    "difficultyLevel": 1,
-    "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "9 * 9 / 9",
-    "explanation": "",
-    "options": [
-      {
-        "key": "A",
-        "text": "1",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "9",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "18",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "27",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -1069,30 +609,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "3 + 6",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "7",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "8",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "9",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "10",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "7", "isCorrect": false },
+      { "key": "B", "text": "8", "isCorrect": false },
+      { "key": "C", "text": "9", "isCorrect": true },
+      { "key": "D", "text": "10", "isCorrect": false }
     ]
   },
   {
@@ -1101,20 +625,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "🔴● et 🔴▲",
+    "timeLimitSeconds": 8,
+    "stimulusText": "🔴● vs 🔴▲",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Identique",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Différent",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Identique", "isCorrect": false },
+      { "key": "B", "text": "Différent", "isCorrect": true }
     ]
   },
   {
@@ -1123,20 +639,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "5",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -1145,42 +653,26 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "← et →",
+    "timeLimitSeconds": 8,
+    "stimulusText": "← vs →",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
     "questionKey": "speed-047",
-    "questionText": " ▼ est - il présent ?",
+    "questionText": "Cible présente ?",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": " ■ ■ ▲ ■ ■",
+    "timeLimitSeconds": 8,
+    "stimulusText": "▲ → ■ ▲ ■ ■",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -1189,30 +681,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "2 4 6 7",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "2",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "4",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "6",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "7",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "2", "isCorrect": false },
+      { "key": "B", "text": "4", "isCorrect": false },
+      { "key": "C", "text": "6", "isCorrect": false },
+      { "key": "D", "text": "7", "isCorrect": true }
     ]
   },
   {
@@ -1221,30 +697,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "A→1 B→2 C→3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "23",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "24",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "25",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "26",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "23", "isCorrect": false },
+      { "key": "B", "text": "24", "isCorrect": false },
+      { "key": "C", "text": "25", "isCorrect": true },
+      { "key": "D", "text": "26", "isCorrect": false }
     ]
   },
   {
@@ -1253,20 +713,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "🟢 → 🔵 🔴 🔵 🔵",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -1275,20 +727,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "B A C",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -1297,20 +741,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
-    "stimulusText": "↑ et ↑",
+    "timeLimitSeconds": 8,
+    "stimulusText": "↑ vs ↑",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -1319,30 +755,14 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "A→1 B→2 C→3",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "1",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "2",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "3",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "4",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "1", "isCorrect": true },
+      { "key": "B", "text": "2", "isCorrect": false },
+      { "key": "C", "text": "3", "isCorrect": false },
+      { "key": "D", "text": "4", "isCorrect": false }
     ]
   },
   {
@@ -1351,20 +771,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "9 8 7",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "Oui", "isCorrect": false },
+      { "key": "B", "text": "Non", "isCorrect": true }
     ]
   },
   {
@@ -1373,20 +785,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "🔵 → 🔴 🔴 🔵 🔴",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "Oui",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "Non",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "Oui", "isCorrect": true },
+      { "key": "B", "text": "Non", "isCorrect": false }
     ]
   },
   {
@@ -1395,20 +799,12 @@
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
-    "timeLimitSeconds": 0,
+    "timeLimitSeconds": 8,
     "stimulusText": "▲ ▲ ▲ ●",
     "explanation": "",
     "options": [
-      {
-        "key": "A",
-        "text": "▲",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "●",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "▲", "isCorrect": false },
+      { "key": "B", "text": "●", "isCorrect": true }
     ]
   }
 ]

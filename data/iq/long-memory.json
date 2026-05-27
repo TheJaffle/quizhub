@@ -12,26 +12,10 @@
     "explanation": "",
     "answer_prompt_text": "Retrouvez la séquence qui vous a été proposée",
     "options": [
-      {
-        "key": "A",
-        "text": "7 1 9 4 2",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "7 2 9 1 4",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "2 9 7 4 1",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "7 2 9 4 1",
-        "isCorrect": true
-      }
+      { "key": "A", "text": "7 1 9 4 2", "isCorrect": false },
+      { "key": "B", "text": "7 2 9 1 4", "isCorrect": false },
+      { "key": "C", "text": "2 9 7 4 1", "isCorrect": false },
+      { "key": "D", "text": "7 2 9 4 1", "isCorrect": true }
     ]
   },
   {
@@ -107,26 +91,10 @@
     "explanation": "",
     "answer_prompt_text": "Quel mot était présent",
     "options": [
-      {
-        "key": "A",
-        "text": "PRAXI",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "PRAXO",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "PRAXE",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "PRAXU",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "PRAXI", "isCorrect": true },
+      { "key": "B", "text": "PRAXO", "isCorrect": false },
+      { "key": "C", "text": "PRAXE", "isCorrect": false },
+      { "key": "D", "text": "PRAXU", "isCorrect": false }
     ]
   },
   {
