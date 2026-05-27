@@ -13,7 +13,7 @@ export async function POST(request: Request, { params }: CreateIqAttemptRoutePro
   const body = await request.json().catch(() => null);
   const cookieStore = await cookies();
   const userId = Number(cookieStore.get("quizhub_user_id")?.value);
-  const completedAttemptToken = cookieStore.get("qifree_iq_completed_token")?.value;
+  const completedAttemptToken = cookieStore.get("brainspark_iq_completed_token")?.value;
   const completedFromCookie = completedAttemptToken ? await getCompletedIqAttemptByToken(completedAttemptToken, slug) : null;
 
   if (completedFromCookie?.attemptToken) {

@@ -41,7 +41,7 @@ export async function LatestQuizzes() {
     <section className="space-y-6 bg-indigo-50 py-10 px-4 xl:px-8 dark:bg-slate-900">
       <h2 className="text-2xl font-bold tracking-tight">Derniers quiz ajoutés</h2>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xxl:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2">
         {quizzes.map((quiz) => (
           <Card key={quiz.id} className="overflow-hidden transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600">
             {/* Image with overlay */}
