@@ -9,10 +9,26 @@
     "transitionDelayMs": 1800,
     "stimulusAudioUrl": "/iq/audio-memory/audio-memory-001-stimulus.wav",
     "options": [
-      { "key": "A", "audioUrl": "/iq/audio-memory/audio-memory-001-a.wav", "isCorrect": true },
-      { "key": "B", "audioUrl": "/iq/audio-memory/audio-memory-001-b.wav", "isCorrect": false },
-      { "key": "C", "audioUrl": "/iq/audio-memory/audio-memory-001-c.wav", "isCorrect": false },
-      { "key": "D", "audioUrl": "/iq/audio-memory/audio-memory-001-d.wav", "isCorrect": false }
+      {
+        "key": "A",
+        "audioUrl": "/iq/audio-memory/audio-memory-001-a.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "audioUrl": "/iq/audio-memory/audio-memory-001-b.wav",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "audioUrl": "/iq/audio-memory/audio-memory-001-c.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "audioUrl": "/iq/audio-memory/audio-memory-001-d.wav",
+        "isCorrect": false
+      }
     ]
   },
   {
@@ -25,10 +41,26 @@
     "transitionDelayMs": 1800,
     "stimulusAudioUrl": "/iq/audio-memory/audio-memory-002-stimulus.wav",
     "options": [
-      { "key": "A", "audioUrl": "/iq/audio-memory/audio-memory-002-a.wav", "isCorrect": false },
-      { "key": "B", "audioUrl": "/iq/audio-memory/audio-memory-002-b.wav", "isCorrect": true },
-      { "key": "C", "audioUrl": "/iq/audio-memory/audio-memory-002-c.wav", "isCorrect": false },
-      { "key": "D", "audioUrl": "/iq/audio-memory/audio-memory-002-d.wav", "isCorrect": false }
+      {
+        "key": "A",
+        "audioUrl": "/iq/audio-memory/audio-memory-002-a.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "audioUrl": "/iq/audio-memory/audio-memory-002-b.wav",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "audioUrl": "/iq/audio-memory/audio-memory-002-c.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "audioUrl": "/iq/audio-memory/audio-memory-002-d.wav",
+        "isCorrect": false
+      }
     ]
   },
   {
@@ -41,10 +73,26 @@
     "transitionDelayMs": 1800,
     "stimulusAudioUrl": "/iq/audio-memory/audio-memory-003-stimulus.wav",
     "options": [
-      { "key": "A", "audioUrl": "/iq/audio-memory/audio-memory-003-a.wav", "isCorrect": false },
-      { "key": "B", "audioUrl": "/iq/audio-memory/audio-memory-003-b.wav", "isCorrect": false },
-      { "key": "C", "audioUrl": "/iq/audio-memory/audio-memory-003-c.wav", "isCorrect": false },
-      { "key": "D", "audioUrl": "/iq/audio-memory/audio-memory-003-d.wav", "isCorrect": true }
+      {
+        "key": "A",
+        "audioUrl": "/iq/audio-memory/audio-memory-003-a.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "audioUrl": "/iq/audio-memory/audio-memory-003-b.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "audioUrl": "/iq/audio-memory/audio-memory-003-c.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "audioUrl": "/iq/audio-memory/audio-memory-003-d.wav",
+        "isCorrect": true
+      }
     ]
   },
   {
@@ -57,10 +105,26 @@
     "transitionDelayMs": 1800,
     "stimulusAudioUrl": "/iq/audio-memory/audio-memory-004-stimulus.wav",
     "options": [
-      { "key": "A", "audioUrl": "/iq/audio-memory/audio-memory-004-a.wav", "isCorrect": true },
-      { "key": "B", "audioUrl": "/iq/audio-memory/audio-memory-004-b.wav", "isCorrect": false },
-      { "key": "C", "audioUrl": "/iq/audio-memory/audio-memory-004-c.wav", "isCorrect": false },
-      { "key": "D", "audioUrl": "/iq/audio-memory/audio-memory-004-d.wav", "isCorrect": false }
+      {
+        "key": "A",
+        "audioUrl": "/iq/audio-memory/audio-memory-004-a.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "audioUrl": "/iq/audio-memory/audio-memory-004-b.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "audioUrl": "/iq/audio-memory/audio-memory-004-c.wav",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "audioUrl": "/iq/audio-memory/audio-memory-004-d.wav",
+        "isCorrect": false
+      }
     ]
   },
   {
@@ -73,10 +137,26 @@
     "transitionDelayMs": 1800,
     "stimulusAudioUrl": "/iq/audio-memory/audio-memory-005-stimulus.wav",
     "options": [
-      { "key": "A", "audioUrl": "/iq/audio-memory/audio-memory-005-a.wav", "isCorrect": false },
-      { "key": "B", "audioUrl": "/iq/audio-memory/audio-memory-005-b.wav", "isCorrect": false },
-      { "key": "C", "audioUrl": "/iq/audio-memory/audio-memory-005-c.wav", "isCorrect": true },
-      { "key": "D", "audioUrl": "/iq/audio-memory/audio-memory-005-d.wav", "isCorrect": false }
+      {
+        "key": "A",
+        "audioUrl": "/iq/audio-memory/audio-memory-005-a.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "audioUrl": "/iq/audio-memory/audio-memory-005-b.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "audioUrl": "/iq/audio-memory/audio-memory-005-c.wav",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "audioUrl": "/iq/audio-memory/audio-memory-005-d.wav",
+        "isCorrect": false
+      }
     ]
   },
   {
@@ -89,10 +169,26 @@
     "transitionDelayMs": 1800,
     "stimulusAudioUrl": "/iq/audio-memory/audio-memory-006-stimulus.wav",
     "options": [
-      { "key": "A", "audioUrl": "/iq/audio-memory/audio-memory-006-a.wav", "isCorrect": false },
-      { "key": "B", "audioUrl": "/iq/audio-memory/audio-memory-006-b.wav", "isCorrect": false },
-      { "key": "C", "audioUrl": "/iq/audio-memory/audio-memory-006-c.wav", "isCorrect": false },
-      { "key": "D", "audioUrl": "/iq/audio-memory/audio-memory-006-d.wav", "isCorrect": true }
+      {
+        "key": "A",
+        "audioUrl": "/iq/audio-memory/audio-memory-006-a.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "audioUrl": "/iq/audio-memory/audio-memory-006-b.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "audioUrl": "/iq/audio-memory/audio-memory-006-c.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "audioUrl": "/iq/audio-memory/audio-memory-006-d.wav",
+        "isCorrect": true
+      }
     ]
   },
   {
@@ -105,10 +201,26 @@
     "transitionDelayMs": 1800,
     "stimulusAudioUrl": "/iq/audio-memory/audio-memory-007-stimulus.wav",
     "options": [
-      { "key": "A", "audioUrl": "/iq/audio-memory/audio-memory-007-a.wav", "isCorrect": false },
-      { "key": "B", "audioUrl": "/iq/audio-memory/audio-memory-007-b.wav", "isCorrect": true },
-      { "key": "C", "audioUrl": "/iq/audio-memory/audio-memory-007-c.wav", "isCorrect": false },
-      { "key": "D", "audioUrl": "/iq/audio-memory/audio-memory-007-d.wav", "isCorrect": false }
+      {
+        "key": "A",
+        "audioUrl": "/iq/audio-memory/audio-memory-007-a.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "audioUrl": "/iq/audio-memory/audio-memory-007-b.wav",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "audioUrl": "/iq/audio-memory/audio-memory-007-c.wav",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "audioUrl": "/iq/audio-memory/audio-memory-007-d.wav",
+        "isCorrect": false
+      }
     ]
   }
 ]

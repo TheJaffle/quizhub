@@ -594,7 +594,7 @@
         "speed-055"
       ],
       "totalTimeLimitSeconds": 180,
-      "timeLimitSeconds": 8
+      "timeLimitSeconds": 0
     },
     {
       "type": "audioMemory",
@@ -607,7 +607,7 @@
         "audio-memory-006",
         "audio-memory-007"
       ],
-      "timeLimitSeconds": 45
+      "timeLimitSeconds": 40
     }
   ]
 }

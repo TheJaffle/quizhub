@@ -11,37 +11,8 @@
         "displayTimeSeconds": 6,
         "timeLimitSeconds": 20,
         "minDelaySeconds": 20
-      },
-      {
-        "questionKey": "long-memory-002",
-        "displayTimeSeconds": 6,
-        "timeLimitSeconds": 22,
-        "minDelaySeconds": 20
-      },
-      {
-        "questionKey": "long-memory-003",
-        "displayTimeSeconds": 6,
-        "timeLimitSeconds": 20,
-        "minDelaySeconds": 20
-      },
-      {
-        "questionKey": "long-memory-004",
-        "displayTimeSeconds": 6,
-        "timeLimitSeconds": 20,
-        "minDelaySeconds": 20
-      },
-      {
-        "questionKey": "long-memory-005",
-        "displayTimeSeconds": 6,
-        "timeLimitSeconds": 20,
-        "minDelaySeconds": 20
-      },
-      {
-        "questionKey": "long-memory-006",
-        "displayTimeSeconds": 6,
-        "timeLimitSeconds": 20,
-        "minDelaySeconds": 20
       }
+      
     ]
   },
   "steps": [
@@ -55,13 +26,15 @@
       ]
     },
     { "type": "question", "questionKey": "quantitative-001", "timeLimitSeconds": 15 },
-    { "type": "question", "questionKey": "logic-001", "timeLimitSeconds": 15 },
-    { "type": "question", "questionKey": "spatial-001", "timeLimitSeconds": 15 },
-    { "type": "question", "questionKey": "verbal-004", "timeLimitSeconds": 15 },
     { "type": "question", "questionKey": "quantitative-002", "timeLimitSeconds": 15 },
-    { "type": "question", "questionKey": "logic-002", "timeLimitSeconds": 15 },
-    { "type": "question", "questionKey": "spatial-002", "timeLimitSeconds": 15 },
-    { "type": "question", "questionKey": "verbal-005", "timeLimitSeconds": 15 },
+    { "type": "question", "questionKey": "quantitative-003", "timeLimitSeconds": 15 },
+    { "type": "question", "questionKey": "quantitative-004", "timeLimitSeconds": 15 },
+    { "type": "question", "questionKey": "quantitative-005", "timeLimitSeconds": 15 },
+    { "type": "question", "questionKey": "quantitative-006", "timeLimitSeconds": 15 },
+    { "type": "question", "questionKey": "quantitative-007", "timeLimitSeconds": 15 },
+    { "type": "question", "questionKey": "quantitative-008", "timeLimitSeconds": 15 },
+    { "type": "question", "questionKey": "quantitative-009", "timeLimitSeconds": 15 },
+    { "type": "question", "questionKey": "quantitative-010", "timeLimitSeconds": 15 },
     {
       "type": "memory",
       "items": [
@@ -72,19 +45,19 @@
             { "questionKey": "memory-003", "weight": 40 },
             { "questionKey": "memory-004", "weight": 30 }
           ]
-        },
-        { "questionKey": "memory-005" }
+        }
+    
       ]
     },
     {
       "type": "speed",
       "questionKeys": ["speed-001", "speed-004", "speed-010"],
       "totalTimeLimitSeconds": 20,
-      "timeLimitSeconds": 8
+      "timeLimitSeconds": 0
     },
     {
       "type": "audioMemory",
-      "questionKeys": ["audio-memory-001", "audio-memory-004", "audio-memory-007"],
+      "questionKeys": ["audio-memory-001"],
       "timeLimitSeconds": 20
     }
   ]
