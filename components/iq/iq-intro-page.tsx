@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Brain, Clock, Loader2, Play, Sparkles } from "lucide-react";
+import { AlertTriangle, Brain, Loader2, Play } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -94,10 +94,10 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl py-8">
+    <div className="mx-auto max-w-5xl py-2 md:py-8">
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="relative min-h-[260px] bg-indigo-950 text-white">
+          <div className="relative min-h-[145px] bg-indigo-950 text-white md:min-h-[220px]">
             {isSurveyIntro || test.imageUrl ? (
               <Image
                 src="/iq/fond.png"
@@ -108,102 +108,65 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
               />
             ) : null}
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/90 via-indigo-900/75 to-blue-900/80" />
-            <div className="relative z-10 flex h-full flex-col justify-start p-6 md:p-8">
-              <Badge className="mb-4 w-fit bg-white/15 text-white hover:bg-white/20">{isSurveyIntro ? "Phase de calibration" : "Test de logique"}</Badge>
-              <h1 className="max-w-xl text-3xl font-bold tracking-tight md:text-4xl">{test.title}</h1>
-              <p className="mt-4 max-w-xl text-white/80">
+            <div className="relative z-10 flex h-full flex-col justify-end p-4 md:justify-start md:p-8">
+              <Badge className="mb-2 w-fit bg-white/15 text-white hover:bg-white/20">{isSurveyIntro ? "Calibration" : "Test QI"}</Badge>
+              <h1 className="max-w-xl text-2xl font-bold tracking-tight md:text-4xl">{test.title}</h1>
+              <p className="mt-2 max-w-xl text-sm text-white/80 md:text-base">
                 {isSurveyIntro
-                  ? "Une premiere session pour ajuster les questions, analyser les reponses et preparer le futur test."
-                  : test.description || "Un parcours progressif de raisonnement, sans valeur de diagnostic psychologique."}
+                  ? "Quelques questions pour calibrer le futur test."
+                  : "Test de 45 minutes. Installez-vous au calme et avancez sans revenir en arrière."}
               </p>
             </div>
           </div>
 
-          <CardContent className="space-y-6 p-6 md:p-8">
+          <CardContent className="space-y-3 p-4 md:space-y-5 md:p-8">
             {isSurveyIntro ? (
-              <div className="space-y-5">
-                <div className="space-y-3">
+              <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Brain className="h-5 w-5 text-indigo-500" />
-                    <h2 className="text-xl font-semibold">Avant de commencer</h2>
+                    <Brain className="h-4 w-4 text-indigo-500" />
+                    <h2 className="font-semibold">Avant de commencer</h2>
                   </div>
-                  <div className="space-y-3 text-sm leading-6 text-muted-foreground">
-                    <p>Merci de participer a ce test et de nous aider a l'ameliorer.</p>
-                    <p>
-                      Vous allez repondre a plusieurs series de questions autour du raisonnement verbal, logique, quantitatif et spatial, ainsi qu'a des exercices de memoire, de rapidite et
-                      de perception sonore.
-                    </p>
-                    <p>
-                      Pour profiter pleinement du test et obtenir un resultat le plus juste possible, l'ideal est de vous installer dans un endroit calme, a un moment ou vous pouvez etre
-                      disponible et concentre.
-                    </p>
-                    <p>
-                      Il n'y a pas de bonne ou de mauvaise facon de participer : l'important est simplement de repondre naturellement, avec attention, et d'aller au bout du parcours.
-                    </p>
-                    <p>Vos reponses nous permettront de mieux comprendre ce qui fonctionne, ce qui doit etre ameliore, et d'affiner les resultats proposes.</p>
-                    <p>Le score obtenu reste indicatif et ne constitue pas une evaluation psychologique officielle.</p>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p>Installez-vous au calme.</p>
+                    <p>Répondez naturellement, sans aide extérieure.</p>
+                    <p>Allez au bout du parcours.</p>
                   </div>
-                </div>
-
-                <div className="rounded-lg border bg-muted/40 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-                    <Sparkles className="h-4 w-4 text-indigo-500" />
-                    Merci
-                  </div>
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    Merci beaucoup pour votre aide, votre temps et votre serieux.
-                  </p>
                 </div>
               </div>
             ) : (
               <>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-lg border bg-background p-4">
-                    <p className="text-sm text-muted-foreground">Questions premiere phase</p>
-                    <p className="mt-2 text-3xl font-bold">{test.mainQuestionCount}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-lg border bg-background p-3">
+                    <p className="text-xs text-muted-foreground">Questions</p>
+                    <p className="mt-1 text-2xl font-bold">{test.mainQuestionCount}</p>
                   </div>
-                  <div className="rounded-lg border bg-background p-4">
-                    <p className="text-sm text-muted-foreground">Temps indicatif</p>
-                    <p className="mt-2 text-2xl font-bold">{formatDuration(test.mainTimeLimitSeconds || test.totalTimeLimitSeconds)}</p>
+                  <div className="rounded-lg border bg-background p-3">
+                    <p className="text-xs text-muted-foreground">Durée</p>
+                    <p className="mt-1 text-xl font-bold">{formatDuration(test.mainTimeLimitSeconds || test.totalTimeLimitSeconds)}</p>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Brain className="h-5 w-5 text-indigo-500" />
-                    <h2 className="text-xl font-semibold">Deroulement</h2>
+                    <Brain className="h-4 w-4 text-indigo-500" />
+                    <h2 className="font-semibold">À retenir</h2>
                   </div>
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>Vous allez repondre a plusieurs series de questions.</p>
-                    <p>Certaines questions evaluent le raisonnement verbal, logique, quantitatif et spatial.</p>
-                    <p>Une partie memoire et une partie rapidite arriveront ensuite.</p>
-                    <p>Repondez le plus precisement et rapidement possible.</p>
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p>Mettez-vous dans un endroit calme.</p>
+                    <p>Ne répondez pas au hasard si vous ne savez pas.</p>
+                    <p>Mémoire, son et rapidité arrivent ensuite.</p>
                   </div>
-                </div>
-
-                <div className="rounded-lg border bg-muted/40 p-4">
-                  <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-                    <Sparkles className="h-4 w-4 text-indigo-500" />
-                    Ensuite
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Les modules {test.laterSections.map((section) => section.title.toLowerCase()).join(" et ")} seront proposes apres cette premiere phase.
-                  </p>
                 </div>
               </>
             )}
 
             {startError ? <p className="text-sm text-destructive">{startError}</p> : null}
 
-            <div className="rounded-lg border bg-background p-4">
-              <p className="mb-4 text-center text-sm text-muted-foreground">
-                {isSurveyIntro
-                  ? "Ces informations nous aident a analyser les reponses de calibration de maniere plus juste. Elles ne servent pas a produire un diagnostic psychologique."
-                  : "Ces informations nous permettent de contextualiser le score indicatif. Le resultat ne constitue pas une evaluation psychologique officielle."}
-              </p>
+            <div className="rounded-lg border bg-background p-3">
               <div className="grid grid-cols-2 items-start gap-4">
                 <div className="flex min-w-0 flex-col items-center space-y-2 text-center">
-                  <Label htmlFor="iq-birth-year" className="min-h-10 text-center leading-tight">
+                  <Label htmlFor="iq-birth-year" className="text-center text-sm leading-tight">
                     Annee de naissance
                   </Label>
                   <select
@@ -222,7 +185,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
                 </div>
 
                 <div className="flex min-w-0 flex-col items-center space-y-2 text-center">
-                  <Label htmlFor="iq-gender" className="flex min-h-10 items-center text-center leading-tight">
+                  <Label htmlFor="iq-gender" className="flex items-center text-center text-sm leading-tight">
                     Genre
                   </Label>
                   <select
@@ -247,12 +210,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
               {isSurveyIntro ? "Commencer le sondage" : "Commencer le test"}
             </Button>
 
-            {!isSurveyIntro ? (
-              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" />
-                <span>Votre progression sera conservee avec une tentative separee des quiz classiques.</span>
-              </div>
-            ) : null}
+            <p className="text-center text-xs text-muted-foreground">Résultat indicatif, sans valeur de diagnostic médical.</p>
           </CardContent>
         </div>
       </Card>

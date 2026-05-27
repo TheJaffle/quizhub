@@ -25,7 +25,7 @@ export type IqAdminStats = {
 
 const ADMIN_USERNAME = "Wildspark";
 const ADMIN_PASSWORD = "AdminWildspark";
-const ADMIN_COOKIE_NAME = "qifree_admin_session";
+const ADMIN_COOKIE_NAME = "brainspark_admin_session";
 const ADMIN_COOKIE_MAX_AGE = 60 * 60 * 12;
 
 const dbConfig = {
@@ -56,7 +56,7 @@ type QuestionStatRow = {
 };
 
 function adminCookieValue() {
-  return crypto.createHash("sha256").update(`${ADMIN_USERNAME}:${ADMIN_PASSWORD}:qifree-admin`).digest("hex");
+  return crypto.createHash("sha256").update(`${ADMIN_USERNAME}:${ADMIN_PASSWORD}:brainspark-admin`).digest("hex");
 }
 
 export function getAdminAuthCookie() {

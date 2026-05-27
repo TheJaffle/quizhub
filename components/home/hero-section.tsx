@@ -1,25 +1,66 @@
 import { Button } from "@/components/ui/button";
+import type { HomeQuizCategory } from "@/lib/quiz-categories";
+import { ArrowRight, Swords, Trophy } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
-export function HeroSection() {
+type HeroSectionProps = {
+  categories?: HomeQuizCategory[];
+};
+
+export function HeroSection({ categories = [] }: HeroSectionProps) {
+  const heroCategory = categories[0];
+
   return (
-    <section className="relative overflow-hidden rounded-xl bg-[url('/hero-bg.jpg')] bg-no-repeat 
-      bg-cover p-5 text-white md:px-8 md:py-7 xl:px-10 xl:py-9">
-      <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-        <div className="max-w-lg space-y-4">
-          <h2 className="text-3xl font-bold xl:leading-tight tracking-tight md:text-4xl xl:text-4xl">
-            Test de logique gratuit : <br /> 50 questions, résultat instantané !
-          </h2>
-          <p className="text-lg text-white/80">Un parcours de raisonnement indicatif pour évaluer votre logique, votre mémoire et votre rapidité. Le résultat reste informatif et n'a pas valeur d'évaluation psychologique officielle.</p>
-          <div className="flex flex-wrap gap-4">
-            <Button size="lg" className="bg-indigo-600 text-white duration-300 hover:bg-indigo-700" asChild>
-              <Link href="/iq">Je me lance !</Link>
-            </Button>
+    <section id="top" className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+      <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="relative min-h-[330px] overflow-hidden bg-slate-950 p-5 text-white sm:p-8 lg:min-h-[470px] lg:p-10">
+          <Image src={heroCategory?.imageUrl || "/placeholder.svg"} alt="" fill priority sizes="(max-width: 1024px) 100vw, 55vw" className="object-cover opacity-70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/15 via-slate-950/40 to-slate-950/90" />
+          <div className="relative z-10 flex h-full max-w-xl flex-col justify-end gap-5">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#E91663] px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+              <Trophy className="h-4 w-4" />
+              Quiz, défis et classements
+            </div>
+            <div className="space-y-3">
+              <h1 className="text-4xl font-black leading-[0.98] tracking-tight sm:text-5xl lg:text-6xl">Trouvez votre prochain défi.</h1>
+              <p className="max-w-md text-base font-medium leading-7 text-white/90 sm:text-lg">Choisissez une catégorie, jouez en quelques minutes, comparez votre score et envoyez le défi à vos amis.</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button size="lg" className="h-12 rounded-full bg-[#E91663] px-6 text-base font-bold text-white hover:bg-[#c90f50]" asChild>
+                <Link href="#categories">
+                  Voir les catégories
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="h-12 rounded-full border-white/35 bg-white/15 px-6 text-base font-bold text-white backdrop-blur hover:bg-white/25 hover:text-white" asChild>
+                <Link href="/daily-challenge">Défi du jour</Link>
+              </Button>
+            </div>
+            {heroCategory ? <p className="text-sm font-bold text-white/75">Catégorie mise en avant : {heroCategory.name}</p> : null}
+          </div>
+        </div>
+
+        <div id="challenges" className="bg-[#fff7fb] p-5 sm:p-8 lg:p-10">
+          <div className="mb-6">
+            <p className="text-sm font-bold uppercase tracking-wide text-[#E91663]">Boucle de jeu</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Jouez, progressez, défiez.</h2>
+          </div>
+
+          <div className="grid gap-3">
+            <Link href="/battle" className="group flex items-center gap-4 rounded-xl bg-[#E91663] p-4 text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#c90f50] hover:shadow-md">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
+                <Swords className="h-6 w-6" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-base font-black">Défier un ami</span>
+                <span className="block text-sm leading-6 text-white/90">Partagez un score et lancez une revanche.</span>
+              </span>
+              <ArrowRight className="h-5 w-5 text-white/80 transition group-hover:translate-x-1 group-hover:text-white" />
+            </Link>
           </div>
         </div>
       </div>
-      <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-indigo-400/20 blur-3xl"></div>
-      <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full bg-purple-400/20 blur-3xl"></div>
     </section>
   );
 }

@@ -12,7 +12,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ to
   const response = NextResponse.json({ completion: result.completion });
 
   if (result.completion?.attemptToken) {
-    response.cookies.set("qifree_iq_completed_token", result.completion.attemptToken, {
+    response.cookies.set("brainspark_iq_completed_token", result.completion.attemptToken, {
       httpOnly: true,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 365,
