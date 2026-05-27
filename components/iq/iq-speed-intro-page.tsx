@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, Brain, Clock3, Play, Sparkles, TimerReset, Zap } from "lucide-react";
+import { AlertTriangle, Brain, Play, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
@@ -46,64 +46,50 @@ export function IqSpeedIntroPage({ data, error }: IqSpeedIntroPageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl py-8">
+    <div className="mx-auto max-w-5xl py-2 md:py-8">
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="relative min-h-[260px] bg-amber-950 text-white">
+          <div className="relative min-h-[120px] bg-amber-950 text-white md:min-h-[220px]">
             <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: "url('/iq/vitesse.png')" }} />
             <div className="absolute inset-0 bg-gradient-to-br from-amber-950/90 via-orange-900/75 to-rose-900/80" />
-            <div className="relative z-10 flex h-full flex-col justify-start p-6 md:p-8">
-              <Badge className="mb-4 w-fit bg-white/15 text-white hover:bg-white/20">
+            <div className="relative z-10 flex h-full flex-col justify-end p-4 md:justify-start md:p-8">
+              <Badge className="mb-2 w-fit bg-white/15 text-white hover:bg-white/20">
                 <Brain className="mr-1 h-3.5 w-3.5" />
-                Test de rapidite
+                Rapidité
               </Badge>
-              <h1 className="max-w-xl text-3xl font-bold tracking-tight md:text-4xl">Test de rapidite</h1>
-              <p className="mt-4 max-w-xl text-white/80">
-                Derniere grande ligne droite dans {data.attempt.testTitle}. Cette phase vous pousse a repondre vite tout en gardant de la precision.
-              </p>
+              <h1 className="max-w-xl text-2xl font-bold tracking-tight md:text-4xl">Test de rapidité</h1>
+              <p className="mt-2 max-w-xl text-sm text-white/80 md:text-base">Répondez vite, sans perdre en précision.</p>
             </div>
           </div>
 
-          <CardContent className="space-y-6 p-6 md:p-8">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">Questions rapidite</p>
-                <p className="mt-2 text-3xl font-bold">{data.section.questionCount}</p>
+          <CardContent className="space-y-3 p-4 md:space-y-5 md:p-8">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-lg border bg-background p-3">
+                <p className="text-xs text-muted-foreground">Questions</p>
+                <p className="mt-1 text-2xl font-bold">{data.section.questionCount}</p>
               </div>
-              <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">Temps disponible</p>
-                <p className="mt-2 text-2xl font-bold">{formatTimeLimit(data.section.totalTimeLimitSeconds)}</p>
+              <div className="rounded-lg border bg-background p-3">
+                <p className="text-xs text-muted-foreground">Temps</p>
+                <p className="mt-1 text-xl font-bold">{formatTimeLimit(data.section.totalTimeLimitSeconds)}</p>
               </div>
               {data.section.timeLimitSeconds ? (
-                <div className="rounded-lg border bg-background p-4 sm:col-span-2">
-                  <p className="text-sm text-muted-foreground">Temps max par question</p>
-                  <p className="mt-2 text-2xl font-bold">{formatTimeLimit(data.section.timeLimitSeconds)}</p>
+                <div className="rounded-lg border bg-background p-3 sm:col-span-2">
+                  <p className="text-xs text-muted-foreground">Par question</p>
+                  <p className="mt-1 text-xl font-bold">{formatTimeLimit(data.section.timeLimitSeconds)}</p>
                 </div>
               ) : null}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-amber-500" />
-                <h2 className="text-xl font-semibold">Comment ca marche</h2>
+                <Zap className="h-4 w-4 text-amber-500" />
+                <h2 className="font-semibold">À retenir</h2>
               </div>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>Vous aurez {formatTimeLimit(data.section.totalTimeLimitSeconds)} pour repondre a un maximum de questions.</p>
-                {data.section.timeLimitSeconds ? <p>Chaque question passera automatiquement apres {formatTimeLimit(data.section.timeLimitSeconds)} si vous ne repondez pas.</p> : null}
-                <p>Repondez vite, mais essayez de rester precis.</p>
-                <p>Chaque reponse sera enregistree immediatement.</p>
-                <p>Lorsque le temps est ecoule, le test se termine automatiquement.</p>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                <p>Répondez au maximum de questions.</p>
+                <p>Une réponse validée est enregistrée.</p>
+                <p>À la fin du chrono, la phase s'arrête.</p>
               </div>
-            </div>
-
-            <div className="rounded-lg border bg-muted/40 p-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-                <Sparkles className="h-4 w-4 text-amber-500" />
-                Repere utile
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Le chronometre global sera lance pour {formatTimeLimit(data.section.totalTimeLimitSeconds)} et les reponses defileront sans attente.
-              </p>
             </div>
 
             <Button className="w-full" size="lg" onClick={() => router.push(data.nextUrl)}>
@@ -111,11 +97,7 @@ export function IqSpeedIntroPage({ data, error }: IqSpeedIntroPageProps) {
               Commencer la rapidite
             </Button>
 
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Clock3 className="h-3.5 w-3.5" />
-              <TimerReset className="h-3.5 w-3.5" />
-              <span>Un chrono global pilote la phase et un chrono court peut aussi faire passer a la question suivante.</span>
-            </div>
+            <p className="text-center text-xs text-muted-foreground">Le chrono démarre au lancement.</p>
           </CardContent>
         </div>
       </Card>
