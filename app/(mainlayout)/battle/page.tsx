@@ -2,8 +2,8 @@ import { BattlePage } from "@/components/battle/battle-page";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Quiz Battle | QuizHub",
-  description: "Challenge friends or random players to real-time quiz battles",
+  title: "Battle quiz | QuizHub",
+  description: "Créez un duel privé et partagez le lien avec vos amis.",
 };
 
 export default function Battle() {

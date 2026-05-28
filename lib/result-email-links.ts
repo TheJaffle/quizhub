@@ -1,5 +1,6 @@
 import "server-only";
 import { getBrevoPresence, sendBrevoEmail } from "@/lib/brevo";
+import { ensureQuizTopicResultsTable } from "@/lib/quiz-results";
 import crypto from "crypto";
 import mysql from "mysql2/promise";
 
@@ -75,8 +76,9 @@ export async function createResultEmailLink(payload: {
     connection = await mysql.createConnection(dbConfig);
 
     if (payload.resultType === "quiz") {
+      await ensureQuizTopicResultsTable(connection);
       const [resultRows] = await connection.execute<mysql.RowDataPacket[]>(
-        "SELECT id FROM quiz_results WHERE result_token = ? LIMIT 1",
+        "SELECT id FROM quiz_topic_results WHERE result_token = ? LIMIT 1",
         [payload.resultToken]
       );
 

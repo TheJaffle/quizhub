@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { recentMessages } from "@/data/chat-data";
 import { notifications } from "@/data/notifications";
-import { Bell, BookOpen, LayoutDashboard, LogIn, LogOut, Mail, MessageSquare, PanelLeftClose, PanelRightClose, Settings, User, UserPlus } from "lucide-react";
+import { Bell, BookOpen, LayoutDashboard, LogIn, LogOut, Mail, MessageSquare, PanelLeftClose, PanelRightClose, Swords, User, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -225,6 +225,18 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
                       <div className="flex flex-col">
                         <span>Mes statistiques</span>
                         <span className="text-xs text-muted-foreground">Résultats et activité</span>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild className="p-3">
+                    <Link href="/duels" className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-md bg-purple-100">
+                        <Swords className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span>Mes duels</span>
+                        <span className="text-xs text-muted-foreground">Défis privés et résultats</span>
                       </div>
                     </Link>
                   </DropdownMenuItem>

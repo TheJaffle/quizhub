@@ -1,6 +1,7 @@
 import "server-only";
 import crypto from "crypto";
 import mysql from "mysql2/promise";
+import { ensureQuizTopicResultsTable } from "@/lib/quiz-results";
 
 export type QuizCategoryDetail = {
   id: number;
@@ -235,85 +236,8 @@ const dbConfig = {
 };
 
 export async function getCategoryQuizzesBySlug(slug: string): Promise<CategoryQuizzesResult> {
-  let connection: mysql.Connection | undefined;
-
-  try {
-    connection = await mysql.createConnection(dbConfig);
-
-    const [categoryRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT
-         c.id,
-         c.name,
-         c.slug,
-         COUNT(q.id) AS quiz_count
-       FROM quiz_categories c
-       LEFT JOIN quizzes q ON q.category_id = c.id AND q.is_active = 1
-       WHERE c.slug = ? AND c.is_active = 1
-       GROUP BY c.id, c.name, c.slug
-       LIMIT 1`,
-      [slug]
-    );
-    const categoryRow = (categoryRows as CategoryRow[])[0];
-
-    if (!categoryRow) {
-      return { category: null, quizzes: [] };
-    }
-
-    const [quizRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT id, slug, title, image_url, difficulty, time_limit, reward, players, max_players, created_by, creator_avatar, rating, total_ratings
-       FROM quizzes
-       WHERE category_id = ? AND is_active = 1
-       ORDER BY id ASC`,
-      [categoryRow.id]
-    );
-
-    const category = {
-      id: categoryRow.id,
-      name: categoryRow.name,
-      slug: categoryRow.slug,
-      quizCount: categoryRow.quiz_count ?? 0,
-    };
-
-    const quizzes = (quizRows as QuizRow[]).map((row) => {
-      const players = row.players ?? 0;
-      const maxPlayers = row.max_players ?? 300;
-      const spotsLeft = Math.max(maxPlayers - players, 0);
-
-      return {
-        id: row.id,
-        slug: row.slug,
-        title: row.title,
-        image: row.image_url || "/placeholder.svg",
-        category: category.name,
-        difficulty: row.difficulty ?? "Medium",
-        timeLimit: row.time_limit ?? 15,
-        reward: `$${Number(row.reward ?? 0).toFixed(2)}`,
-        players,
-        maxPlayers,
-        spotsLeft,
-        almostFull: spotsLeft <= 20,
-        createdBy: row.created_by || "QuizHub",
-        creatorAvatar: row.creator_avatar || "/placeholder-user.jpg",
-        rating: Number(row.rating ?? 0),
-        totalRatings: row.total_ratings ?? 0,
-      };
-    });
-
-    return { category, quizzes };
-  } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
-
-    return {
-      category: null,
-      quizzes: [],
-      error:
-        process.env.NODE_ENV === "development"
-          ? `Impossible de charger les quiz depuis MySQL : ${message}`
-          : "Impossible de charger les quiz pour le moment.",
-    };
-  } finally {
-    await connection?.end();
-  }
+  void slug;
+  return { category: null, quizzes: [] };
 }
 
 export async function getLatestQuizzes(): Promise<LatestQuizzesResult> {
@@ -323,12 +247,14 @@ export async function getLatestQuizzes(): Promise<LatestQuizzesResult> {
     connection = await mysql.createConnection(dbConfig);
 
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.id, q.slug, q.title, q.image_url, q.difficulty, q.time_limit, q.created_by, q.creator_avatar,
+      `SELECT t.id, t.slug, t.name AS title, t.image_url, MIN(qb.difficulty) AS difficulty,
               c.name AS category_name
-       FROM quizzes q
-       INNER JOIN quiz_categories c ON c.id = q.category_id
-       WHERE q.is_active = 1 AND c.is_active = 1
-       ORDER BY q.created_at DESC, q.id DESC
+       FROM quiz_topics t
+       INNER JOIN quiz_categories c ON c.id = t.category_id
+       INNER JOIN question_bank qb ON qb.topic_id = t.id AND qb.is_active = 1
+       WHERE t.is_active = 1 AND c.is_active = 1
+       GROUP BY t.id, t.slug, t.name, t.image_url, c.name
+       ORDER BY t.created_at DESC, t.id DESC
        LIMIT 2`
     );
 
@@ -339,9 +265,9 @@ export async function getLatestQuizzes(): Promise<LatestQuizzesResult> {
       image: row.image_url || "/placeholder.svg",
       category: row.category_name,
       difficulty: row.difficulty ?? "Medium",
-      timeLimit: row.time_limit ?? 15,
-      createdBy: row.created_by || "brainspark",
-      creatorAvatar: row.creator_avatar || "/placeholder-user.jpg",
+      timeLimit: 15,
+      createdBy: "brainspark",
+      creatorAvatar: "/placeholder-user.jpg",
     }));
 
     return { quizzes };
@@ -395,25 +321,26 @@ export async function getRecentQuizPerformanceCards(): Promise<RecentQuizPerform
 
   try {
     connection = await mysql.createConnection(dbConfig);
+    await ensureQuizTopicResultsTable(connection);
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
       `WITH first_attempts AS (
          SELECT
            qr.*,
            ROW_NUMBER() OVER (
-             PARTITION BY qr.quiz_id, COALESCE(CAST(qr.user_id AS CHAR), CONCAT('guest:', qr.id))
+             PARTITION BY qr.topic_id, COALESCE(CAST(qr.user_id AS CHAR), CONCAT('guest:', qr.id))
              ORDER BY qr.created_at ASC, qr.id ASC
            ) AS attempt_rank
-         FROM quiz_results qr
+         FROM quiz_topic_results qr
        ),
        eligible_attempts AS (
          SELECT *
          FROM first_attempts
          WHERE attempt_rank = 1
        ),
-       recent_quizzes AS (
-         SELECT quiz_id, MAX(created_at) AS latest_played_at
+       recent_topics AS (
+         SELECT topic_id, MAX(created_at) AS latest_played_at
          FROM eligible_attempts
-         GROUP BY quiz_id
+         GROUP BY topic_id
          ORDER BY latest_played_at DESC
          LIMIT 4
        ),
@@ -421,38 +348,38 @@ export async function getRecentQuizPerformanceCards(): Promise<RecentQuizPerform
          SELECT
            ea.*,
            ROW_NUMBER() OVER (
-             PARTITION BY ea.quiz_id
+             PARTITION BY ea.topic_id
              ORDER BY ea.score DESC, ea.duration_seconds IS NULL ASC, ea.duration_seconds ASC, ea.created_at DESC, ea.id DESC
            ) AS best_rank
          FROM eligible_attempts ea
-         INNER JOIN recent_quizzes rq ON rq.quiz_id = ea.quiz_id
+         INNER JOIN recent_topics rt ON rt.topic_id = ea.topic_id
        ),
        unique_counts AS (
-         SELECT quiz_id, COUNT(*) AS unique_players_count
+         SELECT topic_id, COUNT(*) AS unique_players_count
          FROM eligible_attempts
-         GROUP BY quiz_id
+         GROUP BY topic_id
        )
        SELECT
-         q.id,
-         q.slug,
-         q.title,
-         q.image_url,
-         q.reward,
+         t.id,
+         t.slug,
+         t.name AS title,
+         t.image_url,
+         0 AS reward,
          c.name AS category_name,
          COALESCE(u.pseudo, rb.player_name, 'Invité') AS player_name,
-         COALESCE(u.avatar_url, q.creator_avatar, '/placeholder-user.jpg') AS player_avatar,
+         COALESCE(u.avatar_url, '/placeholder-user.jpg') AS player_avatar,
          rb.score,
          rb.total_questions,
          rb.duration_seconds,
-         q.time_limit,
+         15 AS time_limit,
          uc.unique_players_count
        FROM ranked_best rb
-       INNER JOIN quizzes q ON q.id = rb.quiz_id
-       INNER JOIN quiz_categories c ON c.id = q.category_id
-       INNER JOIN unique_counts uc ON uc.quiz_id = rb.quiz_id
+       INNER JOIN quiz_topics t ON t.id = rb.topic_id
+       INNER JOIN quiz_categories c ON c.id = t.category_id
+       INNER JOIN unique_counts uc ON uc.topic_id = rb.topic_id
        LEFT JOIN users u ON u.id = rb.user_id
-       WHERE rb.best_rank = 1 AND q.is_active = 1 AND c.is_active = 1
-       ORDER BY (SELECT latest_played_at FROM recent_quizzes rq WHERE rq.quiz_id = q.id) DESC, q.id DESC`
+       WHERE rb.best_rank = 1 AND t.is_active = 1 AND c.is_active = 1
+       ORDER BY (SELECT latest_played_at FROM recent_topics rt WHERE rt.topic_id = t.id) DESC, t.id DESC`
     );
 
     const quizzes = (rows as RecentQuizPerformanceRow[]).map((row) => ({
@@ -468,7 +395,7 @@ export async function getRecentQuizPerformanceCards(): Promise<RecentQuizPerform
       elapsedSeconds: row.duration_seconds,
       performanceScore: calculatePerformanceScore(row.score, row.total_questions, row.duration_seconds, row.time_limit),
       uniquePlayersCount: row.unique_players_count,
-      playUrl: `/quizzes/${row.slug}/play`,
+      playUrl: `/topics/${row.slug}`,
       reward: `$${Number(row.reward ?? 0).toFixed(2)}`,
     }));
 
@@ -477,12 +404,14 @@ export async function getRecentQuizPerformanceCards(): Promise<RecentQuizPerform
     }
 
     const [fallbackRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.id, q.slug, q.title, q.image_url, q.reward, q.players, q.created_by, q.creator_avatar,
+      `SELECT t.id, t.slug, t.name AS title, t.image_url, 0 AS reward, 0 AS players,
               c.name AS category_name
-       FROM quizzes q
-       INNER JOIN quiz_categories c ON c.id = q.category_id
-       WHERE q.is_active = 1 AND c.is_active = 1
-       ORDER BY q.created_at DESC, q.id DESC
+       FROM quiz_topics t
+       INNER JOIN quiz_categories c ON c.id = t.category_id
+       INNER JOIN question_bank qb ON qb.topic_id = t.id AND qb.is_active = 1
+       WHERE t.is_active = 1 AND c.is_active = 1
+       GROUP BY t.id, t.slug, t.name, t.image_url, c.name
+       ORDER BY t.created_at DESC, t.id DESC
        LIMIT 4`
     );
 
@@ -494,14 +423,14 @@ export async function getRecentQuizPerformanceCards(): Promise<RecentQuizPerform
         title: row.title,
         image: row.image_url || "/placeholder.svg",
         category: row.category_name,
-        playerName: row.created_by || "QuizHub",
-        playerAvatar: row.creator_avatar || "/placeholder-user.jpg",
+        playerName: "QuizHub",
+        playerAvatar: "/placeholder-user.jpg",
         score: null,
         totalQuestions: null,
         elapsedSeconds: null,
         performanceScore: 0,
         uniquePlayersCount: row.players ?? 0,
-        playUrl: `/quizzes/${row.slug}/play`,
+        playUrl: `/topics/${row.slug}`,
         reward: `$${Number(row.reward ?? 0).toFixed(2)}`,
       })),
     };
@@ -525,6 +454,7 @@ export async function getTopAveragePlayers(): Promise<TopAveragePlayersResult> {
 
   try {
     connection = await mysql.createConnection(dbConfig);
+    await ensureQuizTopicResultsTable(connection);
 
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
       `WITH player_attempts AS (
@@ -536,7 +466,7 @@ export async function getTopAveragePlayers(): Promise<TopAveragePlayersResult> {
            END AS player_key,
            COALESCE(u.pseudo, qr.player_name, 'Invité') AS display_name,
            COALESCE(u.avatar_url, '/placeholder-user.jpg') AS display_avatar
-         FROM quiz_results qr
+         FROM quiz_topic_results qr
          LEFT JOIN users u ON u.id = qr.user_id
          WHERE qr.total_questions > 0
        ),
@@ -555,18 +485,18 @@ export async function getTopAveragePlayers(): Promise<TopAveragePlayersResult> {
        ranked_attempts AS (
          SELECT
            pa.*,
-           q.slug AS quiz_slug,
-           q.title AS quiz_title,
-           q.image_url AS quiz_image,
+           t.slug AS quiz_slug,
+           t.name AS quiz_title,
+           t.image_url AS quiz_image,
            c.name AS category_name,
            ROW_NUMBER() OVER (
              PARTITION BY pa.player_key
              ORDER BY pa.percentage DESC, pa.score DESC, pa.duration_seconds IS NULL ASC, pa.duration_seconds ASC, pa.created_at DESC, pa.id DESC
            ) AS best_rank
          FROM player_attempts pa
-         INNER JOIN quizzes q ON q.id = pa.quiz_id
-         INNER JOIN quiz_categories c ON c.id = q.category_id
-         WHERE q.is_active = 1 AND c.is_active = 1
+         INNER JOIN quiz_topics t ON t.id = pa.topic_id
+         INNER JOIN quiz_categories c ON c.id = t.category_id
+         WHERE t.is_active = 1 AND c.is_active = 1
        )
        SELECT
          ps.player_key,
@@ -601,7 +531,7 @@ export async function getTopAveragePlayers(): Promise<TopAveragePlayersResult> {
       bestQuizImage: row.best_quiz_image || "/placeholder.svg",
       bestQuizScore: row.best_quiz_score,
       bestQuizTotalQuestions: row.best_quiz_total_questions,
-      playUrl: `/quizzes/${row.best_quiz_slug}/play`,
+      playUrl: `/topics/${row.best_quiz_slug}`,
     }));
 
     return { players };
@@ -621,263 +551,23 @@ export async function getTopAveragePlayers(): Promise<TopAveragePlayersResult> {
 }
 
 export async function getQuizBySlug(slug: string): Promise<QuizDetailResult> {
-  let connection: mysql.Connection | undefined;
-
-  try {
-    connection = await mysql.createConnection(dbConfig);
-
-    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.id, q.slug, q.title, q.image_url, q.difficulty, q.time_limit, q.reward, q.players, q.max_players,
-              q.created_by, q.creator_avatar, q.rating, q.total_ratings,
-              c.name AS category_name, c.slug AS category_slug
-       FROM quizzes q
-       INNER JOIN quiz_categories c ON c.id = q.category_id
-       WHERE q.slug = ? AND q.is_active = 1 AND c.is_active = 1
-       LIMIT 1`,
-      [slug]
-    );
-
-    const row = (rows as QuizDetailRow[])[0];
-
-    if (!row) {
-      return { quiz: null };
-    }
-
-    const players = row.players ?? 0;
-    const maxPlayers = row.max_players ?? 300;
-    const spotsLeft = Math.max(maxPlayers - players, 0);
-
-    return {
-      quiz: {
-        id: row.id,
-        slug: row.slug,
-        title: row.title,
-        image: row.image_url || "/placeholder.svg",
-        category: row.category_name,
-        categorySlug: row.category_slug,
-        difficulty: row.difficulty ?? "Medium",
-        timeLimit: row.time_limit ?? 15,
-        reward: `$${Number(row.reward ?? 0).toFixed(2)}`,
-        players,
-        maxPlayers,
-        spotsLeft,
-        almostFull: spotsLeft <= 20,
-        createdBy: row.created_by || "QuizHub",
-        creatorAvatar: row.creator_avatar || "/placeholder-user.jpg",
-        rating: Number(row.rating ?? 0),
-        totalRatings: row.total_ratings ?? 0,
-      },
-    };
-  } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
-
-    return {
-      quiz: null,
-      error:
-        process.env.NODE_ENV === "development"
-          ? `Impossible de charger le quiz depuis MySQL : ${message}`
-          : "Impossible de charger ce quiz pour le moment.",
-    };
-  } finally {
-    await connection?.end();
-  }
+  void slug;
+  return { quiz: null };
 }
 
 export async function getQuizFirstQuestionBySlug(slug: string): Promise<QuizFirstQuestionResult> {
-  let connection: mysql.Connection | undefined;
-
-  try {
-    connection = await mysql.createConnection(dbConfig);
-
-    const quizResult = await getQuizBySlug(slug);
-
-    if (quizResult.error) {
-      return { data: null, error: quizResult.error };
-    }
-
-    if (!quizResult.quiz) {
-      return { data: null };
-    }
-
-    const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT qq.id, qq.question_text, qq.image_url, qq.position
-       FROM quiz_questions qq
-       WHERE qq.quiz_id = ? AND qq.is_active = 1
-       ORDER BY qq.position ASC, qq.id ASC`,
-      [quizResult.quiz.id]
-    );
-
-    const questions: QuizPlayQuestion[] = [];
-
-    for (const questionRow of questionRows as QuestionRow[]) {
-      const [answerRows] = await connection.execute<mysql.RowDataPacket[]>(
-        `SELECT id, answer_text, image_url, position, is_correct
-         FROM quiz_answers
-         WHERE question_id = ? AND is_active = 1
-         ORDER BY position ASC, id ASC`,
-        [questionRow.id]
-      );
-
-      const storedAnswers = answerRows as AnswerRow[];
-      const correctAnswer = storedAnswers.find((answer) => answer.is_correct === 1);
-      const answers = shuffleAnswers(storedAnswers).map((answer, index) => ({
-        id: answer.id,
-        label: String.fromCharCode(65 + index),
-        text: answer.answer_text,
-        imageUrl: answer.image_url,
-      }));
-
-      questions.push({
-        id: questionRow.id,
-        text: questionRow.question_text,
-        imageUrl: questionRow.image_url,
-        position: questionRow.position,
-        correctAnswerId: correctAnswer?.id ?? null,
-        answers,
-      });
-    }
-
-    return {
-      data: {
-        quiz: quizResult.quiz,
-        questions,
-      },
-    };
-  } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
-
-    return {
-      data: null,
-      error:
-        process.env.NODE_ENV === "development"
-          ? `Impossible de charger la question depuis MySQL : ${message}`
-          : "Impossible de charger la question pour le moment.",
-    };
-  } finally {
-    await connection?.end();
-  }
+  void slug;
+  return { data: null };
 }
 
 export async function scoreQuizBySlug(slug: string, answers: QuizScoreInput[], user?: QuizScoreUser | null, timing?: QuizScoreTimingInput): Promise<QuizScoreResult> {
-  let connection: mysql.Connection | undefined;
+  void slug;
+  void answers;
+  void user;
+  void timing;
 
-  try {
-    connection = await mysql.createConnection(dbConfig);
-    const durationSeconds = normalizeDurationSeconds(timing?.durationSeconds);
-    console.log("QUIZ SCORE DEBUG start", {
-      slug,
-      userId: user?.id ?? null,
-      answersCount: answers.length,
-      durationSecondsReceived: timing?.durationSeconds ?? null,
-      durationSecondsNormalized: durationSeconds,
-    });
-
-    const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.id AS quiz_id, qq.id AS question_id
-       FROM quizzes q
-       INNER JOIN quiz_categories c ON c.id = q.category_id
-       INNER JOIN quiz_questions qq ON qq.quiz_id = q.id
-       WHERE q.slug = ? AND q.is_active = 1 AND c.is_active = 1 AND qq.is_active = 1
-       ORDER BY qq.position ASC, qq.id ASC`,
-      [slug]
-    );
-
-    const rows = questionRows as { quiz_id: number; question_id: number }[];
-    const quizId = rows[0]?.quiz_id;
-    const questionIds = rows.map((question) => question.question_id);
-    console.log("QUIZ SCORE DEBUG quiz lookup", {
-      slug,
-      quizFound: Boolean(quizId),
-      questionsExpected: questionIds.length,
-    });
-
-    if (questionIds.length === 0) {
-      return {
-        score: {
-          totalQuestions: 0,
-          correctAnswers: 0,
-          percent: 0,
-          durationSeconds: null,
-          resultSaved: false,
-          resultId: null,
-          resultToken: null,
-          userAttached: Boolean(user),
-        },
-      };
-    }
-
-    const submittedAnswers = new Map<number, number>();
-
-    for (const answer of answers) {
-      if (Number.isInteger(answer.questionId) && Number.isInteger(answer.answerId)) {
-        submittedAnswers.set(answer.questionId, answer.answerId);
-      }
-    }
-
-    const [correctRows] = await connection.query<mysql.RowDataPacket[]>(
-      `SELECT qa.question_id, qa.id AS answer_id
-       FROM quiz_answers qa
-       WHERE qa.question_id IN (?) AND qa.is_active = 1 AND qa.is_correct = 1`,
-      [questionIds]
-    );
-
-    const correctAnswers = (correctRows as { question_id: number; answer_id: number }[]).reduce((total, row) => {
-      return submittedAnswers.get(row.question_id) === row.answer_id ? total + 1 : total;
-    }, 0);
-
-    const percent = Math.round((correctAnswers / questionIds.length) * 100);
-    const resultToken = crypto.randomUUID();
-    console.log("QUIZ SCORE DEBUG calculated", {
-      slug,
-      quizId,
-      scoreCalculated: correctAnswers,
-      totalQuestions: questionIds.length,
-      percent,
-    });
-    const [insertResult] = await connection.execute<mysql.ResultSetHeader>(
-      `INSERT INTO quiz_results (quiz_id, user_id, player_name, result_token, score, total_questions, duration_seconds, percentage)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [quizId, user?.id ?? null, user?.pseudo ?? "Invité", resultToken, correctAnswers, questionIds.length, durationSeconds, percent]
-    );
-    console.log("QUIZ SCORE DEBUG inserted", {
-      slug,
-      resultId: insertResult.insertId,
-      resultToken,
-      durationSecondsInserted: durationSeconds,
-    });
-
-    return {
-      score: {
-        totalQuestions: questionIds.length,
-        correctAnswers,
-        percent,
-        durationSeconds,
-        resultSaved: true,
-        resultId: insertResult.insertId,
-        resultToken,
-        userAttached: Boolean(user),
-      },
-    };
-  } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
-    console.error("QUIZ SCORE DEBUG catch", {
-      slug,
-      userId: user?.id ?? null,
-      answersCount: answers.length,
-      durationSecondsReceived: timing?.durationSeconds ?? null,
-      message: error instanceof Error ? error.message : String(error),
-      name: error instanceof Error ? error.name : "UnknownError",
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-
-    return {
-      score: null,
-      error:
-        process.env.NODE_ENV === "development"
-          ? `Impossible de calculer le score depuis MySQL : ${message}`
-          : "Impossible de calculer le score pour le moment.",
-    };
-  } finally {
-    await connection?.end();
-  }
+  return {
+    score: null,
+    error: "Cette ancienne route de score n'est plus utilisée. Lancez le quiz depuis un thème.",
+  };
 }

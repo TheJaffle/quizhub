@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ActiveBattle } from "./active-battle";
 import { BattleLobby } from "./battle-lobby";
 import { BattleModeSelection } from "./battle-mode-selection";
@@ -8,17 +8,52 @@ import { BattleResults } from "./battle-results";
 
 type BattleStage = "selection" | "lobby" | "active" | "results";
 type BattleMode = "1v1" | "group";
-type BattleType = "public" | "private";
+type BattleType = "private";
+
+type BattleQuestion = {
+  id: number;
+  text: string;
+  correctAnswerId: number;
+  answers: Array<{
+    id: number;
+    label: string;
+    text: string;
+  }>;
+};
+
+export type BattleParticipant = {
+  id: number;
+  email: string;
+  pseudo: string | null;
+  score: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  durationSeconds: number | null;
+  completedAt: string;
+};
+
+type CurrentBattleUser = {
+  id: number;
+  email: string;
+  pseudo: string;
+};
 
 export interface BattleState {
   mode: BattleMode;
   type: BattleType;
   category?: string;
+  categoryName?: string;
   difficulty?: "easy" | "medium" | "hard";
   timePerQuestion: number;
   totalQuestions: number;
   roomCode?: string;
+  roomLink?: string;
+  questions: BattleQuestion[];
+  participantEmail: string;
+  participantPseudo: string;
+  currentUser: CurrentBattleUser | null;
   players: Player[];
+  participants: BattleParticipant[];
   currentPlayerIndex: number;
 }
 
@@ -39,102 +74,136 @@ export function BattlePage() {
   const [stage, setStage] = useState<BattleStage>("selection");
   const [battleState, setBattleState] = useState<BattleState>({
     mode: "1v1",
-    type: "public",
+    type: "private",
     timePerQuestion: 10,
     totalQuestions: 5,
+    questions: [],
+    participantEmail: "",
+    participantPseudo: "",
+    currentUser: null,
     players: [],
+    participants: [],
     currentPlayerIndex: 0,
   });
 
-  // Mock players for demonstration
-  const mockPlayers: Player[] = [
-    {
-      id: "1",
-      name: "You",
-      avatar: "/avatars/wizard.webp",
-      score: 0,
-      isReady: true,
-      isCurrentUser: true,
-      timeElapsed: 0,
-      correctAnswers: 0,
-      streak: 0,
-    },
-    {
-      id: "2",
-      name: "QuizMaster",
-      avatar: "/avatars/master.png",
-      score: 0,
-      isReady: false,
-      isCurrentUser: false,
-      timeElapsed: 0,
-      correctAnswers: 0,
-      streak: 0,
-    },
-  ];
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const roomCode = params.get("room");
 
-  const mockGroupPlayers: Player[] = [
-    ...mockPlayers,
-    {
-      id: "3",
-      name: "BrainGenius",
-      avatar: "/avatars/genious.png",
-      score: 0,
-      isReady: false,
-      isCurrentUser: false,
-      timeElapsed: 0,
-      correctAnswers: 0,
-      streak: 0,
-    },
-    {
-      id: "4",
-      name: "QuizGuru",
-      avatar: "/avatars/guru.png",
-      score: 0,
-      isReady: false,
-      isCurrentUser: false,
-      timeElapsed: 0,
-      correctAnswers: 0,
-      streak: 0,
-    },
-    {
-      id: "5",
-      name: "MindChamp",
-      avatar: "/avatars/champion.png",
-      score: 0,
-      isReady: false,
-      isCurrentUser: false,
-      timeElapsed: 0,
-      correctAnswers: 0,
-      streak: 0,
-    },
-  ];
+    void loadCurrentUser();
 
-  const handleModeSelect = (mode: BattleMode, type: BattleType, settings: Partial<BattleState>) => {
-    setBattleState({
-      ...battleState,
+    if (roomCode) {
+      void loadRoom(roomCode, params.get("mode") === "group" ? "group" : "1v1");
+    }
+  }, []);
+
+  async function loadCurrentUser() {
+    const response = await fetch("/api/auth/me", { cache: "no-store" });
+    const payload = await response.json().catch(() => null);
+    const user = payload?.user;
+
+    if (!user?.email || !user?.pseudo) return;
+
+    setBattleState((current) => ({
+      ...current,
+      currentUser: {
+        id: user.id,
+        email: user.email,
+        pseudo: user.pseudo,
+      },
+      participantEmail: current.participantEmail || user.email,
+      participantPseudo: current.participantPseudo || user.pseudo,
+    }));
+  }
+
+  async function loadRoom(roomCode: string, mode: BattleMode) {
+    const response = await fetch(`/api/duels/${encodeURIComponent(roomCode)}`, { cache: "no-store" });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.error || "Impossible de charger ce duel.");
+    }
+
+    setBattleState((current) => ({
+      ...current,
+      mode,
+      type: "private",
+      category: payload.challenge.categorySlug ?? undefined,
+      categoryName: payload.challenge.categoryName ?? undefined,
+      difficulty: payload.challenge.difficulty === "Easy" ? "easy" : payload.challenge.difficulty === "Hard" ? "hard" : "medium",
+      timePerQuestion: payload.challenge.timePerQuestion,
+      totalQuestions: payload.challenge.totalQuestions,
+      roomCode: payload.challenge.roomCode,
+      roomLink: `${window.location.origin}/battle?room=${encodeURIComponent(payload.challenge.roomCode)}&mode=${encodeURIComponent(mode)}`,
+      questions: payload.challenge.questionPayload,
+      participants: payload.challenge.participants ?? [],
+      players: [],
+    }));
+    setStage("lobby");
+  }
+
+  const handleModeSelect = async (mode: BattleMode, type: BattleType, settings: Partial<BattleState>) => {
+    const response = await fetch("/api/duels", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        category: settings.category,
+        difficulty: settings.difficulty,
+        timePerQuestion: settings.timePerQuestion,
+      }),
+    });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.error || "Impossible de créer le duel.");
+    }
+
+    setBattleState((current) => ({
+      ...current,
       ...settings,
       mode,
       type,
-      players: mode === "1v1" ? mockPlayers : mockGroupPlayers,
-    });
+      category: payload.challenge.categorySlug ?? settings.category,
+      categoryName: payload.challenge.categoryName ?? settings.categoryName,
+      roomCode: payload.challenge.roomCode,
+      roomLink: `${window.location.origin}/battle?room=${encodeURIComponent(payload.challenge.roomCode)}&mode=${encodeURIComponent(mode)}`,
+      questions: payload.challenge.questionPayload,
+      totalQuestions: payload.challenge.totalQuestions,
+      timePerQuestion: payload.challenge.timePerQuestion,
+      participants: payload.challenge.participants ?? [],
+      players: [],
+    }));
     setStage("lobby");
   };
 
-  const handleStartBattle = () => {
+  const handleStartBattle = (participant: { email: string; pseudo: string }) => {
+    setBattleState((current) => ({
+      ...current,
+      participantEmail: participant.email,
+      participantPseudo: participant.pseudo,
+    }));
     setStage("active");
   };
 
-  const handleBattleComplete = () => {
-    // Update battle state with results
+  const handleBattleComplete = (payload: { score: number; correctAnswers: number; participants?: BattleParticipant[] }) => {
     setBattleState((prev) => ({
       ...prev,
-      players: prev.players.map((player, index) => ({
-        ...player,
-        score: Math.floor(Math.random() * 1000),
-        correctAnswers: Math.floor(Math.random() * 10),
-        timeElapsed: Math.floor(Math.random() * 60),
-        rank: index + 1,
-      })),
+      participants: payload.participants ?? prev.participants,
+      players: [
+        {
+          id: "current",
+          name: prev.participantPseudo || prev.participantEmail || "Vous",
+          avatar: "/placeholder-user.jpg",
+          score: payload.score,
+          correctAnswers: payload.correctAnswers,
+          timeElapsed: prev.totalQuestions * prev.timePerQuestion,
+          isReady: true,
+          isCurrentUser: true,
+          streak: 0,
+        },
+      ],
     }));
     setStage("results");
   };

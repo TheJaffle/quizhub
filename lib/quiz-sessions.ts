@@ -2,6 +2,7 @@ import "server-only";
 import crypto from "crypto";
 import mysql from "mysql2/promise";
 import type { QuizDifficulty } from "@/lib/quiz-topics";
+import { insertQuizTopicResult } from "@/lib/quiz-results";
 
 export type QuizSessionAnswerInput = {
   questionId: number;
@@ -53,7 +54,17 @@ export type GetQuizSessionResult =
   | { data: QuizSessionData | null; error: string };
 
 export type SubmitQuizSessionResult =
-  | { score: { correctAnswers: number; totalQuestions: number; percent: number; resultToken: string; durationSeconds: number | null }; error?: undefined }
+  | {
+      score: {
+        correctAnswers: number;
+        totalQuestions: number;
+        percent: number;
+        resultToken: string;
+        durationSeconds: number | null;
+        userAttached: boolean;
+      };
+      error?: undefined;
+    }
   | { score: null; error: string };
 
 type SessionRow = {
@@ -98,6 +109,16 @@ type AllowedAnswerRow = {
   is_correct: 0 | 1;
 };
 
+type SessionOwnerRow = {
+  id: number;
+  result_token: string | null;
+  status: string;
+  user_id: number | null;
+  user_pseudo: string | null;
+  topic_id: number;
+  difficulty: QuizDifficulty;
+};
+
 const dbConfig = {
   host: process.env.QUIZHUB_DB_HOST ?? "localhost",
   port: Number(process.env.QUIZHUB_DB_PORT ?? 8889),
@@ -127,7 +148,7 @@ export async function startQuizSession(payload: {
 }): Promise<StartQuizSessionResult> {
   let connection: mysql.Connection | undefined;
   const difficulty = normalizeDifficulty(payload.difficulty);
-  const requestedQuestionCount = Math.max(1, Math.min(20, Number(payload.questionCount ?? 20)));
+  const requestedQuestionCount = Math.max(1, Math.min(5, Number(payload.questionCount ?? 5)));
 
   if (!payload.topicSlug || !difficulty) {
     return { error: "Demande invalide." };
@@ -360,14 +381,15 @@ export async function submitQuizSession(
     await connection.beginTransaction();
     const durationSeconds = normalizeDurationSeconds(timing?.durationSeconds);
     const [sessionRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT id, result_token, status
-       FROM quiz_sessions
-       WHERE session_token = ?
+      `SELECT s.id, s.result_token, s.status, s.user_id, u.pseudo AS user_pseudo, s.topic_id, s.difficulty
+       FROM quiz_sessions s
+       LEFT JOIN users u ON u.id = s.user_id
+       WHERE s.session_token = ?
        LIMIT 1
        FOR UPDATE`,
       [sessionToken]
     );
-    const session = (sessionRows as { id: number; result_token: string | null; status: string }[])[0];
+    const session = (sessionRows as SessionOwnerRow[])[0];
 
     if (!session) {
       await connection.rollback();
@@ -479,6 +501,18 @@ export async function submitQuizSession(
       [resultToken, correctAnswers, questionIds.length, percent, session.id]
     );
 
+    await insertQuizTopicResult(connection, {
+      topicId: session.topic_id,
+      sessionId: session.id,
+      userId: session.user_id ?? null,
+      playerName: session.user_pseudo ?? "Invité",
+      resultToken,
+      score: correctAnswers,
+      totalQuestions: questionIds.length,
+      durationSeconds,
+      percentage: percent,
+    });
+
     await connection.commit();
 
     return {
@@ -488,6 +522,7 @@ export async function submitQuizSession(
         percent,
         resultToken,
         durationSeconds,
+        userAttached: Boolean(session.user_id),
       },
     };
   } catch (error) {

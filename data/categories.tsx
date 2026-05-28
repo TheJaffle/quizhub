@@ -176,4 +176,11 @@ export const categories = [
     image: videoGame,
     count: 9,
   },
+  {
+    id: 24,
+    name: "Divers",
+    slug: "divers",
+    image: trivia,
+    count: 1,
+  },
 ];
