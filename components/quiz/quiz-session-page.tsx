@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
+import { ResultEmailForm } from "@/components/results/result-email-form";
 import { AlertTriangle, CheckCircle, Loader2, XCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,13 +31,14 @@ export function QuizSessionPage({ data, error }: QuizSessionPageProps) {
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
   const [lastSelectedAnswerId, setLastSelectedAnswerId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [score, setScore] = useState<{ correctAnswers: number; totalQuestions: number; percent: number; resultToken: string } | null>(
+  const [score, setScore] = useState<{ correctAnswers: number; totalQuestions: number; percent: number; resultToken: string; userAttached?: boolean } | null>(
     data?.session.status === "finished" && data.session.resultToken
       ? {
           correctAnswers: data.session.score ?? 0,
           totalQuestions: data.session.totalQuestions,
           percent: data.session.percentage ?? 0,
           resultToken: data.session.resultToken,
+          userAttached: false,
         }
       : null
   );
@@ -189,12 +191,21 @@ export function QuizSessionPage({ data, error }: QuizSessionPageProps) {
             <CheckCircle className="h-9 w-9" />
           </div>
           <h2 className="mb-2 text-2xl font-bold">Votre résultat est prêt</h2>
-          <p className="mb-6 text-muted-foreground">
-            Score : {score.correctAnswers}/{score.totalQuestions} ({score.percent}%)
-          </p>
-          <Button asChild>
-            <Link href={`/quiz/results/${score.resultToken}`}>Voir mon résultat</Link>
-          </Button>
+          {score.userAttached ? (
+            <>
+              <p className="mb-6 text-muted-foreground">
+                Score : {score.correctAnswers}/{score.totalQuestions} ({score.percent}%)
+              </p>
+              <Button asChild>
+                <Link href={`/results/${score.resultToken}`}>Voir mon résultat</Link>
+              </Button>
+            </>
+          ) : (
+            <div className="mt-6">
+              <p className="mb-6 text-muted-foreground">Entrez votre email pour recevoir un lien sécurisé et rattacher ce résultat à votre compte.</p>
+              <ResultEmailForm resultType="quiz" resultToken={score.resultToken} />
+            </div>
+          )}
         </Card>
       ) : !currentQuestion ? (
         <Card className="p-8 text-center">

@@ -40,10 +40,12 @@ export async function getHomeQuizCategories(): Promise<QuizCategoriesResult> {
          c.name,
          c.slug,
          c.image_url,
-         COUNT(q.id) AS quiz_count
+         COUNT(DISTINCT t.id) AS quiz_count
        FROM quiz_categories c
-       LEFT JOIN quizzes q ON q.category_id = c.id AND q.is_active = 1
+       LEFT JOIN quiz_topics t ON t.category_id = c.id AND t.is_active = 1
+       LEFT JOIN question_bank qb ON qb.topic_id = t.id AND qb.is_active = 1
        WHERE c.is_active = 1
+         AND (t.id IS NULL OR qb.id IS NOT NULL)
        GROUP BY c.id, c.name, c.slug, c.image_url
        ORDER BY c.id ASC`
     );

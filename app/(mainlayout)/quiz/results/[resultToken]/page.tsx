@@ -1,6 +1,5 @@
-import { QuizSessionResultPage } from "@/components/quiz/quiz-session-result-page";
 import { getQuizSessionResultByToken } from "@/lib/quiz-sessions";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -23,11 +22,6 @@ export async function generateMetadata({ params }: { params: Promise<{ resultTok
 
 export default async function QuizSessionResultRoute({ params }: { params: Promise<{ resultToken: string }> }) {
   const { resultToken } = await params;
-  const { data, error } = await getQuizSessionResultByToken(resultToken);
 
-  if (!data && !error) {
-    notFound();
-  }
-
-  return <QuizSessionResultPage data={data} error={error} />;
+  redirect(`/results/${encodeURIComponent(resultToken)}`);
 }

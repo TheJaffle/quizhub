@@ -4,9 +4,10 @@ import type { QuizTopicCard, QuizTopicCategory, QuizDifficulty } from "@/lib/qui
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, Search } from "lucide-react";
+import { ArrowLeft, BookOpen, Loader2, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 type CategoryTopicsPageProps = {
   category: QuizTopicCategory | null;
@@ -20,7 +21,43 @@ const difficultyLabels: Record<QuizDifficulty, string> = {
   Hard: "Difficile",
 };
 
+const difficulties: QuizDifficulty[] = ["Easy", "Medium", "Hard"];
+
 export function CategoryTopicsPage({ category, topics, error }: CategoryTopicsPageProps) {
+  const [startingQuiz, setStartingQuiz] = useState<{ topicSlug: string; difficulty: QuizDifficulty } | null>(null);
+  const [startError, setStartError] = useState<{ topicSlug: string; message: string } | null>(null);
+
+  async function startQuiz(topic: QuizTopicCard, difficulty: QuizDifficulty) {
+    setStartingQuiz({ topicSlug: topic.slug, difficulty });
+    setStartError(null);
+
+    try {
+      const response = await fetch("/api/quiz-sessions/start", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          topicSlug: topic.slug,
+          difficulty,
+        }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Impossible de lancer ce quiz.");
+      }
+
+      window.location.href = payload.url;
+    } catch (error) {
+      setStartError({
+        topicSlug: topic.slug,
+        message: error instanceof Error ? error.message : "Impossible de lancer ce quiz.",
+      });
+      setStartingQuiz(null);
+    }
+  }
+
   return (
     <div className="container mx-auto">
       <div className="mb-8">
@@ -70,10 +107,21 @@ export function CategoryTopicsPage({ category, topics, error }: CategoryTopicsPa
                 <p className="text-sm font-medium">{topic.totalQuestions} questions disponibles</p>
               </CardContent>
 
-              <CardFooter className="px-4 pb-4 pt-0">
-                <Button className="w-full" asChild>
-                  <Link href={`/topics/${topic.slug}`}>Choisir un niveau</Link>
-                </Button>
+              <CardFooter className="flex flex-col gap-2 px-4 pb-4 pt-0">
+                {startError?.topicSlug === topic.slug ? <p className="w-full text-sm text-destructive">{startError.message}</p> : null}
+                <div className="grid w-full grid-cols-3 gap-2">
+                  {difficulties.map((difficulty) => {
+                    const isStarting = startingQuiz?.topicSlug === topic.slug && startingQuiz.difficulty === difficulty;
+                    const disabled = topic.questionCounts[difficulty] < 1 || startingQuiz !== null;
+
+                    return (
+                      <Button key={difficulty} size="sm" disabled={disabled} onClick={() => startQuiz(topic, difficulty)} className="min-w-0 px-2">
+                        {isStarting ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null}
+                        {difficultyLabels[difficulty]}
+                      </Button>
+                    );
+                  })}
+                </div>
               </CardFooter>
             </Card>
           ))}

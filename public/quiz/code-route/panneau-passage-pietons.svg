@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-labelledby="title">
+  <title id="title">Panneau passage piétons</title>
+  <rect width="640" height="420" fill="#edf2f7"/>
+  <path d="M286 304h68v92h-68z" fill="#8a8f98"/>
+  <rect x="188" y="48" width="264" height="264" rx="18" fill="#1368b7" stroke="#fff" stroke-width="14"/>
+  <path d="M295 120a25 25 0 1 0 0-50 25 25 0 0 0 0 50z" fill="#fff"/>
+  <path d="M284 128h35l34 52-22 15-21-31-21 72 58 38-18 25-76-48 22-75-30 23-28 52-29-13 33-65z" fill="#fff"/>
+  <path d="M218 275h204" stroke="#fff" stroke-width="18"/>
+  <path d="M238 248h164" stroke="#fff" stroke-width="14"/>
+</svg>

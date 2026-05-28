@@ -1,6 +1,11 @@
 import "server-only";
 import crypto from "crypto";
 import mysql from "mysql2/promise";
+import {
+  attachQuizTopicResultToUser,
+  ensureQuizTopicResultsTable,
+  getQuizTopicResultByToken,
+} from "@/lib/quiz-results";
 
 type UserRow = {
   id: number;
@@ -703,26 +708,17 @@ export async function getUserQuizResultByToken(resultToken: string, userId: numb
 
   try {
     connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.title AS quiz_title, qr.score, qr.total_questions, qr.percentage, qr.created_at
-       FROM quiz_results qr
-       INNER JOIN quizzes q ON q.id = qr.quiz_id
-       WHERE qr.result_token = ? AND qr.user_id = ?
-       LIMIT 1`,
-      [resultToken, userId]
-    );
-
-    const result = (rows as UserQuizResultRow[])[0];
+    const result = await getQuizTopicResultByToken(connection, resultToken, userId);
 
     if (!result) {
       return null;
     }
 
     return {
-      quizTitle: result.quiz_title,
+      quizTitle: result.topic_title,
       score: result.score,
       totalQuestions: result.total_questions,
-      percentage: result.percentage,
+      percentage: Number(result.percentage),
       createdAt: result.created_at,
     };
   } finally {
@@ -735,26 +731,17 @@ export async function getQuizResultByToken(resultToken: string) {
 
   try {
     connection = await mysql.createConnection(dbConfig);
-    const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.title AS quiz_title, qr.score, qr.total_questions, qr.percentage, qr.created_at
-       FROM quiz_results qr
-       INNER JOIN quizzes q ON q.id = qr.quiz_id
-       WHERE qr.result_token = ?
-       LIMIT 1`,
-      [resultToken]
-    );
-
-    const result = (rows as UserQuizResultRow[])[0];
+    const result = await getQuizTopicResultByToken(connection, resultToken);
 
     if (!result) {
       return null;
     }
 
     return {
-      quizTitle: result.quiz_title,
+      quizTitle: result.topic_title,
       score: result.score,
       totalQuestions: result.total_questions,
-      percentage: result.percentage,
+      percentage: Number(result.percentage),
       createdAt: result.created_at,
     };
   } finally {
@@ -767,6 +754,7 @@ export async function getUserDashboardData(userId: number): Promise<UserDashboar
 
   try {
     connection = await mysql.createConnection(dbConfig);
+    await ensureQuizTopicResultsTable(connection);
     const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" });
     const currentMonth = new Date();
     const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 5, 1);
@@ -775,15 +763,15 @@ export async function getUserDashboardData(userId: number): Promise<UserDashboar
       `SELECT COUNT(*) AS total_completed,
               COALESCE(MAX(percentage), 0) AS best_percentage,
               COALESCE(AVG(percentage), 0) AS average_percentage
-       FROM quiz_results
+       FROM quiz_topic_results
        WHERE user_id = ?`,
       [userId]
     );
 
     const [bestQuizRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT q.title AS quiz_title
-       FROM quiz_results qr
-       INNER JOIN quizzes q ON q.id = qr.quiz_id
+      `SELECT t.name AS quiz_title
+       FROM quiz_topic_results qr
+       INNER JOIN quiz_topics t ON t.id = qr.topic_id
        WHERE qr.user_id = ?
        ORDER BY qr.percentage DESC, qr.score DESC, qr.created_at DESC
        LIMIT 1`,
@@ -791,9 +779,9 @@ export async function getUserDashboardData(userId: number): Promise<UserDashboar
     );
 
     const [recentResultRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT qr.id, qr.result_token, q.title AS quiz_title, qr.score, qr.total_questions, qr.percentage, qr.created_at
-       FROM quiz_results qr
-       INNER JOIN quizzes q ON q.id = qr.quiz_id
+      `SELECT qr.id, qr.result_token, t.name AS quiz_title, qr.score, qr.total_questions, qr.percentage, qr.created_at
+       FROM quiz_topic_results qr
+       INNER JOIN quiz_topics t ON t.id = qr.topic_id
        WHERE qr.user_id = ?
        ORDER BY qr.created_at DESC, qr.id DESC
        LIMIT 4`,
@@ -801,9 +789,9 @@ export async function getUserDashboardData(userId: number): Promise<UserDashboar
     );
 
     const [monthlyActivityRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT DATE_FORMAT(created_at, '%Y-%m') AS month_key,
+       `SELECT DATE_FORMAT(created_at, '%Y-%m') AS month_key,
               COUNT(*) AS completed_count
-       FROM quiz_results
+       FROM quiz_topic_results
        WHERE user_id = ? AND created_at >= ?
        GROUP BY DATE_FORMAT(created_at, '%Y-%m')
        ORDER BY month_key ASC`,
@@ -848,12 +836,7 @@ export async function getUserDashboardData(userId: number): Promise<UserDashboar
 }
 
 async function attachResultToUser(connection: mysql.Connection, resultToken: string, userId: number, pseudo: string) {
-  await connection.execute(
-    `UPDATE quiz_results
-     SET user_id = ?, player_name = ?
-     WHERE result_token = ? AND user_id IS NULL`,
-    [userId, pseudo, resultToken]
-  );
+  await attachQuizTopicResultToUser(connection, resultToken, userId, pseudo);
 }
 
 async function checkIqAttemptCanAttach(connection: mysql.Connection, attemptToken: string, userId?: number) {
