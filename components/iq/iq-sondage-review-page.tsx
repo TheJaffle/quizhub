@@ -69,7 +69,7 @@ function formatOptionAnswer(optionKey: string | null, optionText: string | null)
 
 function formatAnswer(question: ReviewQuestion, kind: "selected" | "correct") {
   if (kind === "selected" && isQuestionUnanswered(question)) {
-    return "Vous n'avez pas repondu";
+    return "Non repondue";
   }
 
   if (kind === "selected" && isQuestionErroneousWithoutSelection(question)) {
@@ -98,7 +98,11 @@ function isQuestionUnanswered(question: ReviewQuestion) {
 }
 
 function isQuestionErroneousWithoutSelection(question: ReviewQuestion) {
-  return question.responseTimeMs === 0 && !question.selectedOptionKey && !question.selectedOptionText && !question.selectedPosition;
+  return question.responseTimeMs === 0;
+}
+
+function shouldShowSelectedAnswer(question: ReviewQuestion) {
+  return !isQuestionUnanswered(question) && !isQuestionErroneousWithoutSelection(question);
 }
 
 function getQuestionLead(question: ReviewQuestion) {
@@ -364,7 +368,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                   <div className="space-y-1.5">
                     <div className="space-y-1.5">
                       {currentQuestion.options.map((option) => {
-                        const isSelected = currentQuestion.selectedOptionKey === option.key;
+                        const isSelected = shouldShowSelectedAnswer(currentQuestion) && currentQuestion.selectedOptionKey === option.key;
                         const isCorrect = currentQuestion.correctOptionKey === option.key;
 
                         return (
@@ -416,12 +420,12 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                       <div className="mb-1 flex items-center gap-1.5 text-xs font-bold md:text-base">
                         <XCircle className="h-3.5 w-3.5 md:h-5 md:w-5" />
                         {isQuestionUnanswered(currentQuestion)
-                          ? "Vous n'avez pas repondu"
+                          ? "Non repondue"
                           : isQuestionErroneousWithoutSelection(currentQuestion)
                             ? "Reponse erronee"
                             : "Reponse incorrecte"}
                       </div>
-                      {!isQuestionUnanswered(currentQuestion) && !isQuestionErroneousWithoutSelection(currentQuestion) ? (
+                      {shouldShowSelectedAnswer(currentQuestion) ? (
                         <p className="text-xs md:text-base">
                           Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span> :(
                         </p>
