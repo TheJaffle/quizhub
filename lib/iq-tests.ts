@@ -4084,7 +4084,6 @@ async function loadIqSondageReviewByAttempt(
      WHERE aa.attempt_id = ?
        AND s.section_key IN ('logic', 'spatial', 'verbal', 'quantitative', 'memory', 'long_memory', 'audio_memory')
        AND (aa.response_time_ms IS NULL OR aa.response_time_ms <> ?)
-       AND (aa.selected_option_id IS NOT NULL OR aa.selected_position IS NOT NULL)
      ORDER BY FIELD(s.section_key, 'logic', 'spatial', 'verbal', 'quantitative', 'memory', 'long_memory', 'audio_memory'),
               q.position,
               aa.id`,
