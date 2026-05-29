@@ -266,17 +266,6 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
         </Card>
       ) : currentQuestion ? (
         <div className="space-y-2 md:space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-2 md:gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">{currentSection?.label}</Badge>
-              <Badge variant="outline">
-                Question {currentQuestionNumber}/{totalQuestions}
-              </Badge>
-              <Badge variant="outline">{currentQuestion.questionKey}</Badge>
-            </div>
-            {review.userPseudo ? <p className="text-xs text-muted-foreground md:text-sm">Participant : {review.userPseudo}</p> : null}
-          </div>
-
           <Card className="overflow-hidden border-0 shadow-xl">
             <CardContent className="grid gap-3 p-2 md:grid-cols-2 md:gap-6 md:p-6">
               <div className="space-y-2">
@@ -311,21 +300,21 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                           width={900}
                           height={600}
                           sizes="(max-width: 768px) 100vw, 50vw"
-                          className="max-h-[15vh] w-full object-contain md:max-h-[38vh]"
+                          className="max-h-[24vh] w-full object-contain md:max-h-[38vh]"
                         />
                       </div>
                     ) : null}
                     <div className="relative overflow-hidden rounded-xl border bg-muted/30">
-                      <Image
-                        src={currentQuestion.answersImageUrl}
-                        alt="Reponses visuelles"
-                        width={900}
-                        height={600}
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                        className="max-h-[18vh] w-full object-contain md:max-h-[38vh]"
-                      />
+                        <Image
+                          src={currentQuestion.answersImageUrl}
+                          alt="Reponses visuelles"
+                          width={900}
+                          height={600}
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          className="max-h-[28vh] w-full object-contain md:max-h-[38vh]"
+                        />
+                      </div>
                     </div>
-                  </div>
                 ) : currentQuestion.imageUrl ? (
                   <div className="relative overflow-hidden rounded-xl border bg-muted/30">
                     <Image
@@ -334,7 +323,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                       width={900}
                       height={600}
                       sizes="(max-width: 768px) 100vw, 50vw"
-                      className="max-h-[18vh] w-full object-contain md:max-h-[42vh]"
+                      className="max-h-[28vh] w-full object-contain md:max-h-[42vh]"
                     />
                   </div>
                 ) : (
