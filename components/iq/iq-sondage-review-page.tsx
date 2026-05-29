@@ -271,12 +271,12 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
               <div className="space-y-2">
                 <div className="space-y-1">
                   {getQuestionLead(currentQuestion).map((line, index) => (
-                    <h2 key={`${currentQuestion.questionKey}-${index}`} className="text-base font-bold leading-tight md:text-3xl">
+                    <h2 key={`${currentQuestion.questionKey}-${index}`} className="text-[15px] font-bold leading-tight md:text-3xl">
                       {line}
                     </h2>
                   ))}
                   {getAnswerPrompt(currentQuestion) ? (
-                    <p className="text-xs font-medium leading-snug text-muted-foreground md:text-lg">{getAnswerPrompt(currentQuestion)}</p>
+                    <p className="text-[11px] font-medium leading-snug text-muted-foreground md:text-lg">{getAnswerPrompt(currentQuestion)}</p>
                   ) : null}
                 </div>
 
@@ -300,7 +300,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                           width={900}
                           height={600}
                           sizes="(max-width: 768px) 100vw, 50vw"
-                          className="max-h-[24vh] w-full object-contain md:max-h-[38vh]"
+                          className="max-h-[27vh] w-full object-contain md:max-h-[38vh]"
                         />
                       </div>
                     ) : null}
@@ -311,7 +311,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                           width={900}
                           height={600}
                           sizes="(max-width: 768px) 100vw, 50vw"
-                          className="max-h-[28vh] w-full object-contain md:max-h-[38vh]"
+                          className="max-h-[31vh] w-full object-contain md:max-h-[38vh]"
                         />
                       </div>
                     </div>
@@ -323,7 +323,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                       width={900}
                       height={600}
                       sizes="(max-width: 768px) 100vw, 50vw"
-                      className="max-h-[28vh] w-full object-contain md:max-h-[42vh]"
+                      className="max-h-[31vh] w-full object-contain md:max-h-[42vh]"
                     />
                   </div>
                 ) : (
@@ -404,18 +404,12 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                   </div>
                 </div>
 
-                {currentQuestion.responseTimeMs !== null ? (
-                  <div className="rounded-xl border bg-background p-2.5 text-[11px] text-muted-foreground md:p-4 md:text-sm">
-                    Temps de reponse : {(currentQuestion.responseTimeMs / 1000).toFixed(2)} s
-                  </div>
-                ) : null}
-
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Button variant="outline" onClick={handleBack} disabled={!canGoBack} className="sm:w-40">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outline" onClick={handleBack} disabled={!canGoBack}>
                     <ChevronLeft className="h-4 w-4" />
                     Retour
                   </Button>
-                  <Button onClick={handleAdvance} className="flex-1">
+                  <Button onClick={handleAdvance}>
                     OK
                     <ChevronRight className="h-4 w-4" />
                   </Button>
