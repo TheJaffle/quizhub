@@ -82,7 +82,11 @@ function formatAnswer(question: ReviewQuestion, kind: "selected" | "correct") {
     return question.answersImageUrl ? optionLetter : `Zone ${position}`;
   }
 
-  return "Pas de reponse";
+  return "";
+}
+
+function isQuestionUnanswered(question: ReviewQuestion) {
+  return question.responseTimeMs === 1000 || (!question.selectedOptionKey && !question.selectedOptionText && !question.selectedPosition);
 }
 
 function getQuestionLead(question: ReviewQuestion) {
@@ -390,11 +394,13 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                     <div className="rounded-xl border border-red-200 bg-red-50 p-2 text-red-700 md:p-4">
                       <div className="mb-1 flex items-center gap-1.5 text-xs font-bold md:text-base">
                         <XCircle className="h-3.5 w-3.5 md:h-5 md:w-5" />
-                        Reponse incorrecte
+                        {isQuestionUnanswered(currentQuestion) ? "Vous n'avez pas repondu" : "Reponse incorrecte"}
                       </div>
-                      <p className="text-xs md:text-base">
-                        Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span> :(
-                      </p>
+                      {!isQuestionUnanswered(currentQuestion) ? (
+                        <p className="text-xs md:text-base">
+                          Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span> :(
+                        </p>
+                      ) : null}
                     </div>
                   )}
 
