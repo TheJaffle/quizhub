@@ -98,11 +98,19 @@ function isQuestionUnanswered(question: ReviewQuestion) {
 }
 
 function isQuestionErroneousWithoutSelection(question: ReviewQuestion) {
-  return question.responseTimeMs === 0;
+  return question.responseTimeMs === 0 || !hasSelectedAnswerData(question);
 }
 
 function shouldShowSelectedAnswer(question: ReviewQuestion) {
-  return !isQuestionUnanswered(question) && !isQuestionErroneousWithoutSelection(question);
+  return !isQuestionUnanswered(question) && hasSelectedAnswerData(question) && question.responseTimeMs !== 0;
+}
+
+function hasSelectedAnswerData(question: ReviewQuestion) {
+  return Boolean(
+    (question.selectedOptionKey && question.selectedOptionKey.trim()) ||
+      (question.selectedOptionText && question.selectedOptionText.trim()) ||
+      question.selectedPosition,
+  );
 }
 
 function getQuestionLead(question: ReviewQuestion) {
