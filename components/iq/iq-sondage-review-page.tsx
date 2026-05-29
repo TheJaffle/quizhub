@@ -68,6 +68,14 @@ function formatOptionAnswer(optionKey: string | null, optionText: string | null)
 }
 
 function formatAnswer(question: ReviewQuestion, kind: "selected" | "correct") {
+  if (kind === "selected" && isQuestionUnanswered(question)) {
+    return "Vous n'avez pas repondu";
+  }
+
+  if (kind === "selected" && isQuestionErroneousWithoutSelection(question)) {
+    return "Reponse erronee";
+  }
+
   const optionKey = kind === "selected" ? question.selectedOptionKey : question.correctOptionKey;
   const optionText = kind === "selected" ? question.selectedOptionText : question.correctOptionText;
   const optionAnswer = formatOptionAnswer(optionKey, optionText);
@@ -86,7 +94,11 @@ function formatAnswer(question: ReviewQuestion, kind: "selected" | "correct") {
 }
 
 function isQuestionUnanswered(question: ReviewQuestion) {
-  return question.responseTimeMs === 1000 || (!question.selectedOptionKey && !question.selectedOptionText && !question.selectedPosition);
+  return question.responseTimeMs === 1000;
+}
+
+function isQuestionErroneousWithoutSelection(question: ReviewQuestion) {
+  return question.responseTimeMs === 0 && !question.selectedOptionKey && !question.selectedOptionText && !question.selectedPosition;
 }
 
 function getQuestionLead(question: ReviewQuestion) {
@@ -271,17 +283,6 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
       ) : currentQuestion ? (
         <div className="space-y-2 md:space-y-6">
           <Card className="relative overflow-hidden border-0 shadow-xl">
-            <div className="absolute right-2 top-2 z-10 flex max-w-[78vw] flex-wrap justify-end gap-1">
-              <Badge className="bg-indigo-500 px-2 py-0.5 text-[10px] text-white hover:bg-indigo-600">
-                {currentSection?.label}
-              </Badge>
-              <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
-                {currentQuestionNumber}/{totalQuestions}
-              </Badge>
-              <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
-                {currentQuestion.questionKey}
-              </Badge>
-            </div>
             <CardContent className="grid gap-3 p-2 md:grid-cols-2 md:gap-6 md:p-6">
               <div className="space-y-2">
                 <div className="space-y-1">
@@ -309,6 +310,17 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                   <div className="space-y-2">
                     {currentQuestion.imageUrl ? (
                       <div className="relative overflow-hidden rounded-xl border bg-muted/30">
+                        <div className="absolute right-2 top-2 z-10 flex max-w-[62vw] flex-wrap justify-end gap-1">
+                          <Badge className="bg-indigo-500 px-2 py-0.5 text-[10px] text-white hover:bg-indigo-600">
+                            {currentSection?.label}
+                          </Badge>
+                          <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
+                            {currentQuestionNumber}/{totalQuestions}
+                          </Badge>
+                          <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
+                            {currentQuestion.questionKey}
+                          </Badge>
+                        </div>
                         <Image
                           src={currentQuestion.imageUrl}
                           alt="Enigme visuelle"
@@ -320,6 +332,19 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                       </div>
                     ) : null}
                     <div className="relative overflow-hidden rounded-xl border bg-muted/30">
+                        {!currentQuestion.imageUrl ? (
+                          <div className="absolute right-2 top-2 z-10 flex max-w-[62vw] flex-wrap justify-end gap-1">
+                            <Badge className="bg-indigo-500 px-2 py-0.5 text-[10px] text-white hover:bg-indigo-600">
+                              {currentSection?.label}
+                            </Badge>
+                            <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
+                              {currentQuestionNumber}/{totalQuestions}
+                            </Badge>
+                            <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
+                              {currentQuestion.questionKey}
+                            </Badge>
+                          </div>
+                        ) : null}
                         <Image
                           src={currentQuestion.answersImageUrl}
                           alt="Reponses visuelles"
@@ -332,6 +357,17 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                     </div>
                 ) : currentQuestion.imageUrl ? (
                   <div className="relative overflow-hidden rounded-xl border bg-muted/30">
+                    <div className="absolute right-2 top-2 z-10 flex max-w-[62vw] flex-wrap justify-end gap-1">
+                      <Badge className="bg-indigo-500 px-2 py-0.5 text-[10px] text-white hover:bg-indigo-600">
+                        {currentSection?.label}
+                      </Badge>
+                      <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
+                        {currentQuestionNumber}/{totalQuestions}
+                      </Badge>
+                      <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
+                        {currentQuestion.questionKey}
+                      </Badge>
+                    </div>
                     <Image
                       src={currentQuestion.imageUrl}
                       alt="Question visuelle"
@@ -405,7 +441,11 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                     <div className="rounded-xl border border-red-200 bg-red-50 p-2 text-red-700 md:p-4">
                       <div className="mb-1 flex items-center gap-1.5 text-xs font-bold md:text-base">
                         <XCircle className="h-3.5 w-3.5 md:h-5 md:w-5" />
-                        {isQuestionUnanswered(currentQuestion) ? "Vous n'avez pas repondu" : "Reponse incorrecte"}
+                        {isQuestionUnanswered(currentQuestion)
+                          ? "Vous n'avez pas repondu"
+                          : isQuestionErroneousWithoutSelection(currentQuestion)
+                            ? "Reponse erronee"
+                            : "Reponse incorrecte"}
                       </div>
                       {!isQuestionUnanswered(currentQuestion) ? (
                         <p className="text-xs md:text-base">
