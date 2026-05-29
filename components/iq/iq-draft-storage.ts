@@ -4,14 +4,16 @@ import type { SaveIqAttemptAnswerPayload } from "@/lib/iq-tests";
 
 const IQ_DRAFT_STORAGE_PREFIX = "brainspark_iq_draft:";
 
-export type IqDraftStoredAnswer = SaveIqAttemptAnswerPayload & {
-  answeredAt: string;
-};
+export type IqDraftStoredAnswer = Pick<
+  SaveIqAttemptAnswerPayload,
+  "questionId" | "selectedOptionId" | "selectedPosition" | "responseTimeMs"
+>;
 
 export type IqDraftSubmission = {
-  version: 1;
+  version: 2;
   attemptToken: string;
   answers: IqDraftStoredAnswer[];
+  speedTotalTimeMs: number | null;
 };
 
 function getDraftStorageKey(attemptToken: string) {
@@ -41,8 +43,15 @@ function normalizeStoredAnswer(answer: Partial<IqDraftStoredAnswer>): IqDraftSto
       answer.responseTimeMs === null || answer.responseTimeMs === undefined
         ? null
         : Number(answer.responseTimeMs),
-    displayedAt: typeof answer.displayedAt === "string" ? answer.displayedAt : null,
-    answeredAt: typeof answer.answeredAt === "string" ? answer.answeredAt : new Date().toISOString(),
+  };
+}
+
+function createEmptySubmission(attemptToken: string): IqDraftSubmission {
+  return {
+    version: 2,
+    attemptToken,
+    answers: [],
+    speedTotalTimeMs: null,
   };
 }
 
@@ -58,46 +67,29 @@ export function loadIqDraftSubmission(attemptToken: string): IqDraftSubmission |
       return null;
     }
 
-    const parsed = JSON.parse(rawValue) as Partial<IqDraftSubmission>;
+    const parsed = JSON.parse(rawValue) as Partial<IqDraftSubmission> & {
+      answers?: unknown[];
+      speedTotalTimeMs?: unknown;
+    };
     const answers = Array.isArray(parsed.answers)
       ? parsed.answers
-          .map((answer) => normalizeStoredAnswer(answer))
+          .map((answer) => normalizeStoredAnswer((answer ?? {}) as Partial<IqDraftStoredAnswer>))
           .filter((answer): answer is IqDraftStoredAnswer => Boolean(answer))
       : [];
+    const speedTotalTimeMs =
+      typeof parsed.speedTotalTimeMs === "number" && Number.isFinite(parsed.speedTotalTimeMs) && parsed.speedTotalTimeMs >= 0
+        ? Math.round(parsed.speedTotalTimeMs)
+        : null;
 
     return {
-      version: 1,
+      version: 2,
       attemptToken,
       answers,
+      speedTotalTimeMs,
     };
   } catch {
     return null;
   }
-}
-
-export function loadAllIqDraftSubmissions() {
-  if (!canUseStorage()) {
-    return [] as IqDraftSubmission[];
-  }
-
-  const submissions: IqDraftSubmission[] = [];
-
-  for (let index = 0; index < window.localStorage.length; index += 1) {
-    const key = window.localStorage.key(index);
-
-    if (!key || !key.startsWith(IQ_DRAFT_STORAGE_PREFIX)) {
-      continue;
-    }
-
-    const attemptToken = key.slice(IQ_DRAFT_STORAGE_PREFIX.length);
-    const submission = loadIqDraftSubmission(attemptToken);
-
-    if (submission) {
-      submissions.push(submission);
-    }
-  }
-
-  return submissions;
 }
 
 function saveIqDraftSubmission(submission: IqDraftSubmission) {
@@ -109,16 +101,8 @@ function saveIqDraftSubmission(submission: IqDraftSubmission) {
 }
 
 export function saveIqDraftAnswer(attemptToken: string, answer: SaveIqAttemptAnswerPayload) {
-  const submission =
-    loadIqDraftSubmission(attemptToken) ?? {
-      version: 1 as const,
-      attemptToken,
-      answers: [],
-    };
-  const normalizedAnswer = normalizeStoredAnswer({
-    ...answer,
-    answeredAt: new Date().toISOString(),
-  });
+  const submission = loadIqDraftSubmission(attemptToken) ?? createEmptySubmission(attemptToken);
+  const normalizedAnswer = normalizeStoredAnswer(answer);
 
   if (!normalizedAnswer) {
     return submission;
@@ -126,11 +110,22 @@ export function saveIqDraftAnswer(attemptToken: string, answer: SaveIqAttemptAns
 
   const nextAnswers = submission.answers.filter((storedAnswer) => storedAnswer.questionId !== normalizedAnswer.questionId);
   nextAnswers.push(normalizedAnswer);
-  nextAnswers.sort((left, right) => new Date(left.answeredAt).getTime() - new Date(right.answeredAt).getTime());
 
   const nextSubmission: IqDraftSubmission = {
     ...submission,
     answers: nextAnswers,
+  };
+
+  saveIqDraftSubmission(nextSubmission);
+  return nextSubmission;
+}
+
+export function saveIqDraftSpeedTotalTime(attemptToken: string, totalTimeMs: number) {
+  const submission = loadIqDraftSubmission(attemptToken) ?? createEmptySubmission(attemptToken);
+  const safeTotalTimeMs = Number.isFinite(totalTimeMs) && totalTimeMs >= 0 ? Math.round(totalTimeMs) : null;
+  const nextSubmission: IqDraftSubmission = {
+    ...submission,
+    speedTotalTimeMs: safeTotalTimeMs,
   };
 
   saveIqDraftSubmission(nextSubmission);

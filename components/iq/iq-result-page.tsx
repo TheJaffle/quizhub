@@ -24,32 +24,26 @@ const sectionScores = [
   { key: "speed", label: "Rapidite", color: "text-amber-500" },
 ] as const;
 
-const SPEED_REFERENCE_MS = 15000;
-
 function clampScore(value: number) {
   if (!Number.isFinite(value)) return 0;
 
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-function estimateIqRange(score: number) {
-  const center = Math.round(80 + score * 0.45);
-  return {
-    min: Math.max(70, center - 6),
-    max: Math.min(145, center + 6),
-  };
-}
-
 function getProfileLabel(score: number) {
-  if (score >= 82) return "Très beau profil";
+  if (score >= 82) return "Tres beau profil";
   if (score >= 68) return "Profil solide";
   if (score >= 52) return "Bon potentiel";
   if (score >= 35) return "Profil en construction";
-  return "Résultat à reprendre au calme";
+  return "Resultat a reprendre au calme";
 }
 
-function getCategoryNote(percentage: number) {
-  return Math.max(0, Math.min(20, Math.round(percentage / 5)));
+function getNoteOnTwenty(score: number, maxScore: number) {
+  if (!Number.isFinite(score) || !Number.isFinite(maxScore) || maxScore <= 0) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(20, Number(((score / maxScore) * 20).toFixed(1))));
 }
 
 function getErrorText(error?: IqResultPageProps["error"]) {
@@ -61,7 +55,7 @@ function getErrorText(error?: IqResultPageProps["error"]) {
     return "Impossible de charger ce resultat pour le moment.";
   }
 
-  return "Ce résultat de test de logique est invalide ou introuvable.";
+  return "Ce resultat de test de logique est invalide ou introuvable.";
 }
 
 export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
@@ -70,7 +64,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
       <div className="mx-auto max-w-3xl py-10">
         <Alert variant="destructive">
           <AlertTriangle className="h-5 w-5" />
-          <AlertTitle>Résultat introuvable</AlertTitle>
+          <AlertTitle>Resultat introuvable</AlertTitle>
           <AlertDescription>{getErrorText(error)}</AlertDescription>
         </Alert>
       </div>
@@ -80,9 +74,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
   const answeredProgress = result.totalQuestions > 0 ? Math.round((result.answeredQuestions / result.totalQuestions) * 100) : 0;
   const totalPossibleScore = result.sectionBreakdown.reduce((total, section) => total + section.maxScore, 0);
   const precisionProgress = totalPossibleScore > 0 ? clampScore((result.rawScore / totalPossibleScore) * 100) : 0;
-  const speedProgress = result.averageResponseTimeMs ? clampScore((1 - result.averageResponseTimeMs / SPEED_REFERENCE_MS) * 100) : 0;
-  const cognitiveScore = result.averageResponseTimeMs ? clampScore(precisionProgress * 0.85 + speedProgress * 0.15) : precisionProgress;
-  const iqRange = estimateIqRange(cognitiveScore);
+  const cognitiveScore = precisionProgress;
   const rankedSections = sectionScores
     .map((section) => {
       const value = result.sectionBreakdown.find((item) => item.key === section.key);
@@ -92,7 +84,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
         score: value?.score ?? 0,
         maxScore: value?.maxScore ?? 0,
         percentage: value?.percentage ?? 0,
-        note: getCategoryNote(value?.percentage ?? 0),
+        note: getNoteOnTwenty(value?.score ?? 0, value?.maxScore ?? 0),
       };
     })
     .filter((section) => section.maxScore > 0);
@@ -104,9 +96,9 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
         <div>
           <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
             <Brain className="mr-1 h-3.5 w-3.5" />
-            Résultat indicatif
+            Resultat indicatif
           </Badge>
-          <h1 className="text-3xl font-bold tracking-tight">Votre résultat brainspark</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Votre resultat brainspark</h1>
           {userPseudo ? <p className="text-muted-foreground">Connecte en tant que {userPseudo}</p> : null}
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -133,12 +125,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
                 <Trophy className="h-6 w-6" />
               </div>
               <p className="text-sm font-semibold uppercase tracking-wide text-white/60">{result.testTitle}</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">
-                QI probablement entre {iqRange.min} et {iqRange.max}
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/75 md:text-base">
-                Estimation ludique basée sur vos réponses, votre régularité par catégorie et la rapidité quand elle est disponible.
-              </p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">Nous vous remercions pour votre aide</h2>
             </div>
 
             <div className="rounded-2xl bg-white p-5 text-slate-950">
@@ -152,7 +139,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
               <Progress value={cognitiveScore} className="mt-4 h-2" />
               <p className="mt-3 text-sm font-semibold text-slate-700">{getProfileLabel(cognitiveScore)}</p>
               <p className="mt-1 text-xs text-slate-500">
-                {result.answeredQuestions}/{result.totalQuestions} questions répondues
+                {result.answeredQuestions}/{result.totalQuestions} questions repondues
               </p>
             </div>
           </div>
@@ -162,7 +149,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
       <div className="mb-6 grid gap-4 md:grid-cols-3">
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">Réussite</p>
+            <p className="text-sm text-muted-foreground">Reussite</p>
             <p className="mt-2 text-3xl font-bold">{precisionProgress}%</p>
             <p className="mt-1 text-xs text-muted-foreground">
               {result.rawScore} / {totalPossibleScore || result.totalQuestions} points
@@ -171,7 +158,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
         </Card>
         <Card className="border-0 shadow-sm">
           <CardContent className="p-4">
-            <p className="text-sm text-muted-foreground">Réponses données</p>
+            <p className="text-sm text-muted-foreground">Reponses donnees</p>
             <p className="mt-2 text-3xl font-bold">{answeredProgress}%</p>
             <p className="mt-1 text-xs text-muted-foreground">
               {result.answeredQuestions} / {result.totalQuestions}
@@ -188,7 +175,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
                 </Badge>
               ))}
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">Les catégories où vous avez le mieux performé.</p>
+            <p className="mt-2 text-xs text-muted-foreground">Les categories ou vous avez le mieux performe.</p>
           </CardContent>
         </Card>
       </div>
@@ -197,7 +184,7 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
         <CardContent className="p-5">
           <div className="mb-4 flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-[#E91663]" />
-            <h2 className="text-xl font-bold">Vos notes par catégorie</h2>
+            <h2 className="text-xl font-bold">Vos notes par categorie</h2>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -222,21 +209,13 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
           <div>
             <div className="flex items-center gap-2 font-bold text-slate-950">
               <Share2 className="h-5 w-5 text-[#E91663]" />
-              À comparer avec vos amis
+              A comparer avec vos amis
             </div>
-            <p className="mt-1 text-sm text-slate-600">
-              Votre score partageable : {cognitiveScore}/100, QI estimé {iqRange.min}-{iqRange.max}.
-            </p>
+            <p className="mt-1 text-sm text-slate-600">Votre score partageable : {cognitiveScore}/100.</p>
           </div>
           <Badge className="w-fit bg-[#E91663] text-white hover:bg-[#E91663]">{getProfileLabel(cognitiveScore)}</Badge>
         </CardContent>
       </Card>
-
-      <Alert className="mt-6">
-        <AlertTriangle className="h-5 w-5" />
-        <AlertTitle>Estimation non officielle</AlertTitle>
-        <AlertDescription>Cette fourchette est une estimation ludique issue du sondage brainspark. Elle ne remplace pas un test psychométrique officiel.</AlertDescription>
-      </Alert>
     </div>
   );
 }

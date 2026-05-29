@@ -4,7 +4,7 @@ import type { IqAttemptPhase } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { getFirstUnansweredQuestionIndex, saveIqDraftAnswer } from "@/components/iq/iq-draft-storage";
+import { getFirstUnansweredQuestionIndex, saveIqDraftAnswer, saveIqDraftSpeedTotalTime } from "@/components/iq/iq-draft-storage";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
 import { ResultEmailForm } from "@/components/results/result-email-form";
 import { AlertTriangle, Brain, Loader2, Pause, Play, TimerReset, Zap } from "lucide-react";
@@ -89,6 +89,14 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const stimulusText = currentQuestion?.stimulusText?.trim() || "";
   const phaseTimeTotal = Math.max(data?.phaseTimeLimitSeconds ?? 120, 1);
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / phaseTimeTotal) * 100));
+
+  const rememberSpeedPhaseTotalTime = () => {
+    if (!data || !isGuestAttempt) return;
+
+    const elapsedMs = Math.min(Math.max((phaseTimeTotal - timeRemaining) * 1000, 0), phaseTimeTotal * 1000);
+    const totalTimeMs = phaseTimeoutRef.current ? phaseTimeTotal * 1000 : elapsedMs;
+    saveIqDraftSpeedTotalTime(data.attempt.token, totalTimeMs);
+  };
 
   useEffect(() => {
     if (!data || !isGuestAttempt) return;
@@ -189,6 +197,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
     if (!data || hasCompletionStartedRef.current) return;
 
     if (isGuestAttempt) {
+      rememberSpeedPhaseTotalTime();
       setCompletionState({
         userAttached: false,
         redirectUrl: null,
@@ -230,6 +239,9 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
     if (!currentQuestion || !data) return;
 
     if (phaseTimeoutRef.current) {
+      if (isGuestAttempt) {
+        rememberSpeedPhaseTotalTime();
+      }
       phaseTimeoutRef.current = false;
       if (data.nextUrl) {
         router.push(data.nextUrl);
@@ -248,6 +260,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
 
     if (isGuestAttempt) {
       if (currentQuestionIndex >= questions.length - 1) {
+        rememberSpeedPhaseTotalTime();
         if (data.nextUrl) {
           router.push(data.nextUrl);
           return;
