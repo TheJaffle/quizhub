@@ -270,7 +270,18 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
         </Card>
       ) : currentQuestion ? (
         <div className="space-y-2 md:space-y-6">
-          <Card className="overflow-hidden border-0 shadow-xl">
+          <Card className="relative overflow-hidden border-0 shadow-xl">
+            <div className="absolute right-2 top-2 z-10 flex max-w-[78vw] flex-wrap justify-end gap-1">
+              <Badge className="bg-indigo-500 px-2 py-0.5 text-[10px] text-white hover:bg-indigo-600">
+                {currentSection?.label}
+              </Badge>
+              <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
+                {currentQuestionNumber}/{totalQuestions}
+              </Badge>
+              <Badge variant="outline" className="bg-white/95 px-2 py-0.5 text-[10px]">
+                {currentQuestion.questionKey}
+              </Badge>
+            </div>
             <CardContent className="grid gap-3 p-2 md:grid-cols-2 md:gap-6 md:p-6">
               <div className="space-y-2">
                 <div className="space-y-1">
