@@ -128,6 +128,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
   const currentSection = review?.sections[sectionIndex] ?? null;
   const currentQuestion = currentSection && questionIndex >= 0 ? currentSection.questions[questionIndex] ?? null : null;
   const currentQuestionNumber = currentQuestion ? answeredPrefixCount + questionIndex + 1 : answeredPrefixCount;
+  const shouldShowOptionList = Boolean(currentQuestion?.options.length) && !currentQuestion?.answersImageUrl;
 
   const handleAdvance = () => {
     if (!review || !currentSection) return;
@@ -191,16 +192,18 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
   const canGoBack = finished || sectionIndex > 0 || questionIndex >= 0;
 
   return (
-    <div className="mx-auto max-w-5xl px-3 py-3 md:px-0 md:py-8">
-      <div className="mb-4 space-y-3 md:mb-8 md:space-y-4">
-        <div>
-          <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
-            <Search className="mr-1 h-3.5 w-3.5" />
-            Relecture sondage
-          </Badge>
-          <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Revoir les reponses d&apos;un sondage</h1>
-          <p className="mt-2 text-muted-foreground">Entrez l&apos;adresse mail d&apos;un participant pour afficher, categorie par categorie, les questions auxquelles il a repondu.</p>
-        </div>
+    <div className="mx-auto max-w-5xl px-2 py-2 md:px-0 md:py-8">
+      <div className="mb-3 space-y-3 md:mb-8 md:space-y-4">
+        {!hideLookupForm ? (
+          <div>
+            <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
+              <Search className="mr-1 h-3.5 w-3.5" />
+              Relecture sondage
+            </Badge>
+            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Revoir les reponses d&apos;un sondage</h1>
+            <p className="mt-2 text-muted-foreground">Entrez l&apos;adresse mail d&apos;un participant pour afficher, categorie par categorie, les questions auxquelles il a repondu.</p>
+          </div>
+        ) : null}
 
         {!hideLookupForm ? (
           <Card className="border-0 shadow-sm">
@@ -260,7 +263,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
           </CardContent>
         </Card>
       ) : currentQuestion ? (
-        <div className="space-y-4 md:space-y-6">
+        <div className="space-y-3 md:space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-2 md:gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">{currentSection?.label}</Badge>
@@ -273,22 +276,22 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
           </div>
 
           <Card className="overflow-hidden border-0 shadow-xl">
-            <CardContent className="grid gap-4 p-3 md:grid-cols-2 md:gap-6 md:p-6">
-              <div className="space-y-3">
-                <div className="space-y-2">
+            <CardContent className="grid gap-3 p-2 md:grid-cols-2 md:gap-6 md:p-6">
+              <div className="space-y-2">
+                <div className="space-y-1">
                   {getQuestionLead(currentQuestion).map((line, index) => (
-                    <h2 key={`${currentQuestion.questionKey}-${index}`} className="text-lg font-bold leading-tight md:text-3xl">
+                    <h2 key={`${currentQuestion.questionKey}-${index}`} className="text-base font-bold leading-tight md:text-3xl">
                       {line}
                     </h2>
                   ))}
                   {getAnswerPrompt(currentQuestion) ? (
-                    <p className="text-sm font-medium leading-snug text-muted-foreground md:text-lg">{getAnswerPrompt(currentQuestion)}</p>
+                    <p className="text-xs font-medium leading-snug text-muted-foreground md:text-lg">{getAnswerPrompt(currentQuestion)}</p>
                   ) : null}
                 </div>
 
                 {currentQuestion.sectionKey === "audio_memory" && currentQuestion.promptAudioUrl ? (
-                  <div className="rounded-xl border bg-slate-50 p-3 md:p-4">
-                    <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <div className="rounded-xl border bg-slate-50 p-2 md:p-4">
+                    <div className="mb-1 flex items-center gap-2 text-xs font-semibold text-slate-700 md:text-sm">
                       <Headphones className="h-4 w-4" />
                       Piste sonore
                     </div>
@@ -306,11 +309,13 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                           width={900}
                           height={600}
                           sizes="(max-width: 768px) 100vw, 50vw"
-                          className="max-h-[22vh] w-full object-contain md:max-h-[38vh]"
+                          className="max-h-[16vh] w-full object-contain md:max-h-[38vh]"
                         />
                       </div>
                     ) : null}
-                    <div className="rounded-xl border bg-slate-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 md:px-4 md:py-3 md:text-sm">Reponses possibles</div>
+                    <div className="rounded-xl border bg-slate-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:px-4 md:py-3 md:text-sm">
+                      Reponses possibles
+                    </div>
                     <div className="relative overflow-hidden rounded-xl border bg-muted/30">
                       <Image
                         src={currentQuestion.answersImageUrl}
@@ -318,7 +323,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                         width={900}
                         height={600}
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="max-h-[24vh] w-full object-contain md:max-h-[38vh]"
+                        className="max-h-[20vh] w-full object-contain md:max-h-[38vh]"
                       />
                     </div>
                   </div>
@@ -330,11 +335,11 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                       width={900}
                       height={600}
                       sizes="(max-width: 768px) 100vw, 50vw"
-                      className="max-h-[28vh] w-full object-contain md:max-h-[42vh]"
+                      className="max-h-[18vh] w-full object-contain md:max-h-[42vh]"
                     />
                   </div>
                 ) : (
-                  <div className="flex min-h-[120px] items-center justify-center rounded-xl border bg-muted/20 p-4 text-center text-muted-foreground md:min-h-[220px] md:p-6">
+                  <div className="hidden min-h-[120px] items-center justify-center rounded-xl border bg-muted/20 p-4 text-center text-muted-foreground md:flex md:min-h-[220px] md:p-6">
                     <div>
                       <ImageIcon className="mx-auto mb-3 h-8 w-8" />
                       <p className="text-sm">Question textuelle</p>
@@ -342,12 +347,12 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                   </div>
                 )}
 
-                {currentQuestion.options.length > 0 ? (
+                {shouldShowOptionList ? (
                   <div className="space-y-2">
-                    <div className="rounded-xl border bg-slate-50 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 md:px-4 md:py-3 md:text-sm">
+                    <div className="rounded-xl border bg-slate-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:px-4 md:py-3 md:text-sm">
                       Propositions
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {currentQuestion.options.map((option) => {
                         const isSelected = currentQuestion.selectedOptionKey === option.key;
                         const isCorrect = currentQuestion.correctOptionKey === option.key;
@@ -384,11 +389,11 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                 ) : null}
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {currentQuestion.isCorrect ? (
-                  <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-green-800 md:p-4">
-                    <div className="mb-1 flex items-center gap-2 font-bold">
-                      <CheckCircle2 className="h-5 w-5" />
+                  <div className="rounded-xl border border-green-200 bg-green-50 p-2.5 text-green-800 md:p-4">
+                    <div className="mb-1 flex items-center gap-2 text-sm font-bold md:text-base">
+                      <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5" />
                       Bonne reponse !!!
                     </div>
                     <p className="text-sm md:text-base">
@@ -396,9 +401,9 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                     </p>
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-red-700 md:p-4">
-                    <div className="mb-1 flex items-center gap-2 font-bold">
-                      <XCircle className="h-5 w-5" />
+                  <div className="rounded-xl border border-red-200 bg-red-50 p-2.5 text-red-700 md:p-4">
+                    <div className="mb-1 flex items-center gap-2 text-sm font-bold md:text-base">
+                      <XCircle className="h-4 w-4 md:h-5 md:w-5" />
                       Reponse incorrecte
                     </div>
                     <p className="text-sm md:text-base">
@@ -407,13 +412,13 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                   </div>
                 )}
 
-                <div className="rounded-xl border bg-slate-50 p-3 md:p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 md:text-sm">Il fallait repondre</p>
-                  <p className="mt-1 text-base font-semibold text-slate-950 md:mt-2 md:text-lg">{formatAnswer(currentQuestion, "correct")}</p>
+                <div className="rounded-xl border bg-slate-50 p-2.5 md:p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 md:text-sm">Il fallait repondre</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-950 md:mt-2 md:text-lg">{formatAnswer(currentQuestion, "correct")}</p>
                 </div>
 
                 {currentQuestion.responseTimeMs !== null ? (
-                  <div className="rounded-xl border bg-background p-3 text-xs text-muted-foreground md:p-4 md:text-sm">
+                  <div className="rounded-xl border bg-background p-2.5 text-[11px] text-muted-foreground md:p-4 md:text-sm">
                     Temps de reponse : {(currentQuestion.responseTimeMs / 1000).toFixed(2)} s
                   </div>
                 ) : null}
