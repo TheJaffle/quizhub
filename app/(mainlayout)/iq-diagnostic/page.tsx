@@ -48,9 +48,15 @@ function answerValue(key: string | null, text: string | null, position: number |
   return text ?? "-";
 }
 
+function sourceLabel(source: "recorded" | "expected_missing") {
+  return source === "recorded" ? "enreg." : "manque";
+}
+
 export default async function IqDiagnosticPage() {
   const { attempts, error } = await getIqDiagnosticAttempts();
   const answers = attempts.flatMap((attempt) => attempt.answers);
+  const recordedAnswers = answers.filter((answer) => answer.source === "recorded");
+  const missingAnswers = answers.filter((answer) => answer.source === "expected_missing");
   const emailCount = new Set(attempts.map((attempt) => attempt.email).filter(Boolean)).size;
 
   if (error) {
@@ -74,7 +80,9 @@ export default async function IqDiagnosticPage() {
           </Badge>
           <h1 className="text-2xl font-bold tracking-tight">Diagnostic des réponses QI</h1>
           <p className="text-sm text-muted-foreground">
-            {emailCount} email(s), {attempts.length} tentative(s), {answers.length} réponse(s) enregistrée(s).
+            {emailCount} email(s), {attempts.length} tentative(s), {recordedAnswers.length} réponse(s) enregistrée(s),
+            {" "}
+            {missingAnswers.length} question(s) attendue(s) sans détail.
           </p>
         </div>
       </div>
@@ -90,7 +98,7 @@ export default async function IqDiagnosticPage() {
               <th className="border-b px-1.5 py-1">Statut</th>
               <th className="border-b px-1.5 py-1">Réponses</th>
               {sectionColumns.map((section) => (
-                <th key={section.key} className="border-b px-1.5 py-1 text-center" colSpan={2}>
+                <th key={section.key} className="border-b px-1.5 py-1 text-center" colSpan={3}>
                   {section.label}
                 </th>
               ))}
@@ -103,6 +111,9 @@ export default async function IqDiagnosticPage() {
                 <Fragment key={`${section.key}-subhead`}>
                   <th className="border-b px-1.5 py-1 text-center">
                     R
+                  </th>
+                  <th className="border-b px-1.5 py-1 text-center">
+                    E
                   </th>
                   <th className="border-b px-1.5 py-1 text-center">
                     S
@@ -121,16 +132,20 @@ export default async function IqDiagnosticPage() {
                 <td className="border-b px-1.5 py-1">{attempt.testTitle}</td>
                 <td className="border-b px-1.5 py-1">{attempt.status}</td>
                 <td className="border-b px-1.5 py-1 whitespace-nowrap">
-                  {attempt.answers.length} / {attempt.totalQuestions || attempt.answeredQuestions || "-"}
+                  {attempt.answers.filter((answer) => answer.source === "recorded").length} / {attempt.totalQuestions || attempt.answeredQuestions || "-"}
                 </td>
                 {sectionColumns.map((section) => {
                   const count = attempt.sectionCounts[section.key] ?? 0;
+                  const expectedCount = attempt.expectedSectionCounts[section.key] ?? 0;
                   const score = attempt.sectionScores[section.key] ?? null;
 
                   return (
                     <Fragment key={section.key}>
                       <td className={`border-b px-1.5 py-1 text-center font-semibold ${count === 0 ? "text-red-500" : "text-emerald-700"}`}>
                         {count}
+                      </td>
+                      <td className={`border-b px-1.5 py-1 text-center font-semibold ${expectedCount > count ? "text-amber-700" : "text-slate-500"}`}>
+                        {expectedCount || "-"}
                       </td>
                       <td className={`border-b px-1.5 py-1 text-center font-semibold ${score === null ? "text-muted-foreground" : score > 0 ? "text-blue-700" : "text-slate-500"}`}>
                         {score ?? "-"}
@@ -153,6 +168,7 @@ export default async function IqDiagnosticPage() {
               <th className="border-b px-1.5 py-1">Date</th>
               <th className="border-b px-1.5 py-1">Email</th>
               <th className="border-b px-1.5 py-1">Pseudo</th>
+              <th className="border-b px-1.5 py-1">Donnée</th>
               <th className="border-b px-1.5 py-1">Section</th>
               <th className="border-b px-1.5 py-1">Question</th>
               <th className="border-b px-1.5 py-1">Réponse donnée</th>
@@ -165,18 +181,28 @@ export default async function IqDiagnosticPage() {
           </thead>
           <tbody>
             {answers.map((answer, index) => (
-              <tr key={`${answer.attemptId}-${answer.questionKey}-${index}`} className="odd:bg-muted/20">
+              <tr
+                key={`${answer.attemptId}-${answer.questionKey}-${index}`}
+                className={`${answer.source === "expected_missing" ? "bg-amber-50 text-slate-500" : "odd:bg-muted/20"}`}
+              >
                 <td className="border-b px-1.5 py-1 whitespace-nowrap">{formatDate(answer.answeredAt ?? answer.startedAt)}</td>
                 <td className="border-b px-1.5 py-1">{answer.email ?? "-"}</td>
                 <td className="border-b px-1.5 py-1">{answer.pseudo ?? "-"}</td>
+                <td className={`border-b px-1.5 py-1 font-semibold ${answer.source === "recorded" ? "text-emerald-700" : "text-amber-700"}`}>
+                  {sourceLabel(answer.source)}
+                </td>
                 <td className="border-b px-1.5 py-1 whitespace-nowrap">{answer.sectionKey ?? "-"}</td>
                 <td className="border-b px-1.5 py-1">
                   <span className="font-mono">{answer.questionKey ?? "-"}</span> {compactText(answer.questionText)}
                 </td>
-                <td className="border-b px-1.5 py-1">{compactText(answerValue(answer.selectedOptionKey, answer.selectedOptionText, answer.selectedPosition), 70)}</td>
+                <td className="border-b px-1.5 py-1">
+                  {answer.source === "expected_missing"
+                    ? "Réponse non enregistrée dans iq_attempt_answers"
+                    : compactText(answerValue(answer.selectedOptionKey, answer.selectedOptionText, answer.selectedPosition), 70)}
+                </td>
                 <td className="border-b px-1.5 py-1">{compactText(answerValue(answer.correctOptionKey, answer.correctOptionText, answer.correctPosition), 70)}</td>
-                <td className={`border-b px-1.5 py-1 font-bold ${answer.isCorrect ? "text-emerald-700" : "text-red-600"}`}>
-                  {answer.isCorrect ? "OUI" : "NON"}
+                <td className={`border-b px-1.5 py-1 font-bold ${answer.isCorrect ? "text-emerald-700" : answer.isCorrect === false ? "text-red-600" : "text-slate-500"}`}>
+                  {answer.isCorrect === null ? "-" : answer.isCorrect ? "OUI" : "NON"}
                 </td>
                 <td className="border-b px-1.5 py-1">{answer.pointsEarned}</td>
                 <td className="border-b px-1.5 py-1 whitespace-nowrap">{answer.responseTimeMs === null ? "-" : `${answer.responseTimeMs} ms`}</td>
