@@ -211,8 +211,8 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
 
   return (
     <div className="mx-auto max-w-5xl px-2 py-1 md:px-0 md:py-8">
-      <div className="mb-2 space-y-2 md:mb-8 md:space-y-4">
-        {!hideLookupForm ? (
+      {!hideLookupForm ? (
+        <div className="mb-2 space-y-2 md:mb-8 md:space-y-4">
           <div>
             <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
               <Search className="mr-1 h-3.5 w-3.5" />
@@ -221,9 +221,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
             <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Revoir les reponses d&apos;un sondage</h1>
             <p className="mt-2 text-muted-foreground">Entrez l&apos;adresse mail d&apos;un participant pour afficher, categorie par categorie, les questions auxquelles il a repondu.</p>
           </div>
-        ) : null}
 
-        {!hideLookupForm ? (
           <Card className="border-0 shadow-sm">
             <CardContent className="p-4">
               <form action="/iq/sondage-review" method="get" className="flex flex-col gap-3 md:flex-row">
@@ -235,8 +233,8 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
               </form>
             </CardContent>
           </Card>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
       {!review ? (
         initialEmail ? (
@@ -281,9 +279,9 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
           </CardContent>
         </Card>
       ) : currentQuestion ? (
-        <div className="space-y-2 md:space-y-6">
+        <div className="space-y-1 md:space-y-6">
           <Card className="relative overflow-hidden border-0 shadow-xl">
-            <CardContent className="grid gap-3 p-2 md:grid-cols-2 md:gap-6 md:p-6">
+            <CardContent className="grid gap-3 px-2 pb-2 pt-1 md:grid-cols-2 md:gap-6 md:p-6">
               <div className="space-y-2">
                 <div className="space-y-2">
                   <div className="flex flex-wrap gap-1">
