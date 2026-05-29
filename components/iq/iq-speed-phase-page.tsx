@@ -4,6 +4,7 @@ import type { IqAttemptPhase } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { getFirstUnansweredQuestionIndex, saveIqDraftAnswer } from "@/components/iq/iq-draft-storage";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
 import { ResultEmailForm } from "@/components/results/result-email-form";
 import { AlertTriangle, Brain, Loader2, Pause, Play, TimerReset, Zap } from "lucide-react";
@@ -80,6 +81,7 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
+  const isGuestAttempt = !data?.attempt.userId;
   const questionTimeLimitSeconds =
     currentQuestion?.timeLimitSeconds && currentQuestion.timeLimitSeconds > 0
       ? currentQuestion.timeLimitSeconds
@@ -87,6 +89,12 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const stimulusText = currentQuestion?.stimulusText?.trim() || "";
   const phaseTimeTotal = Math.max(data?.phaseTimeLimitSeconds ?? 120, 1);
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / phaseTimeTotal) * 100));
+
+  useEffect(() => {
+    if (!data || !isGuestAttempt) return;
+
+    setCurrentQuestionIndex(getFirstUnansweredQuestionIndex(data.attempt.token, questions));
+  }, [data, isGuestAttempt, questions]);
 
   useLayoutEffect(() => {
     isSubmittingRef.current = false;
@@ -180,6 +188,15 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
   const handleComplete = async () => {
     if (!data || hasCompletionStartedRef.current) return;
 
+    if (isGuestAttempt) {
+      setCompletionState({
+        userAttached: false,
+        redirectUrl: null,
+        guestResultReady: true,
+      });
+      return;
+    }
+
     hasCompletionStartedRef.current = true;
     setIsCompleting(true);
     setSaveError(null);
@@ -229,6 +246,21 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
       return;
     }
 
+    if (isGuestAttempt) {
+      if (currentQuestionIndex >= questions.length - 1) {
+        if (data.nextUrl) {
+          router.push(data.nextUrl);
+          return;
+        }
+
+        await handleComplete();
+        return;
+      }
+
+      setCurrentQuestionIndex((current) => current + 1);
+      return;
+    }
+
     setCurrentQuestionIndex(0);
     setIsRefreshingPhase(true);
     router.refresh();
@@ -244,16 +276,17 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
     try {
       const answeredAt = new Date();
       const responseTimeMs = body.responseTimeMs ?? Math.max(answeredAt.getTime() - displayedAtRef.current.getTime(), 0);
-      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/answers`, {
+      const requestBody = {
+        ...body,
+        responseTimeMs,
+        displayedAt: displayedAtRef.current.toISOString(),
+      };
+      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/${isGuestAttempt ? "validate-answer" : "answers"}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...body,
-          responseTimeMs,
-          displayedAt: displayedAtRef.current.toISOString(),
-        }),
+        body: JSON.stringify(requestBody),
       });
       const payload = await response.json();
 
@@ -261,6 +294,9 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
         throw new Error(payload.error || "Impossible d'enregistrer la reponse.");
       }
 
+      if (isGuestAttempt) {
+        saveIqDraftAnswer(data.attempt.token, requestBody);
+      }
       await continueAfterSave();
     } catch (answerError) {
       isSubmittingRef.current = false;
@@ -296,9 +332,13 @@ export function IqSpeedPhasePage({ data, error }: IqSpeedPhasePageProps) {
       }
 
       if (action === "refresh") {
-        setCurrentQuestionIndex(0);
-        setIsRefreshingPhase(true);
-        router.refresh();
+        if (isGuestAttempt) {
+          setCurrentQuestionIndex((current) => current + 1);
+        } else {
+          setCurrentQuestionIndex(0);
+          setIsRefreshingPhase(true);
+          router.refresh();
+        }
       }
       return;
     }

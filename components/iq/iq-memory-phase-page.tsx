@@ -4,7 +4,9 @@ import type { IqAttemptPhase } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { getFirstUnansweredQuestionIndex, saveIqDraftAnswer } from "@/components/iq/iq-draft-storage";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
+import { ResultEmailForm } from "@/components/results/result-email-form";
 import { AlertTriangle, Brain, Loader2, Pause, Play } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -20,6 +22,12 @@ type SavedAnswer = {
   isCorrect: boolean;
   correctOptionId: number | null;
   pointsEarned: number;
+};
+
+type CompletionState = {
+  userAttached: boolean;
+  redirectUrl: string | null;
+  guestResultReady: boolean;
 };
 
 const DEFAULT_DISPLAY_SECONDS = 10;
@@ -70,6 +78,7 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
   const [savedAnswer, setSavedAnswer] = useState<SavedAnswer | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [completionState, setCompletionState] = useState<CompletionState | null>(null);
   const [direction, setDirection] = useState(0);
   const [pauseRequested, setPauseRequested] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -79,12 +88,19 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
+  const isGuestAttempt = !data?.attempt.userId;
   const displaySeconds = currentQuestion?.displayTimeSeconds ?? DEFAULT_DISPLAY_SECONDS;
   const answerSeconds = currentQuestion?.timeLimitSeconds ?? DEFAULT_ANSWER_SECONDS;
   const timeTotal = Math.max(mode === "memorize" ? displaySeconds : answerSeconds, 1);
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / timeTotal) * 100));
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const stimulusText = currentQuestion?.stimulusText || currentQuestion?.questionText || "";
+
+  useEffect(() => {
+    if (!data || !isGuestAttempt) return;
+
+    setCurrentQuestionIndex(getFirstUnansweredQuestionIndex(data.attempt.token, questions));
+  }, [data, isGuestAttempt, questions]);
 
   useEffect(() => {
     if (!data || questions.length > 0 || !data.nextUrl) return;
@@ -175,6 +191,15 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     if (isLastQuestion) {
       if (data.nextUrl) {
         router.push(data.nextUrl);
+        return;
+      }
+
+      if (isGuestAttempt) {
+        setCompletionState({
+          userAttached: false,
+          redirectUrl: null,
+          guestResultReady: true,
+        });
       }
       return;
     }
@@ -194,16 +219,17 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
     setSaveError(null);
 
     try {
-      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/answers`, {
+      const requestBody = {
+        ...body,
+        responseTimeMs,
+        displayedAt: answerDisplayedAtRef.current.toISOString(),
+      };
+      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/${isGuestAttempt ? "validate-answer" : "answers"}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...body,
-          responseTimeMs,
-          displayedAt: answerDisplayedAtRef.current.toISOString(),
-        }),
+        body: JSON.stringify(requestBody),
       });
       const payload = await response.json();
 
@@ -212,6 +238,9 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
       }
 
       setSavedAnswer(payload.answer);
+      if (isGuestAttempt) {
+        saveIqDraftAnswer(data.attempt.token, requestBody);
+      }
 
       if (feedbackTimeoutRef.current) {
         clearTimeout(feedbackTimeoutRef.current);
@@ -257,6 +286,21 @@ export function IqMemoryPhasePage({ data, error }: IqMemoryPhasePageProps) {
           <AlertTitle>Phase memoire indisponible</AlertTitle>
           <AlertDescription>{error || "Cette tentative de test de logique est introuvable."}</AlertDescription>
         </Alert>
+      </div>
+    );
+  }
+
+  if (completionState?.guestResultReady) {
+    return (
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <Card className="p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+            <Brain className="h-9 w-9" />
+          </div>
+          <h2 className="mb-2 text-2xl font-bold">Votre resultat est pret</h2>
+          <p className="mb-6 text-muted-foreground">Recevez un lien securise par email pour consulter votre resultat.</p>
+          <ResultEmailForm resultType="iq" resultToken={data.attempt.token} />
+        </Card>
       </div>
     );
   }

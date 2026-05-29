@@ -103,6 +103,10 @@ export type SaveIqAttemptAnswerPayload = {
   displayedAt?: string | null;
 };
 
+export type PersistIqAttemptDraftPayload = {
+  answers: SaveIqAttemptAnswerPayload[];
+};
+
 export type SaveIqAttemptAnswerResult =
   | {
       answer: {
@@ -407,6 +411,20 @@ type IqExistingAnswerRow = {
   correct_option_id: number | null;
   correct_position: number | null;
   points_earned: string | number;
+};
+
+type PreparedIqAnswerRow = IqAnswerCheckRow & {
+  overlay_correct_position: number | null;
+  overlay_answer_count: string | number | null;
+  correct_position: number | null;
+};
+
+type PreparedIqAnswer = {
+  answerData: PreparedIqAnswerRow;
+  isCorrect: boolean;
+  pointsEarned: number;
+  responseTimeMs: number | null;
+  safeDisplayedAt: string | null;
 };
 
 type IqMemoryIntroRow = {
@@ -2072,6 +2090,18 @@ export async function advanceIqLongMemoryAfterAnswer(token: string, returnToUrl:
       state.afterCurrentAnswerAction = "advance";
       await updateLongMemoryStateByAttemptId(connection, attemptData.row.attempt_id, state);
 
+      if (!attemptData.row.user_id) {
+        return {
+          nextUrl: returnToUrl,
+          completion: {
+            attemptToken: token,
+            userAttached: false,
+            redirectUrl: null,
+            guestResultReady: true,
+          },
+        };
+      }
+
       const completionResult = await completeIqAttempt(token);
 
       return {
@@ -2727,6 +2757,129 @@ export async function getIqAttemptPhase(token: string, phase: "main" | "memory" 
   }
 }
 
+async function prepareIqAttemptAnswer(
+  connection: mysql.Connection,
+  token: string,
+  payload: SaveIqAttemptAnswerPayload
+): Promise<{ prepared: PreparedIqAnswer | null; error: string | null }> {
+  const hasSelectedOption = Number.isInteger(payload.selectedOptionId);
+  const hasSelectedPosition = Number.isInteger(payload.selectedPosition);
+
+  if (!Number.isInteger(payload.questionId)) {
+    return { prepared: null, error: "RÃ©ponse invalide." };
+  }
+
+  const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id,
+                            q.difficulty_level, q.weight, q.question_format,
+                            selected.id AS selected_option_id, selected.is_correct,
+                            correct.id AS correct_option_id,
+                            selected.position AS selected_position,
+                            correct.position AS correct_position,
+                            overlay.correct_position AS overlay_correct_position,
+                            overlay.answer_count AS overlay_answer_count
+                     FROM iq_attempts a
+                     INNER JOIN iq_tests t ON t.id = a.test_id
+                     INNER JOIN iq_questions q ON q.test_id = COALESCE(t.question_bank_test_id, a.test_id)
+                     INNER JOIN iq_sections s ON s.id = q.section_id
+                     LEFT JOIN iq_question_options selected ON selected.question_id = q.id AND selected.id = ? AND selected.is_active = 1
+                     LEFT JOIN iq_question_options correct ON correct.question_id = q.id AND correct.is_correct = 1 AND correct.is_active = 1
+                     LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
+                     WHERE a.attempt_token = ?
+                       AND a.status = 'started'
+                       AND q.id = ?
+                       AND q.is_active = 1
+                       AND s.is_active = 1
+                       AND s.section_key IN ('verbal', 'logic', 'quantitative', 'spatial', 'memory', 'audio_memory', 'long_memory', 'speed')
+                     LIMIT 1`;
+  const [answerRows] = await connection.execute<mysql.RowDataPacket[]>(baseQuery, [
+    hasSelectedOption ? Number(payload.selectedOptionId) : null,
+    token,
+    payload.questionId,
+  ]);
+  const rawAnswerData = (answerRows as PreparedIqAnswerRow[])[0];
+
+  const isOverlayQuestion =
+    rawAnswerData?.question_format === "visual_overlay" || rawAnswerData?.question_format === "spatial_overlay";
+  const selectedPosition = hasSelectedPosition ? Number(payload.selectedPosition) : rawAnswerData?.selected_position ?? null;
+  const isTimedOut = !hasSelectedOption && !hasSelectedPosition;
+  const isMainSection =
+    rawAnswerData?.section_key === "verbal" ||
+    rawAnswerData?.section_key === "logic" ||
+    rawAnswerData?.section_key === "quantitative" ||
+    rawAnswerData?.section_key === "long_memory" ||
+    rawAnswerData?.section_key === "spatial";
+  const allowsTimeoutAnswer =
+    isMainSection ||
+    rawAnswerData?.section_key === "memory" ||
+    rawAnswerData?.section_key === "audio_memory" ||
+    rawAnswerData?.section_key === "speed";
+  const answerCount = rawAnswerData?.overlay_answer_count ? Number(rawAnswerData.overlay_answer_count) : null;
+
+  if (rawAnswerData && isTimedOut && !allowsTimeoutAnswer) {
+    return { prepared: null, error: "RÃ©ponse invalide." };
+  }
+
+  const answerData =
+    rawAnswerData && isTimedOut && allowsTimeoutAnswer
+      ? {
+          ...rawAnswerData,
+          selected_option_id: null,
+          is_correct: 0,
+          correct_option_id: rawAnswerData.correct_option_id ?? null,
+          selected_position: null,
+          correct_position: isOverlayQuestion ? rawAnswerData.overlay_correct_position : rawAnswerData.correct_position ?? null,
+        }
+      : rawAnswerData && isOverlayQuestion
+        ? {
+            ...rawAnswerData,
+            selected_option_id: null,
+            is_correct: selectedPosition === rawAnswerData.overlay_correct_position ? 1 : 0,
+            correct_option_id: null,
+            selected_position: selectedPosition,
+            correct_position: rawAnswerData.overlay_correct_position,
+          }
+        : rawAnswerData
+          ? { ...rawAnswerData, correct_position: rawAnswerData.correct_position ?? null }
+          : null;
+
+  if (!answerData) {
+    return { prepared: null, error: "Question ou rÃ©ponse introuvable pour cette tentative." };
+  }
+
+  if (!isTimedOut && isOverlayQuestion) {
+    const numericSelectedPosition = Number(selectedPosition);
+
+    if (!Number.isInteger(numericSelectedPosition) || !answerCount || numericSelectedPosition < 1 || numericSelectedPosition > answerCount || !answerData.correct_position) {
+      return { prepared: null, error: "Zone de rÃ©ponse invalide pour cette question." };
+    }
+  } else if (!isTimedOut && !answerData.selected_option_id) {
+    return { prepared: null, error: "Option de rÃ©ponse invalide pour cette question." };
+  }
+
+  const isCorrect = answerData.is_correct === 1;
+  const weight = Number(answerData.weight);
+  const pointsEarned = isCorrect ? weight : 0;
+  const responseTimeMsInput = payload.responseTimeMs;
+  const responseTimeMs =
+    typeof responseTimeMsInput === "number" && Number.isInteger(responseTimeMsInput) && responseTimeMsInput >= 0
+      ? responseTimeMsInput
+      : null;
+  const displayedAt = payload.displayedAt ? new Date(payload.displayedAt) : null;
+  const safeDisplayedAt =
+    displayedAt && !Number.isNaN(displayedAt.getTime()) ? displayedAt.toISOString().slice(0, 19).replace("T", " ") : null;
+
+  return {
+    prepared: {
+      answerData,
+      isCorrect,
+      pointsEarned,
+      responseTimeMs,
+      safeDisplayedAt,
+    },
+    error: null,
+  };
+}
+
 export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptAnswerPayload): Promise<SaveIqAttemptAnswerResult> {
   let connection: mysql.Connection | undefined;
 
@@ -2933,6 +3086,180 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
   } finally {
     await connection?.end();
   }
+}
+
+export async function previewIqAttemptAnswer(token: string, payload: SaveIqAttemptAnswerPayload): Promise<SaveIqAttemptAnswerResult> {
+  let connection: mysql.Connection | undefined;
+
+  const hasSelectedOption = Number.isInteger(payload.selectedOptionId);
+  const hasSelectedPosition = Number.isInteger(payload.selectedPosition);
+
+  if (!Number.isInteger(payload.questionId)) {
+    return { answer: null, error: "RÃ©ponse invalide." };
+  }
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+
+    const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id,
+                              q.difficulty_level, q.weight, q.question_format,
+                              selected.id AS selected_option_id, selected.is_correct,
+                              correct.id AS correct_option_id,
+                              selected.position AS selected_position,
+                              correct.position AS correct_position,
+                              overlay.correct_position AS overlay_correct_position,
+                              overlay.answer_count AS overlay_answer_count
+                       FROM iq_attempts a
+                       INNER JOIN iq_tests t ON t.id = a.test_id
+                       INNER JOIN iq_questions q ON q.test_id = COALESCE(t.question_bank_test_id, a.test_id)
+                       INNER JOIN iq_sections s ON s.id = q.section_id
+                       LEFT JOIN iq_question_options selected ON selected.question_id = q.id AND selected.id = ? AND selected.is_active = 1
+                       LEFT JOIN iq_question_options correct ON correct.question_id = q.id AND correct.is_correct = 1 AND correct.is_active = 1
+                       LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
+                       WHERE a.attempt_token = ?
+                         AND a.status = 'started'
+                         AND q.id = ?
+                         AND q.is_active = 1
+                         AND s.is_active = 1
+                         AND s.section_key IN ('verbal', 'logic', 'quantitative', 'spatial', 'memory', 'audio_memory', 'long_memory', 'speed')
+                       LIMIT 1`;
+    const [answerRows] = await connection.execute<mysql.RowDataPacket[]>(baseQuery, [
+      hasSelectedOption ? Number(payload.selectedOptionId) : null,
+      token,
+      payload.questionId,
+    ]);
+    const rawAnswerData = (answerRows as PreparedIqAnswerRow[])[0];
+
+    const isOverlayQuestion =
+      rawAnswerData?.question_format === "visual_overlay" || rawAnswerData?.question_format === "spatial_overlay";
+    const selectedPosition = hasSelectedPosition ? Number(payload.selectedPosition) : rawAnswerData?.selected_position ?? null;
+    const isTimedOut = !hasSelectedOption && !hasSelectedPosition;
+    const isMainSection =
+      rawAnswerData?.section_key === "verbal" ||
+      rawAnswerData?.section_key === "logic" ||
+      rawAnswerData?.section_key === "quantitative" ||
+      rawAnswerData?.section_key === "long_memory" ||
+      rawAnswerData?.section_key === "spatial";
+    const allowsTimeoutAnswer =
+      isMainSection ||
+      rawAnswerData?.section_key === "memory" ||
+      rawAnswerData?.section_key === "audio_memory" ||
+      rawAnswerData?.section_key === "speed";
+    const answerCount = rawAnswerData?.overlay_answer_count ? Number(rawAnswerData.overlay_answer_count) : null;
+
+    if (rawAnswerData && isTimedOut && !allowsTimeoutAnswer) {
+      return { answer: null, error: "RÃ©ponse invalide." };
+    }
+
+    const answerData =
+      rawAnswerData && isTimedOut && allowsTimeoutAnswer
+        ? {
+            ...rawAnswerData,
+            selected_option_id: null,
+            is_correct: 0,
+            correct_option_id: rawAnswerData.correct_option_id ?? null,
+            selected_position: null,
+            correct_position: isOverlayQuestion ? rawAnswerData.overlay_correct_position : rawAnswerData.correct_position ?? null,
+          }
+        : rawAnswerData && isOverlayQuestion
+          ? {
+              ...rawAnswerData,
+              selected_option_id: null,
+              is_correct: selectedPosition === rawAnswerData.overlay_correct_position ? 1 : 0,
+              correct_option_id: null,
+              selected_position: selectedPosition,
+              correct_position: rawAnswerData.overlay_correct_position,
+            }
+          : rawAnswerData
+            ? { ...rawAnswerData, correct_position: rawAnswerData.correct_position ?? null }
+            : null;
+
+    if (!answerData) {
+      return { answer: null, error: "Question ou rÃ©ponse introuvable pour cette tentative." };
+    }
+
+    if (!isTimedOut && isOverlayQuestion) {
+      const numericSelectedPosition = Number(selectedPosition);
+
+      if (!Number.isInteger(numericSelectedPosition) || !answerCount || numericSelectedPosition < 1 || numericSelectedPosition > answerCount || !answerData.correct_position) {
+        return { answer: null, error: "Zone de rÃ©ponse invalide pour cette question." };
+      }
+    } else if (!isTimedOut && !answerData.selected_option_id) {
+      return { answer: null, error: "Option de rÃ©ponse invalide pour cette question." };
+    }
+
+    const [existingRows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT aa.is_correct, aa.points_earned, aa.correct_position, correct.id AS correct_option_id
+       FROM iq_attempt_answers aa
+       LEFT JOIN iq_question_options correct ON correct.question_id = aa.question_id AND correct.is_correct = 1 AND correct.is_active = 1
+       WHERE aa.attempt_id = ? AND aa.question_id = ?
+       LIMIT 1`,
+      [answerData.attempt_id, answerData.question_id]
+    );
+    const existingAnswer = (existingRows as IqExistingAnswerRow[])[0];
+
+    if (existingAnswer) {
+      return {
+        answer: {
+          isCorrect: existingAnswer.is_correct === 1,
+          correctOptionId: existingAnswer.correct_option_id,
+          correctPosition: existingAnswer.correct_position,
+          pointsEarned: Number(existingAnswer.points_earned),
+        },
+      };
+    }
+
+    const isCorrect = answerData.is_correct === 1;
+    const pointsEarned = isCorrect ? Number(answerData.weight) : 0;
+
+    await markLongMemoryQuestionProgress(connection, answerData.attempt_id, answerData.section_key);
+
+    return {
+      answer: {
+        isCorrect,
+        correctOptionId: answerData.correct_option_id,
+        correctPosition: answerData.correct_position,
+        pointsEarned,
+      },
+    };
+  } catch (error) {
+    const message = error instanceof Error && error.message ? error.message : "Erreur MySQL inconnue";
+
+    return {
+      answer: null,
+      error:
+        process.env.NODE_ENV === "development"
+          ? `Impossible de previsualiser la rÃ©ponse de QI dans MySQL : ${message}`
+          : "Impossible de valider cette rÃ©ponse pour le moment.",
+    };
+  } finally {
+    await connection?.end();
+  }
+}
+
+export async function persistIqAttemptDraft(token: string, payload: PersistIqAttemptDraftPayload) {
+  if (!payload || !Array.isArray(payload.answers) || payload.answers.length === 0) {
+    return { ok: false, error: "Aucune rÃ©ponse Ã  persister." };
+  }
+
+  const dedupedAnswers = payload.answers
+    .filter((answer): answer is SaveIqAttemptAnswerPayload => Boolean(answer) && Number.isInteger(answer.questionId))
+    .sort((left, right) => {
+      const leftTime = left.displayedAt ? new Date(left.displayedAt).getTime() : 0;
+      const rightTime = right.displayedAt ? new Date(right.displayedAt).getTime() : 0;
+
+      return leftTime - rightTime;
+    });
+
+  for (const answer of dedupedAnswers) {
+    const result = await saveIqAttemptAnswer(token, answer);
+
+    if (result.error) {
+      return { ok: false, error: result.error };
+    }
+  }
+
+  return { ok: true, error: null as string | null };
 }
 
 export async function getIqMemoryIntroByAttemptToken(token: string): Promise<IqMemoryIntroResult> {

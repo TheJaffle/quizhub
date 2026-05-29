@@ -1,4 +1,5 @@
 import { findOrCreateUserFromVerifiedEmail } from "@/lib/auth";
+import { completeIqAttempt } from "@/lib/iq-tests";
 import { getResultEmailLink } from "@/lib/result-email-links";
 import { NextResponse } from "next/server";
 
@@ -15,13 +16,21 @@ export async function POST(_request: Request, { params }: ResultAccessApiRoutePr
   const link = await getResultEmailLink(emailToken);
 
   if (!link) {
-    return NextResponse.json({ error: "Lien de résultat introuvable ou expiré." }, { status: 404 });
+    return NextResponse.json({ error: "Lien de resultat introuvable ou expire." }, { status: 404 });
+  }
+
+  if (link.resultType === "iq") {
+    const completion = await completeIqAttempt(link.resultToken);
+
+    if (completion.error) {
+      return NextResponse.json({ error: completion.error }, { status: 400 });
+    }
   }
 
   const account = await findOrCreateUserFromVerifiedEmail(link.email, link.resultType, link.resultToken);
 
   if (!account.user) {
-    return NextResponse.json({ error: account.error ?? "Impossible de créer ou connecter le compte." }, { status: 400 });
+    return NextResponse.json({ error: account.error ?? "Impossible de creer ou connecter le compte." }, { status: 400 });
   }
 
   const redirectUrl =
@@ -31,6 +40,8 @@ export async function POST(_request: Request, { params }: ResultAccessApiRoutePr
   const response = NextResponse.json({
     ok: true,
     redirectUrl,
+    resultType: link.resultType,
+    resultToken: link.resultToken,
   });
 
   response.cookies.set("quizhub_user_id", String(account.user.id), {
@@ -39,6 +50,15 @@ export async function POST(_request: Request, { params }: ResultAccessApiRoutePr
     maxAge: AUTH_COOKIE_MAX_AGE,
     path: "/",
   });
+
+  if (link.resultType === "iq") {
+    response.cookies.set("brainspark_iq_completed_token", link.resultToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: AUTH_COOKIE_MAX_AGE,
+      path: "/",
+    });
+  }
 
   return response;
 }

@@ -3,6 +3,7 @@
 import type { IqAttemptPhase } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { getFirstUnansweredQuestionIndex, saveIqDraftAnswer } from "@/components/iq/iq-draft-storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ResultEmailForm } from "@/components/results/result-email-form";
@@ -113,6 +114,7 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
+  const isGuestAttempt = !data?.attempt.userId;
   const currentAudio = currentQuestion?.audio ?? null;
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const questionTimeLimitSeconds = data?.phaseTimeLimitSeconds ?? null;
@@ -122,6 +124,12 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
     const queryString = searchParams.toString();
     return queryString ? `${pathname}?${queryString}` : pathname;
   }, [pathname, searchParams]);
+
+  useEffect(() => {
+    if (!data || !isGuestAttempt) return;
+
+    setCurrentQuestionIndex(getFirstUnansweredQuestionIndex(data.attempt.token, questions));
+  }, [data, isGuestAttempt, questions]);
 
   useEffect(() => {
     setTimeRemaining(data?.phaseTimeLimitSeconds ?? 0);
@@ -257,6 +265,15 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
 
   const finalizeAttempt = async () => {
     if (!data || hasCompletionStartedRef.current) return;
+
+    if (isGuestAttempt) {
+      setCompletionState({
+        userAttached: false,
+        redirectUrl: null,
+        guestResultReady: true,
+      });
+      return;
+    }
 
     hasCompletionStartedRef.current = true;
     setIsCompleting(true);
@@ -398,17 +415,18 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
     setSaveError(null);
 
     try {
-      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/answers`, {
+      const requestBody = {
+        questionId: currentQuestion.id,
+        selectedOptionId: optionId,
+        responseTimeMs: forcedResponseTimeMs ?? Math.max(new Date().getTime() - answerDisplayedAtRef.current.getTime(), 0),
+        displayedAt: answerDisplayedAtRef.current.toISOString(),
+      };
+      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/${isGuestAttempt ? "validate-answer" : "answers"}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          questionId: currentQuestion.id,
-          selectedOptionId: optionId,
-          responseTimeMs: forcedResponseTimeMs ?? Math.max(new Date().getTime() - answerDisplayedAtRef.current.getTime(), 0),
-          displayedAt: answerDisplayedAtRef.current.toISOString(),
-        }),
+        body: JSON.stringify(requestBody),
       });
       const payload = await response.json();
 
@@ -417,6 +435,9 @@ export function IqAudioPhasePage({ data, error }: IqAudioPhasePageProps) {
       }
 
       setSavedAnswer(payload.answer);
+      if (isGuestAttempt) {
+        saveIqDraftAnswer(data.attempt.token, requestBody);
+      }
       setTimeoutTriggered(Boolean(options?.timedOut));
       setPhase("answered");
       void continueAfterSave();

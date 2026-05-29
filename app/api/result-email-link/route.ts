@@ -1,3 +1,4 @@
+import { persistIqAttemptDraft, type PersistIqAttemptDraftPayload } from "@/lib/iq-tests";
 import { createResultEmailLink, sendResultEmail, type ResultEmailType } from "@/lib/result-email-links";
 import { NextResponse } from "next/server";
 
@@ -35,6 +36,10 @@ export async function POST(request: Request) {
     const resultToken = typeof body.resultToken === "string" ? body.resultToken : "";
     const email = typeof body.email === "string" ? body.email : "";
     const website = typeof body.website === "string" ? body.website : "";
+    const iqDraft =
+      body && typeof body === "object" && body.iqDraft && typeof body.iqDraft === "object"
+        ? (body.iqDraft as PersistIqAttemptDraftPayload & { attemptToken?: string })
+        : null;
     const formStartedAt = Number(body.formStartedAt);
     const elapsedSeconds = Number.isFinite(formStartedAt) ? (Date.now() - formStartedAt) / 1000 : 0;
 
@@ -44,6 +49,18 @@ export async function POST(request: Request) {
 
     if (elapsedSeconds < MIN_FORM_SECONDS) {
       return NextResponse.json({ error: "Veuillez patienter quelques secondes avant l'envoi." }, { status: 400 });
+    }
+
+    if (resultType === "iq" && iqDraft && iqDraft.attemptToken === resultToken) {
+      const draftAnswers = Array.isArray(iqDraft.answers) ? iqDraft.answers : [];
+
+      if (draftAnswers.length > 0) {
+        const persisted = await persistIqAttemptDraft(resultToken, { answers: draftAnswers });
+
+        if (!persisted.ok) {
+          return NextResponse.json({ error: persisted.error ?? "Impossible d'enregistrer les reponses du test." }, { status: 400 });
+        }
+      }
     }
 
     const { link, error } = await createResultEmailLink({

@@ -4,6 +4,7 @@ import type { IqLongMemoryAnswer } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { saveIqDraftAnswer } from "@/components/iq/iq-draft-storage";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
 import { ResultEmailForm } from "@/components/results/result-email-form";
 import { AlertTriangle, Brain, ImageIcon, Loader2, Pause, Play } from "lucide-react";
@@ -80,6 +81,7 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
   const displayedAtRef = useRef<Date>(new Date());
 
   const currentQuestion = data?.question ?? null;
+  const isGuestAttempt = !data?.attempt.userId;
   const isOverlayQuestion = currentQuestion?.format === "visual_overlay" || currentQuestion?.format === "spatial_overlay";
   const showTimer = Boolean(data?.timeLimitSeconds);
   const timeProgress = data?.timeLimitSeconds ? Math.max(0, Math.min(100, (timeRemaining / Math.max(data.timeLimitSeconds, 1)) * 100)) : 100;
@@ -169,16 +171,17 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
     setSaveError(null);
 
     try {
-      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/answers`, {
+      const requestBody = {
+        ...body,
+        responseTimeMs: Math.max(new Date().getTime() - displayedAtRef.current.getTime(), 0),
+        displayedAt: displayedAtRef.current.toISOString(),
+      };
+      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/${isGuestAttempt ? "validate-answer" : "answers"}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...body,
-          responseTimeMs: Math.max(new Date().getTime() - displayedAtRef.current.getTime(), 0),
-          displayedAt: displayedAtRef.current.toISOString(),
-        }),
+        body: JSON.stringify(requestBody),
       });
       const payload = await response.json();
 
@@ -187,6 +190,9 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
       }
 
       setSavedAnswer(payload.answer);
+      if (isGuestAttempt) {
+        saveIqDraftAnswer(data.attempt.token, requestBody);
+      }
       void continueAfterSave();
     } catch (answerError) {
       setSelectedOptionId(null);

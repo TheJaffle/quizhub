@@ -1,5 +1,6 @@
 "use client";
 
+import { clearIqDraftSubmission, loadIqDraftSubmission } from "@/components/iq/iq-draft-storage";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,6 +40,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
           resultToken,
           email,
           website,
+          iqDraft: resultType === "iq" ? loadIqDraftSubmission(resultToken) : null,
           formStartedAt: formStartedAtRef.current,
         }),
       });
@@ -48,8 +50,11 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
         throw new Error(payload.error || "Impossible d'envoyer le lien.");
       }
 
-      setMessage("Lien envoyé. Vérifiez votre boite mail pour consulter le résultat.");
+      setMessage("Lien envoye. Verifiez votre boite mail pour consulter le resultat.");
       setDevAccessUrl(typeof payload.devAccessUrl === "string" ? payload.devAccessUrl : null);
+      if (resultType === "iq") {
+        clearIqDraftSubmission(resultToken);
+      }
     } catch (sendError) {
       setError(sendError instanceof Error ? sendError.message : "Impossible d'envoyer le lien.");
     } finally {
@@ -63,8 +68,8 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
           <Mail className="h-7 w-7" />
         </div>
-        <h2 className="text-2xl font-bold">Recevoir mon résultat</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Entrez votre email. Nous envoyons un lien sécurisé pour afficher votre résultat.</p>
+        <h2 className="text-2xl font-bold">Recevoir mon resultat</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Entrez votre email. Nous envoyons un lien securise pour afficher votre resultat.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -88,7 +93,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
 
         <Button type="submit" className="h-auto min-h-11 w-full whitespace-normal px-3 py-3 text-center leading-tight" disabled={isSending}>
           <Send className="h-4 w-4 shrink-0" />
-          <span>{isSending ? "Envoi..." : "M'envoyer mon résultat"}</span>
+          <span>{isSending ? "Envoi..." : "M'envoyer mon resultat"}</span>
         </Button>
       </form>
     </Card>

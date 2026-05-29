@@ -5,6 +5,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { QuizQuestion } from "@/components/quiz/quiz-question";
+import { ResultEmailForm } from "@/components/results/result-email-form";
+import { getFirstUnansweredQuestionIndex, saveIqDraftAnswer } from "@/components/iq/iq-draft-storage";
 import { AlertTriangle, Brain, ImageIcon, Languages, Loader2, Pause, Play, Sigma } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -22,6 +24,12 @@ type SavedAnswer = {
   correctOptionId: number | null;
   correctPosition: number | null;
   pointsEarned: number;
+};
+
+type CompletionState = {
+  userAttached: boolean;
+  redirectUrl: string | null;
+  guestResultReady: boolean;
 };
 
 const DEFAULT_MAIN_QUESTION_SECONDS = 15;
@@ -121,6 +129,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   const [savedAnswer, setSavedAnswer] = useState<SavedAnswer | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [completionState, setCompletionState] = useState<CompletionState | null>(null);
   const [direction, setDirection] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(DEFAULT_MAIN_QUESTION_SECONDS);
   const [pauseRequested, setPauseRequested] = useState(false);
@@ -131,12 +140,19 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
 
   const questions = data?.questions ?? [];
   const currentQuestion = questions[currentQuestionIndex] ?? null;
+  const isGuestAttempt = !data?.attempt.userId;
   const currentQuestionTimeLimitSeconds = currentQuestion?.timeLimitSeconds ?? DEFAULT_MAIN_QUESTION_SECONDS;
   const isMainPhase = data?.phase === "main";
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / currentQuestionTimeLimitSeconds) * 100));
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const sectionBadge = currentQuestion ? getSectionBadge(currentQuestion.sectionKey) : null;
   const SectionBadgeIcon = sectionBadge?.icon;
+
+  useEffect(() => {
+    if (!data || !isGuestAttempt) return;
+
+    setCurrentQuestionIndex(getFirstUnansweredQuestionIndex(data.attempt.token, questions));
+  }, [data, isGuestAttempt, questions]);
 
   useEffect(() => {
     displayedAtRef.current = new Date();
@@ -153,8 +169,17 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   useEffect(() => {
     if (!currentQuestion && data?.nextUrl) {
       router.push(data.nextUrl);
+      return;
     }
-  }, [currentQuestion, data?.nextUrl, router]);
+
+    if (!currentQuestion && !data?.nextUrl && isGuestAttempt) {
+      setCompletionState({
+        userAttached: false,
+        redirectUrl: null,
+        guestResultReady: true,
+      });
+    }
+  }, [currentQuestion, data?.nextUrl, isGuestAttempt, router]);
 
   useEffect(() => {
     if (!isMainPhase || !currentQuestion || isSaving || savedAnswer) return;
@@ -245,6 +270,15 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     if (isLastQuestion) {
       if (data.nextUrl) {
         router.push(data.nextUrl);
+        return;
+      }
+
+      if (isGuestAttempt) {
+        setCompletionState({
+          userAttached: false,
+          redirectUrl: null,
+          guestResultReady: true,
+        });
       }
       return;
     }
@@ -264,16 +298,17 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     setSaveError(null);
 
     try {
-      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/answers`, {
+      const requestBody = {
+        ...body,
+        responseTimeMs,
+        displayedAt: displayedAtRef.current.toISOString(),
+      };
+      const response = await fetch(`/api/iq/attempts/${data.attempt.token}/${isGuestAttempt ? "validate-answer" : "answers"}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...body,
-          responseTimeMs,
-          displayedAt: displayedAtRef.current.toISOString(),
-        }),
+        body: JSON.stringify(requestBody),
       });
       const payload = await response.json();
 
@@ -282,6 +317,9 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
       }
 
       setSavedAnswer(payload.answer);
+      if (isGuestAttempt) {
+        saveIqDraftAnswer(data.attempt.token, requestBody);
+      }
 
       if (feedbackTimeoutRef.current) {
         clearTimeout(feedbackTimeoutRef.current);
@@ -335,6 +373,21 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
           <AlertTitle>Phase indisponible</AlertTitle>
           <AlertDescription>{error || "Cette tentative de test de logique est introuvable."}</AlertDescription>
         </Alert>
+      </div>
+    );
+  }
+
+  if (completionState?.guestResultReady) {
+    return (
+      <div className="container mx-auto max-w-4xl px-4 py-8">
+        <Card className="p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+            <Brain className="h-9 w-9" />
+          </div>
+          <h2 className="mb-2 text-2xl font-bold">Votre resultat est pret</h2>
+          <p className="mb-6 text-muted-foreground">Recevez un lien securise par email pour consulter votre resultat.</p>
+          <ResultEmailForm resultType="iq" resultToken={data.attempt.token} />
+        </Card>
       </div>
     );
   }

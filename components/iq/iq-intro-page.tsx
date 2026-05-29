@@ -3,6 +3,7 @@
 import type { IqTestIntro } from "@/lib/iq-tests";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { clearAllIqDraftSubmissions } from "@/components/iq/iq-draft-storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -50,6 +51,8 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
       if (!birthYear || !gender) {
         throw new Error("Veuillez renseigner votre annee de naissance et votre genre.");
       }
+
+      clearAllIqDraftSubmissions();
 
       const response = await fetch(`/api/iq/tests/${test.slug}/attempt`, {
         method: "POST",

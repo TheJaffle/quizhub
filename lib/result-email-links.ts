@@ -87,7 +87,7 @@ export async function createResultEmailLink(payload: {
       }
     } else {
       const [attemptRows] = await connection.execute<mysql.RowDataPacket[]>(
-        "SELECT id FROM iq_attempts WHERE attempt_token = ? AND status = 'completed' LIMIT 1",
+        "SELECT id FROM iq_attempts WHERE attempt_token = ? LIMIT 1",
         [payload.resultToken]
       );
 
