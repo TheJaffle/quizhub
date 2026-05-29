@@ -86,7 +86,9 @@ function formatAnswer(question: ReviewQuestion, kind: "selected" | "correct") {
 }
 
 function getQuestionLead(question: ReviewQuestion) {
-  const parts = [question.stimulusText, question.questionText].map((value) => value?.trim()).filter((value, index, array): value is string => Boolean(value) && array.indexOf(value) === index);
+  const parts = [question.stimulusText, question.questionText]
+    .map((value) => value?.trim())
+    .filter((value, index, array): value is string => Boolean(value) && array.indexOf(value) === index);
   return parts;
 }
 
@@ -192,8 +194,8 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
   const canGoBack = finished || sectionIndex > 0 || questionIndex >= 0;
 
   return (
-    <div className="mx-auto max-w-5xl px-2 py-2 md:px-0 md:py-8">
-      <div className="mb-3 space-y-3 md:mb-8 md:space-y-4">
+    <div className="mx-auto max-w-5xl px-2 py-1 md:px-0 md:py-8">
+      <div className="mb-2 space-y-2 md:mb-8 md:space-y-4">
         {!hideLookupForm ? (
           <div>
             <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
@@ -263,7 +265,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
           </CardContent>
         </Card>
       ) : currentQuestion ? (
-        <div className="space-y-3 md:space-y-6">
+        <div className="space-y-2 md:space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-2 md:gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className="bg-indigo-500 text-white hover:bg-indigo-600">{currentSection?.label}</Badge>
@@ -300,7 +302,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                     </audio>
                   </div>
                 ) : currentQuestion.answersImageUrl ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {currentQuestion.imageUrl ? (
                       <div className="relative overflow-hidden rounded-xl border bg-muted/30">
                         <Image
@@ -309,13 +311,10 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                           width={900}
                           height={600}
                           sizes="(max-width: 768px) 100vw, 50vw"
-                          className="max-h-[16vh] w-full object-contain md:max-h-[38vh]"
+                          className="max-h-[15vh] w-full object-contain md:max-h-[38vh]"
                         />
                       </div>
                     ) : null}
-                    <div className="rounded-xl border bg-slate-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:px-4 md:py-3 md:text-sm">
-                      Reponses possibles
-                    </div>
                     <div className="relative overflow-hidden rounded-xl border bg-muted/30">
                       <Image
                         src={currentQuestion.answersImageUrl}
@@ -323,7 +322,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                         width={900}
                         height={600}
                         sizes="(max-width: 768px) 100vw, 50vw"
-                        className="max-h-[20vh] w-full object-contain md:max-h-[38vh]"
+                        className="max-h-[18vh] w-full object-contain md:max-h-[38vh]"
                       />
                     </div>
                   </div>
@@ -348,10 +347,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                 )}
 
                 {shouldShowOptionList ? (
-                  <div className="space-y-2">
-                    <div className="rounded-xl border bg-slate-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-700 md:px-4 md:py-3 md:text-sm">
-                      Propositions
-                    </div>
+                  <div className="space-y-1.5">
                     <div className="space-y-1.5">
                       {currentQuestion.options.map((option) => {
                         const isSelected = currentQuestion.selectedOptionKey === option.key;
@@ -390,31 +386,33 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
               </div>
 
               <div className="space-y-2">
-                {currentQuestion.isCorrect ? (
-                  <div className="rounded-xl border border-green-200 bg-green-50 p-2.5 text-green-800 md:p-4">
-                    <div className="mb-1 flex items-center gap-2 text-sm font-bold md:text-base">
-                      <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5" />
-                      Bonne reponse !!!
+                <div className="grid grid-cols-2 gap-2">
+                  {currentQuestion.isCorrect ? (
+                    <div className="rounded-xl border border-green-200 bg-green-50 p-2 text-green-800 md:p-4">
+                      <div className="mb-1 flex items-center gap-1.5 text-xs font-bold md:text-base">
+                        <CheckCircle2 className="h-3.5 w-3.5 md:h-5 md:w-5" />
+                        Bonne reponse !!!
+                      </div>
+                      <p className="text-xs md:text-base">
+                        Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span>
+                      </p>
                     </div>
-                    <p className="text-sm md:text-base">
-                      Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span>
-                    </p>
-                  </div>
-                ) : (
-                  <div className="rounded-xl border border-red-200 bg-red-50 p-2.5 text-red-700 md:p-4">
-                    <div className="mb-1 flex items-center gap-2 text-sm font-bold md:text-base">
-                      <XCircle className="h-4 w-4 md:h-5 md:w-5" />
-                      Reponse incorrecte
+                  ) : (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-2 text-red-700 md:p-4">
+                      <div className="mb-1 flex items-center gap-1.5 text-xs font-bold md:text-base">
+                        <XCircle className="h-3.5 w-3.5 md:h-5 md:w-5" />
+                        Reponse incorrecte
+                      </div>
+                      <p className="text-xs md:text-base">
+                        Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span> :(
+                      </p>
                     </div>
-                    <p className="text-sm md:text-base">
-                      Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span> 😢
-                    </p>
-                  </div>
-                )}
+                  )}
 
-                <div className="rounded-xl border bg-slate-50 p-2.5 md:p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 md:text-sm">Il fallait repondre</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-950 md:mt-2 md:text-lg">{formatAnswer(currentQuestion, "correct")}</p>
+                  <div className="rounded-xl border bg-slate-50 p-2 md:p-4">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 md:text-sm">Il fallait repondre</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-950 md:mt-2 md:text-lg">{formatAnswer(currentQuestion, "correct")}</p>
+                  </div>
                 </div>
 
                 {currentQuestion.responseTimeMs !== null ? (

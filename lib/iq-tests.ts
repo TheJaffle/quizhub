@@ -441,6 +441,7 @@ type IqAnswerCheckRow = {
   section_key: string;
   user_id: number | null;
   question_id: number;
+  question_key: string;
   difficulty_level: number;
   weight: string | number;
   question_format: string;
@@ -471,6 +472,8 @@ type PreparedIqAnswer = {
   responseTimeMs: number | null;
   safeDisplayedAt: string | null;
 };
+
+const NOT_PRESENTED_RESPONSE_TIME_MS = 123456;
 
 type IqMemoryIntroRow = {
   attempt_id: number;
@@ -1537,6 +1540,47 @@ function getNextUrlAfterSpecial(token: string, plan: SequencePlan, specialType: 
   }
 
   return getNextUrlForEntry(token, plan, specialEntryIndex + 1);
+}
+
+function getChoiceSiblingQuestionKeys(sequence: TestSequenceDefinition, questionKey: string) {
+  const siblingKeys = new Set<string>();
+
+  for (const step of sequence.steps) {
+    if (step.type === "question" && "choices" in step) {
+      const choiceKeys = step.choices.map((choice) => choice.questionKey);
+
+      if (choiceKeys.includes(questionKey)) {
+        for (const choiceKey of choiceKeys) {
+          if (choiceKey !== questionKey) {
+            siblingKeys.add(choiceKey);
+          }
+        }
+      }
+      continue;
+    }
+
+    if (step.type !== "memory") {
+      continue;
+    }
+
+    for (const item of step.items) {
+      if (!("choices" in item)) {
+        continue;
+      }
+
+      const choiceKeys = item.choices.map((choice) => choice.questionKey);
+
+      if (choiceKeys.includes(questionKey)) {
+        for (const choiceKey of choiceKeys) {
+          if (choiceKey !== questionKey) {
+            siblingKeys.add(choiceKey);
+          }
+        }
+      }
+    }
+  }
+
+  return [...siblingKeys];
 }
 
 async function resolveSequenceQuestionSections(
@@ -2990,7 +3034,7 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
   try {
     connection = await mysql.createConnection(dbConfig);
 
-    const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id,
+    const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id, q.question_key,
                               q.difficulty_level, q.weight, q.question_format,
                               selected.id AS selected_option_id, selected.is_correct,
                               correct.id AS correct_option_id,
@@ -3133,12 +3177,15 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
       ]
     );
 
+    await insertChoiceSiblingSentinelAnswers(connection, answerData);
+
     await connection.execute(
       `UPDATE iq_attempts
        SET answered_questions = (
              SELECT COUNT(DISTINCT question_id)
              FROM iq_attempt_answers
              WHERE attempt_id = ?
+               AND (response_time_ms IS NULL OR response_time_ms <> ?)
            ),
            raw_score = (
              SELECT COALESCE(SUM(points_earned), 0)
@@ -3153,11 +3200,19 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
            average_response_time_ms = (
              SELECT ROUND(AVG(response_time_ms))
              FROM iq_attempt_answers
-             WHERE attempt_id = ? AND response_time_ms IS NOT NULL
+             WHERE attempt_id = ? AND response_time_ms IS NOT NULL AND response_time_ms <> ?
            ),
            updated_at = NOW()
        WHERE id = ?`,
-      [answerData.attempt_id, answerData.attempt_id, answerData.attempt_id, answerData.attempt_id, answerData.attempt_id]
+      [
+        answerData.attempt_id,
+        NOT_PRESENTED_RESPONSE_TIME_MS,
+        answerData.attempt_id,
+        answerData.attempt_id,
+        answerData.attempt_id,
+        NOT_PRESENTED_RESPONSE_TIME_MS,
+        answerData.attempt_id,
+      ]
     );
 
     await markLongMemoryQuestionProgress(connection, answerData.attempt_id, answerData.section_key);
@@ -3198,7 +3253,7 @@ export async function previewIqAttemptAnswer(token: string, payload: SaveIqAttem
   try {
     connection = await mysql.createConnection(dbConfig);
 
-    const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id,
+    const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id, q.question_key,
                               q.difficulty_level, q.weight, q.question_format,
                               selected.id AS selected_option_id, selected.is_correct,
                               correct.id AS correct_option_id,
@@ -3615,10 +3670,10 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
 
     const [aggregateRows] = await connection.execute<mysql.RowDataPacket[]>(
       `SELECT
-          COUNT(DISTINCT aa.question_id) AS answered_questions,
+          COUNT(DISTINCT CASE WHEN aa.response_time_ms <> ? OR aa.response_time_ms IS NULL THEN aa.question_id END) AS answered_questions,
           COALESCE(SUM(aa.points_earned), 0) AS raw_score,
           COALESCE(SUM(aa.points_earned), 0) AS weighted_score,
-          ROUND(AVG(aa.response_time_ms)) AS average_response_time_ms,
+          ROUND(AVG(CASE WHEN aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS average_response_time_ms,
           COALESCE(SUM(CASE WHEN s.section_key = 'speed' THEN aa.points_earned ELSE 0 END), 0) AS speed_score,
           COALESCE(SUM(CASE WHEN s.section_key = 'memory' THEN aa.points_earned ELSE 0 END), 0) AS memory_score,
           COALESCE(SUM(CASE WHEN s.section_key = 'verbal' THEN aa.points_earned ELSE 0 END), 0) AS verbal_score,
@@ -3630,7 +3685,7 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
        FROM iq_attempt_answers aa
        INNER JOIN iq_sections s ON s.id = aa.section_id
        WHERE aa.attempt_id = ?`,
-      [attempt.id]
+      [NOT_PRESENTED_RESPONSE_TIME_MS, NOT_PRESENTED_RESPONSE_TIME_MS, attempt.id]
     );
     const aggregates = (aggregateRows as mysql.RowDataPacket[])[0] as {
       answered_questions: number;
@@ -3761,11 +3816,48 @@ export async function cleanupAbandonedIqAttempts(olderThanHours = ABANDONED_ATTE
 }
 
 async function computeIqAttemptScores(connection: mysql.Connection, attemptId: number) {
+  const [answeredQuestionRows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT q.question_key
+     FROM iq_attempt_answers aa
+     INNER JOIN iq_questions q ON q.id = aa.question_id
+     WHERE aa.attempt_id = ?
+       AND (aa.response_time_ms IS NULL OR aa.response_time_ms <> ?)`,
+    [attemptId, NOT_PRESENTED_RESPONSE_TIME_MS]
+  );
+  const answeredQuestionKeys = new Set((answeredQuestionRows as Array<{ question_key: string }>).map((row) => row.question_key));
+  const resolvedSequenceDefinition = await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, attemptId);
+
+  let answeredQuestions = 0;
+
+  for (const step of resolvedSequenceDefinition.steps) {
+    if (step.type === "question") {
+      answeredQuestions += answeredQuestionKeys.has(step.questionKey) ? 1 : 0;
+      continue;
+    }
+
+    if (step.type === "memory") {
+      answeredQuestions += step.items.reduce((total, item) => {
+        return total + (answeredQuestionKeys.has(item.questionKey) ? 1 : 0);
+      }, 0);
+      continue;
+    }
+
+    if ("questionKeys" in step && Array.isArray(step.questionKeys)) {
+      answeredQuestions += step.questionKeys.reduce((total, questionKey) => total + (answeredQuestionKeys.has(questionKey) ? 1 : 0), 0);
+    }
+  }
+
+  if (resolvedSequenceDefinition.longMemory?.enabled) {
+    answeredQuestions += resolvedSequenceDefinition.longMemory.items.reduce(
+      (total, item) => total + (answeredQuestionKeys.has(item.questionKey) ? 1 : 0),
+      0
+    );
+  }
+
   const [aggregateRows] = await connection.execute<mysql.RowDataPacket[]>(
     `SELECT
-        COUNT(DISTINCT aa.question_id) AS answered_questions,
         COALESCE(SUM(CASE WHEN aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS raw_score,
-        ROUND(AVG(aa.response_time_ms)) AS average_response_time_ms,
+        ROUND(AVG(CASE WHEN aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS average_response_time_ms,
         COALESCE(SUM(CASE WHEN s.section_key = 'speed' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS speed_score,
         COALESCE(SUM(CASE WHEN s.section_key = 'memory' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS memory_score,
         COALESCE(SUM(CASE WHEN s.section_key = 'verbal' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS verbal_score,
@@ -3778,13 +3870,13 @@ async function computeIqAttemptScores(connection: mysql.Connection, attemptId: n
      INNER JOIN iq_questions q ON q.id = aa.question_id
      INNER JOIN iq_sections s ON s.id = aa.section_id
      WHERE aa.attempt_id = ?`,
-    [attemptId]
+    [NOT_PRESENTED_RESPONSE_TIME_MS, attemptId]
   );
 
   const aggregate = (aggregateRows as IqComputedScoreRow[])[0];
 
   return {
-    answeredQuestions: Number(aggregate?.answered_questions ?? 0),
+    answeredQuestions,
     rawScore: Number(aggregate?.raw_score ?? 0),
     weightedScore: Number(aggregate?.raw_score ?? 0),
     averageResponseTimeMs: aggregate?.average_response_time_ms ?? null,
@@ -3799,6 +3891,66 @@ async function computeIqAttemptScores(connection: mysql.Connection, attemptId: n
       speed: Number(aggregate?.speed_score ?? 0),
     },
   };
+}
+
+async function insertChoiceSiblingSentinelAnswers(
+  connection: mysql.Connection,
+  answerData: PreparedIqAnswerRow
+) {
+  const sequenceDefinition = await loadTestSequenceDefinitionByTestId(connection, answerData.test_id);
+  const siblingQuestionKeys = getChoiceSiblingQuestionKeys(sequenceDefinition, answerData.question_key);
+
+  if (siblingQuestionKeys.length === 0) {
+    return;
+  }
+
+  const placeholders = siblingQuestionKeys.map(() => "?").join(", ");
+  const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT q.id AS question_id, q.section_id, q.difficulty_level, q.weight
+     FROM iq_tests t
+     INNER JOIN iq_questions q ON q.test_id = COALESCE(t.question_bank_test_id, t.id)
+     INNER JOIN iq_sections s ON s.id = q.section_id
+     WHERE t.id = ?
+       AND q.is_active = 1
+       AND s.is_active = 1
+       AND q.question_key IN (${placeholders})`,
+    [answerData.test_id, ...siblingQuestionKeys]
+  );
+
+  for (const row of questionRows as Array<{ question_id: number; section_id: number; difficulty_level: number; weight: string | number }>) {
+    const [existingRows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT id
+       FROM iq_attempt_answers
+       WHERE attempt_id = ? AND question_id = ?
+       LIMIT 1`,
+      [answerData.attempt_id, row.question_id]
+    );
+
+    if ((existingRows as Array<{ id: number }>).length > 0) {
+      continue;
+    }
+
+    await connection.execute(
+      `INSERT INTO iq_attempt_answers
+       (attempt_id, test_id, section_id, question_id, user_id, selected_option_id, selected_position,
+        correct_position, is_correct, difficulty_level, response_time_ms, displayed_at, answered_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        answerData.attempt_id,
+        answerData.test_id,
+        row.section_id,
+        row.question_id,
+        answerData.user_id,
+        null,
+        null,
+        null,
+        0,
+        row.difficulty_level,
+        NOT_PRESENTED_RESPONSE_TIME_MS,
+        null,
+      ]
+    );
+  }
 }
 
 export async function getIqResultByToken(token: string, userId: number): Promise<IqResultResult> {
@@ -3931,11 +4083,12 @@ async function loadIqSondageReviewByAttempt(
      LEFT JOIN iq_question_options correct ON correct.question_id = aa.question_id AND correct.is_correct = 1 AND correct.is_active = 1
      WHERE aa.attempt_id = ?
        AND s.section_key IN ('logic', 'spatial', 'verbal', 'quantitative', 'memory', 'long_memory', 'audio_memory')
+       AND (aa.response_time_ms IS NULL OR aa.response_time_ms <> ?)
        AND (aa.selected_option_id IS NOT NULL OR aa.selected_position IS NOT NULL)
      ORDER BY FIELD(s.section_key, 'logic', 'spatial', 'verbal', 'quantitative', 'memory', 'long_memory', 'audio_memory'),
               q.position,
               aa.id`,
-    [attempt.id]
+    [attempt.id, NOT_PRESENTED_RESPONSE_TIME_MS]
   );
 
   const questionIds = Array.from(new Set((answerRows as IqSondageReviewRow[]).map((row) => row.question_id)));
