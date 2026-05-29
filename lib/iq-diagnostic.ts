@@ -61,6 +61,7 @@ export type IqDiagnosticAttempt = {
 type AttemptRow = {
   attempt_id: number;
   test_id: number;
+  question_bank_test_id: number | null;
   attempt_token: string;
   status: string;
   test_title: string;
@@ -273,6 +274,7 @@ export async function getIqDiagnosticAttempts() {
       `SELECT
           a.id AS attempt_id,
           a.test_id,
+          t.question_bank_test_id,
           a.attempt_token,
           a.status,
           t.title AS test_title,
@@ -318,7 +320,9 @@ export async function getIqDiagnosticAttempts() {
     const attemptsById = new Map<number, IqDiagnosticAttempt>();
     const expectedByAttemptId = new Map<number, ExpectedQuestion[]>();
     const attemptIds = rows.map((row) => row.attempt_id);
-    const testIds = Array.from(new Set(rows.map((row) => row.test_id)));
+    const testIds = Array.from(
+      new Set(rows.flatMap((row) => [row.test_id, row.question_bank_test_id]).filter((testId): testId is number => testId !== null))
+    );
 
     for (const row of rows) {
       attemptsById.set(row.attempt_id, makeAttempt(row));
@@ -438,7 +442,9 @@ export async function getIqDiagnosticAttempts() {
       const expectedQuestions = expectedByAttemptId.get(row.attempt_id) ?? [];
 
       for (const expectedQuestion of expectedQuestions) {
-        const question = questionsByTestAndKey.get(`${row.test_id}:${expectedQuestion.questionKey}`);
+        const question =
+          questionsByTestAndKey.get(`${row.question_bank_test_id ?? row.test_id}:${expectedQuestion.questionKey}`) ??
+          questionsByTestAndKey.get(`${row.test_id}:${expectedQuestion.questionKey}`);
         const sectionKey = question?.section_key ?? null;
 
         if (sectionKey) {
