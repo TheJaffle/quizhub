@@ -106,25 +106,41 @@ function createRoomCode() {
   return crypto.randomBytes(4).toString("hex").toUpperCase();
 }
 
+async function tableExists(connection: mysql.Connection, tableName: string) {
+  const [rows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT COUNT(*) AS table_count
+     FROM information_schema.TABLES
+     WHERE TABLE_SCHEMA = ?
+       AND TABLE_NAME = ?`,
+    [dbConfig.database, tableName]
+  );
+
+  return Number(rows[0]?.table_count ?? 0) > 0;
+}
+
 async function ensureDuelTables(connection: mysql.Connection) {
-  await connection.execute(`
-    CREATE TABLE IF NOT EXISTS duel_challenges (
-      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-      room_code VARCHAR(16) NOT NULL,
-      owner_user_id INT(10) UNSIGNED NULL,
-      category_slug VARCHAR(255) NULL,
-      category_name VARCHAR(255) NULL,
-      difficulty ENUM('Easy','Medium','Hard') NOT NULL DEFAULT 'Medium',
-      time_per_question TINYINT(3) UNSIGNED NOT NULL DEFAULT 10,
-      total_questions TINYINT(3) UNSIGNED NOT NULL DEFAULT 5,
-      question_payload JSON NOT NULL,
-      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
-      UNIQUE KEY uq_duel_challenges_room_code (room_code),
-      KEY idx_duel_challenges_category_slug (category_slug),
-      KEY idx_duel_challenges_owner_created (owner_user_id, created_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+  const duelChallengesExists = await tableExists(connection, "duel_challenges");
+
+  if (!duelChallengesExists) {
+    await connection.execute(`
+      CREATE TABLE duel_challenges (
+        id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        room_code VARCHAR(16) NOT NULL,
+        owner_user_id INT(10) UNSIGNED NULL,
+        category_slug VARCHAR(255) NULL,
+        category_name VARCHAR(255) NULL,
+        difficulty ENUM('Easy','Medium','Hard') NOT NULL DEFAULT 'Medium',
+        time_per_question TINYINT(3) UNSIGNED NOT NULL DEFAULT 10,
+        total_questions TINYINT(3) UNSIGNED NOT NULL DEFAULT 5,
+        question_payload JSON NOT NULL,
+        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY uq_duel_challenges_room_code (room_code),
+        KEY idx_duel_challenges_category_slug (category_slug),
+        KEY idx_duel_challenges_owner_created (owner_user_id, created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+  }
 
   const [challengeColumns] = await connection.execute<mysql.RowDataPacket[]>("SHOW COLUMNS FROM duel_challenges");
   const columnNames = new Set(challengeColumns.map((column) => String(column.Field)));
@@ -137,27 +153,31 @@ async function ensureDuelTables(connection: mysql.Connection) {
     await connection.execute("ALTER TABLE duel_challenges ADD COLUMN category_name VARCHAR(255) NULL AFTER category_slug");
   }
 
-  await connection.execute(`
-    CREATE TABLE IF NOT EXISTS duel_participants (
-      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-      challenge_id BIGINT(20) UNSIGNED NOT NULL,
-      user_id INT(10) UNSIGNED NULL,
-      email VARCHAR(190) NOT NULL,
-      pseudo VARCHAR(80) NULL,
-      score INT(10) UNSIGNED NOT NULL DEFAULT 0,
-      correct_answers TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
-      total_questions TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
-      duration_seconds INT(10) UNSIGNED NULL,
-      completed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (id),
-      UNIQUE KEY uq_duel_participants_challenge_email (challenge_id, email),
-      KEY idx_duel_participants_user_completed (user_id, completed_at),
-      CONSTRAINT fk_duel_participants_challenge
-        FOREIGN KEY (challenge_id) REFERENCES duel_challenges(id)
-        ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-  `);
+  const duelParticipantsExists = await tableExists(connection, "duel_participants");
+
+  if (!duelParticipantsExists) {
+    await connection.execute(`
+      CREATE TABLE duel_participants (
+        id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        challenge_id BIGINT(20) UNSIGNED NOT NULL,
+        user_id INT(10) UNSIGNED NULL,
+        email VARCHAR(190) NOT NULL,
+        pseudo VARCHAR(80) NULL,
+        score INT(10) UNSIGNED NOT NULL DEFAULT 0,
+        correct_answers TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
+        total_questions TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
+        duration_seconds INT(10) UNSIGNED NULL,
+        completed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id),
+        UNIQUE KEY uq_duel_participants_challenge_email (challenge_id, email),
+        KEY idx_duel_participants_user_completed (user_id, completed_at),
+        CONSTRAINT fk_duel_participants_challenge
+          FOREIGN KEY (challenge_id) REFERENCES duel_challenges(id)
+          ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+  }
 }
 
 async function getDuelCategory(connection: mysql.Connection, categorySlug: string | null) {

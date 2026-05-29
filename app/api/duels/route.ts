@@ -21,8 +21,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ challenge: result.challenge });
   } catch (error) {
     console.error("Duel create error", error);
-    return NextResponse.json({ error: "Impossible de créer le duel pour le moment." }, { status: 500 });
+    return NextResponse.json({ error: `Impossible de créer le duel pour le moment. Détail : ${getServerErrorMessage(error)}` }, { status: 500 });
   }
+}
+
+function getServerErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Erreur serveur inconnue.";
 }
 
 export async function GET() {

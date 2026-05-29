@@ -1,0 +1,145 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { getIqDiagnosticAttempts } from "@/lib/iq-diagnostic";
+import { AlertTriangle } from "lucide-react";
+
+export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Diagnostic QI | brainspark",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+function formatDate(date: Date | null) {
+  if (!date) return "-";
+
+  return new Intl.DateTimeFormat("fr-FR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(date);
+}
+
+function compactText(value: string | null | undefined, maxLength = 90) {
+  if (!value) return "-";
+
+  return value.length > maxLength ? `${value.slice(0, maxLength - 1)}...` : value;
+}
+
+function answerValue(key: string | null, text: string | null, position: number | null) {
+  if (position) return `Position ${position}`;
+  if (key && text) return `${key}. ${text}`;
+  if (key) return key;
+
+  return text ?? "-";
+}
+
+export default async function IqDiagnosticPage() {
+  const { attempts, error } = await getIqDiagnosticAttempts();
+  const answers = attempts.flatMap((attempt) => attempt.answers);
+  const emailCount = new Set(attempts.map((attempt) => attempt.email).filter(Boolean)).size;
+
+  if (error) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 py-8">
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Impossible de charger le diagnostic QI</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </main>
+    );
+  }
+
+  return (
+    <main className="mx-auto max-w-[1800px] px-3 py-5">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <Badge variant="outline" className="mb-2">
+            Page provisoire
+          </Badge>
+          <h1 className="text-2xl font-bold tracking-tight">Diagnostic des réponses QI</h1>
+          <p className="text-sm text-muted-foreground">
+            {emailCount} email(s), {attempts.length} tentative(s), {answers.length} réponse(s) enregistrée(s).
+          </p>
+        </div>
+      </div>
+
+      <section className="mb-5 overflow-x-auto rounded-lg border bg-background">
+        <table className="w-full min-w-[980px] border-collapse text-[8px] leading-tight">
+          <thead className="sticky top-0 bg-muted text-left">
+            <tr>
+              <th className="border-b px-1.5 py-1">Date</th>
+              <th className="border-b px-1.5 py-1">Email</th>
+              <th className="border-b px-1.5 py-1">Pseudo</th>
+              <th className="border-b px-1.5 py-1">Test</th>
+              <th className="border-b px-1.5 py-1">Statut</th>
+              <th className="border-b px-1.5 py-1">Réponses</th>
+              <th className="border-b px-1.5 py-1">Sections vues</th>
+              <th className="border-b px-1.5 py-1">Token</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attempts.map((attempt) => (
+              <tr key={attempt.attemptId} className="odd:bg-muted/20">
+                <td className="border-b px-1.5 py-1 whitespace-nowrap">{formatDate(attempt.startedAt)}</td>
+                <td className="border-b px-1.5 py-1">{attempt.email ?? "-"}</td>
+                <td className="border-b px-1.5 py-1">{attempt.pseudo ?? "-"}</td>
+                <td className="border-b px-1.5 py-1">{attempt.testTitle}</td>
+                <td className="border-b px-1.5 py-1">{attempt.status}</td>
+                <td className="border-b px-1.5 py-1 whitespace-nowrap">
+                  {attempt.answers.length} / {attempt.totalQuestions || attempt.answeredQuestions || "-"}
+                </td>
+                <td className="border-b px-1.5 py-1">{attempt.sections.join(", ") || "-"}</td>
+                <td className="border-b px-1.5 py-1 font-mono">{attempt.attemptToken}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="overflow-x-auto rounded-lg border bg-background">
+        <table className="w-full min-w-[1500px] border-collapse text-[8px] leading-tight">
+          <thead className="sticky top-0 bg-muted text-left">
+            <tr>
+              <th className="border-b px-1.5 py-1">Date</th>
+              <th className="border-b px-1.5 py-1">Email</th>
+              <th className="border-b px-1.5 py-1">Pseudo</th>
+              <th className="border-b px-1.5 py-1">Section</th>
+              <th className="border-b px-1.5 py-1">Question</th>
+              <th className="border-b px-1.5 py-1">Réponse donnée</th>
+              <th className="border-b px-1.5 py-1">Bonne réponse</th>
+              <th className="border-b px-1.5 py-1">Juste</th>
+              <th className="border-b px-1.5 py-1">Pts</th>
+              <th className="border-b px-1.5 py-1">Temps</th>
+              <th className="border-b px-1.5 py-1">Token</th>
+            </tr>
+          </thead>
+          <tbody>
+            {answers.map((answer, index) => (
+              <tr key={`${answer.attemptId}-${answer.questionKey}-${index}`} className="odd:bg-muted/20">
+                <td className="border-b px-1.5 py-1 whitespace-nowrap">{formatDate(answer.answeredAt ?? answer.startedAt)}</td>
+                <td className="border-b px-1.5 py-1">{answer.email ?? "-"}</td>
+                <td className="border-b px-1.5 py-1">{answer.pseudo ?? "-"}</td>
+                <td className="border-b px-1.5 py-1 whitespace-nowrap">{answer.sectionKey ?? "-"}</td>
+                <td className="border-b px-1.5 py-1">
+                  <span className="font-mono">{answer.questionKey ?? "-"}</span> {compactText(answer.questionText)}
+                </td>
+                <td className="border-b px-1.5 py-1">{compactText(answerValue(answer.selectedOptionKey, answer.selectedOptionText, answer.selectedPosition), 70)}</td>
+                <td className="border-b px-1.5 py-1">{compactText(answerValue(answer.correctOptionKey, answer.correctOptionText, answer.correctPosition), 70)}</td>
+                <td className={`border-b px-1.5 py-1 font-bold ${answer.isCorrect ? "text-emerald-700" : "text-red-600"}`}>
+                  {answer.isCorrect ? "OUI" : "NON"}
+                </td>
+                <td className="border-b px-1.5 py-1">{answer.pointsEarned}</td>
+                <td className="border-b px-1.5 py-1 whitespace-nowrap">{answer.responseTimeMs === null ? "-" : `${answer.responseTimeMs} ms`}</td>
+                <td className="border-b px-1.5 py-1 font-mono">{answer.attemptToken}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  );
+}
