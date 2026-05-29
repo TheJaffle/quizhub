@@ -279,6 +279,7 @@ export type CompletedIqAttemptLookup =
 export type IqResult = {
   attemptToken: string;
   testTitle: string;
+  testSlug: string;
   status: string;
   userId: number | null;
   startedAt: Date;
@@ -311,6 +312,50 @@ export type IqResultSectionBreakdown = {
   maxScore: number;
   percentage: number;
 };
+
+export type IqSondageReviewQuestion = {
+  sectionKey: string;
+  sectionTitle: string;
+  questionKey: string;
+  questionText: string | null;
+  answerPromptText: string | null;
+  stimulusText: string | null;
+  format: string;
+  imageUrl: string | null;
+  answersImageUrl: string | null;
+  promptAudioUrl: string | null;
+  selectedOptionKey: string | null;
+  selectedOptionText: string | null;
+  correctOptionKey: string | null;
+  correctOptionText: string | null;
+  selectedPosition: number | null;
+  correctPosition: number | null;
+  isCorrect: boolean;
+  responseTimeMs: number | null;
+  options: Array<{
+    key: string;
+    text: string | null;
+    position: number;
+    audioUrl: string | null;
+  }>;
+};
+
+export type IqSondageReviewSection = {
+  key: string;
+  label: string;
+  questions: IqSondageReviewQuestion[];
+};
+
+export type IqSondageReview = {
+  email: string;
+  userPseudo: string | null;
+  attemptToken: string;
+  sections: IqSondageReviewSection[];
+};
+
+export type IqSondageReviewResult =
+  | { review: IqSondageReview; error?: undefined }
+  | { review: null; error: "not-found" | "load-error" };
 
 type IqTestRow = {
   id: number;
@@ -487,6 +532,7 @@ type IqResultRow = {
   attempt_token: string;
   test_id: number;
   test_title: string;
+  test_slug: string;
   status: string;
   user_id: number | null;
   started_at: Date;
@@ -505,6 +551,57 @@ type IqResultRow = {
   long_memory_score: string | number | null;
   spatial_score: string | number | null;
   average_response_time_ms: number | null;
+};
+
+type IqSondageReviewAttemptRow = {
+  id: number;
+  attempt_token: string;
+  email: string;
+  pseudo: string | null;
+};
+
+type IqSondageReviewRow = {
+  section_key: string;
+  section_title: string;
+  question_key: string;
+  question_text: string | null;
+  answer_prompt_text: string | null;
+  stimulus_text: string | null;
+  question_format: string;
+  question_image_url: string | null;
+  answers_image_url: string | null;
+  prompt_audio_url: string | null;
+  selected_option_key: string | null;
+  selected_option_text: string | null;
+  correct_option_key: string | null;
+  correct_option_text: string | null;
+  selected_position: number | null;
+  correct_position: number | null;
+  is_correct: number;
+  response_time_ms: number | null;
+  question_id: number;
+};
+
+type IqSondageReviewOptionRow = {
+  question_id: number;
+  option_key: string;
+  option_text: string | null;
+  position: number;
+  option_image_url: string | null;
+};
+
+type IqComputedScoreRow = {
+  answered_questions: number;
+  raw_score: string | number;
+  average_response_time_ms: number | null;
+  speed_score: string | number;
+  memory_score: string | number;
+  verbal_score: string | number;
+  logic_score: string | number;
+  quantitative_score: string | number;
+  audio_memory_score: string | number;
+  long_memory_score: string | number;
+  spatial_score: string | number;
 };
 
 type IqSectionBreakdownRow = {
@@ -3663,6 +3760,47 @@ export async function cleanupAbandonedIqAttempts(olderThanHours = ABANDONED_ATTE
   }
 }
 
+async function computeIqAttemptScores(connection: mysql.Connection, attemptId: number) {
+  const [aggregateRows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT
+        COUNT(DISTINCT aa.question_id) AS answered_questions,
+        COALESCE(SUM(CASE WHEN aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS raw_score,
+        ROUND(AVG(aa.response_time_ms)) AS average_response_time_ms,
+        COALESCE(SUM(CASE WHEN s.section_key = 'speed' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS speed_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'memory' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS memory_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'verbal' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS verbal_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'logic' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS logic_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'quantitative' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS quantitative_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'audio_memory' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS audio_memory_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'long_memory' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS long_memory_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'spatial' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS spatial_score
+     FROM iq_attempt_answers aa
+     INNER JOIN iq_questions q ON q.id = aa.question_id
+     INNER JOIN iq_sections s ON s.id = aa.section_id
+     WHERE aa.attempt_id = ?`,
+    [attemptId]
+  );
+
+  const aggregate = (aggregateRows as IqComputedScoreRow[])[0];
+
+  return {
+    answeredQuestions: Number(aggregate?.answered_questions ?? 0),
+    rawScore: Number(aggregate?.raw_score ?? 0),
+    weightedScore: Number(aggregate?.raw_score ?? 0),
+    averageResponseTimeMs: aggregate?.average_response_time_ms ?? null,
+    sectionScoreByKey: {
+      verbal: Number(aggregate?.verbal_score ?? 0),
+      logic: Number(aggregate?.logic_score ?? 0),
+      quantitative: Number(aggregate?.quantitative_score ?? 0),
+      audio_memory: Number(aggregate?.audio_memory_score ?? 0),
+      long_memory: Number(aggregate?.long_memory_score ?? 0),
+      spatial: Number(aggregate?.spatial_score ?? 0),
+      memory: Number(aggregate?.memory_score ?? 0),
+      speed: Number(aggregate?.speed_score ?? 0),
+    },
+  };
+}
+
 export async function getIqResultByToken(token: string, userId: number): Promise<IqResultResult> {
   let connection: mysql.Connection | undefined;
 
@@ -3670,7 +3808,7 @@ export async function getIqResultByToken(token: string, userId: number): Promise
     connection = await mysql.createConnection(dbConfig);
 
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT a.id, a.attempt_token, a.test_id, t.title AS test_title, a.status, a.user_id, a.started_at, a.completed_at,
+      `SELECT a.id, a.attempt_token, a.test_id, t.title AS test_title, t.slug AS test_slug, a.status, a.user_id, a.started_at, a.completed_at,
               a.total_questions, a.answered_questions, a.raw_score, a.weighted_score, a.estimated_iq_score,
               a.speed_score, a.memory_score, a.verbal_score, a.logic_score, a.quantitative_score, a.audio_memory_score, a.long_memory_score, a.spatial_score,
               a.average_response_time_ms
@@ -3716,16 +3854,8 @@ export async function getIqResultByToken(token: string, userId: number): Promise
       sequencePlan,
       getEnabledLongMemoryItems(resolvedSequence)
     );
-    const sectionScoreByKey = {
-      verbal: row.verbal_score === null ? 0 : Number(row.verbal_score),
-      logic: row.logic_score === null ? 0 : Number(row.logic_score),
-      quantitative: row.quantitative_score === null ? 0 : Number(row.quantitative_score),
-      audio_memory: row.audio_memory_score === null ? 0 : Number(row.audio_memory_score),
-      long_memory: row.long_memory_score === null ? 0 : Number(row.long_memory_score),
-      spatial: row.spatial_score === null ? 0 : Number(row.spatial_score),
-      memory: row.memory_score === null ? 0 : Number(row.memory_score),
-      speed: row.speed_score === null ? 0 : Number(row.speed_score),
-    };
+    const computedScores = await computeIqAttemptScores(connection, row.id);
+    const sectionScoreByKey = computedScores.sectionScoreByKey;
     const sectionRowsByKey = new Map((sectionRows as IqSectionBreakdownRow[]).map((section) => [section.section_key, section]));
     const sectionBreakdown = orderedSectionKeys.map((sectionKey) => {
       const section = sectionRowsByKey.get(sectionKey);
@@ -3751,29 +3881,210 @@ export async function getIqResultByToken(token: string, userId: number): Promise
       result: {
         attemptToken: row.attempt_token,
         testTitle: row.test_title,
+        testSlug: row.test_slug,
         status: row.status,
         userId: row.user_id,
         startedAt: row.started_at,
         completedAt: row.completed_at,
         totalQuestions: row.total_questions,
-        answeredQuestions: row.answered_questions,
-        rawScore: Number(row.raw_score),
-        weightedScore: Number(row.weighted_score),
+        answeredQuestions: computedScores.answeredQuestions,
+        rawScore: computedScores.rawScore,
+        weightedScore: computedScores.weightedScore,
         estimatedIqScore: row.estimated_iq_score === null ? null : Number(row.estimated_iq_score),
-        speedScore: row.speed_score === null ? null : Number(row.speed_score),
-        memoryScore: row.memory_score === null ? null : Number(row.memory_score),
-        verbalScore: row.verbal_score === null ? null : Number(row.verbal_score),
-        logicScore: row.logic_score === null ? null : Number(row.logic_score),
-        quantitativeScore: row.quantitative_score === null ? null : Number(row.quantitative_score),
-        audioMemoryScore: row.audio_memory_score === null ? null : Number(row.audio_memory_score),
-        longMemoryScore: row.long_memory_score === null ? null : Number(row.long_memory_score),
-        spatialScore: row.spatial_score === null ? null : Number(row.spatial_score),
-        averageResponseTimeMs: row.average_response_time_ms,
+        speedScore: computedScores.sectionScoreByKey.speed,
+        memoryScore: computedScores.sectionScoreByKey.memory,
+        verbalScore: computedScores.sectionScoreByKey.verbal,
+        logicScore: computedScores.sectionScoreByKey.logic,
+        quantitativeScore: computedScores.sectionScoreByKey.quantitative,
+        audioMemoryScore: computedScores.sectionScoreByKey.audio_memory,
+        longMemoryScore: computedScores.sectionScoreByKey.long_memory,
+        spatialScore: computedScores.sectionScoreByKey.spatial,
+        averageResponseTimeMs: computedScores.averageResponseTimeMs,
         sectionBreakdown,
       },
     };
   } catch {
     return { result: null, error: "load-error" };
+  } finally {
+    await connection?.end();
+  }
+}
+
+async function loadIqSondageReviewByAttempt(
+  connection: mysql.Connection,
+  attempt: IqSondageReviewAttemptRow
+): Promise<IqSondageReviewResult> {
+  const orderedSectionKeys = ["logic", "spatial", "verbal", "quantitative", "memory", "long_memory", "audio_memory"] as const;
+  const [answerRows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT q.id AS question_id, s.section_key, s.title AS section_title, q.question_key, q.question_text, q.answer_prompt_text, q.stimulus_text,
+            q.question_format, COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url,
+            overlay.answers_image_url, audio.prompt_audio_url,
+            selected.option_key AS selected_option_key, selected.option_text AS selected_option_text,
+            correct.option_key AS correct_option_key, correct.option_text AS correct_option_text,
+            aa.selected_position, aa.correct_position, aa.is_correct, aa.response_time_ms
+     FROM iq_attempt_answers aa
+     INNER JOIN iq_questions q ON q.id = aa.question_id
+     INNER JOIN iq_sections s ON s.id = aa.section_id
+     LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
+     LEFT JOIN iq_audio_memory_questions audio ON audio.question_id = q.id
+     LEFT JOIN iq_question_options selected ON selected.id = aa.selected_option_id
+     LEFT JOIN iq_question_options correct ON correct.question_id = aa.question_id AND correct.is_correct = 1 AND correct.is_active = 1
+     WHERE aa.attempt_id = ?
+       AND s.section_key IN ('logic', 'spatial', 'verbal', 'quantitative', 'memory', 'long_memory', 'audio_memory')
+       AND (aa.selected_option_id IS NOT NULL OR aa.selected_position IS NOT NULL)
+     ORDER BY FIELD(s.section_key, 'logic', 'spatial', 'verbal', 'quantitative', 'memory', 'long_memory', 'audio_memory'),
+              q.position,
+              aa.id`,
+    [attempt.id]
+  );
+
+  const questionIds = Array.from(new Set((answerRows as IqSondageReviewRow[]).map((row) => row.question_id)));
+  const optionsByQuestionId = new Map<number, IqSondageReviewQuestion["options"]>();
+
+  if (questionIds.length > 0) {
+    const placeholders = questionIds.map(() => "?").join(", ");
+    const [optionRows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT question_id, option_key, option_text, position, option_image_url
+       FROM iq_question_options
+       WHERE is_active = 1
+         AND question_id IN (${placeholders})
+       ORDER BY question_id, position`,
+      questionIds
+    );
+
+    for (const option of optionRows as IqSondageReviewOptionRow[]) {
+      const existing = optionsByQuestionId.get(option.question_id) ?? [];
+      existing.push({
+        key: option.option_key,
+        text: option.option_text,
+        position: option.position,
+        audioUrl: option.option_image_url,
+      });
+      optionsByQuestionId.set(option.question_id, existing);
+    }
+  }
+
+  const sectionMap = new Map<string, IqSondageReviewSection>();
+
+  for (const row of answerRows as IqSondageReviewRow[]) {
+    const existingSection = sectionMap.get(row.section_key);
+    const section =
+      existingSection ??
+      {
+        key: row.section_key,
+        label: row.section_title,
+        questions: [],
+      };
+
+    section.questions.push({
+      sectionKey: row.section_key,
+      sectionTitle: row.section_title,
+      questionKey: row.question_key,
+      questionText: row.question_text,
+      answerPromptText: row.answer_prompt_text,
+      stimulusText: row.stimulus_text,
+      format: row.question_format,
+      imageUrl: row.question_image_url,
+      answersImageUrl: row.answers_image_url,
+      promptAudioUrl: row.prompt_audio_url,
+      selectedOptionKey: row.selected_option_key,
+      selectedOptionText: row.selected_option_text,
+      correctOptionKey: row.correct_option_key,
+      correctOptionText: row.correct_option_text,
+      selectedPosition: row.selected_position,
+      correctPosition: row.correct_position,
+      isCorrect: row.is_correct === 1,
+      responseTimeMs: row.response_time_ms,
+      options: optionsByQuestionId.get(row.question_id) ?? [],
+    });
+
+    if (!existingSection) {
+      sectionMap.set(row.section_key, section);
+    }
+  }
+
+  const sections = orderedSectionKeys
+    .map((sectionKey) => sectionMap.get(sectionKey))
+    .filter((section): section is IqSondageReviewSection => Boolean(section && section.questions.length > 0));
+
+  if (sections.length === 0) {
+    return { review: null, error: "not-found" };
+  }
+
+  return {
+    review: {
+      email: attempt.email,
+      userPseudo: attempt.pseudo,
+      attemptToken: attempt.attempt_token,
+      sections,
+    },
+  };
+}
+
+export async function getIqSondageReviewByEmail(email: string): Promise<IqSondageReviewResult> {
+  let connection: mysql.Connection | undefined;
+
+  try {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      return { review: null, error: "not-found" };
+    }
+
+    connection = await mysql.createConnection(dbConfig);
+
+    const [attemptRows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT a.id, a.attempt_token, u.email, u.pseudo
+       FROM users u
+       INNER JOIN iq_attempts a ON a.user_id = u.id
+       INNER JOIN iq_tests t ON t.id = a.test_id
+       WHERE LOWER(u.email) = ?
+         AND t.slug = 'sondage'
+         AND a.status = 'completed'
+       ORDER BY a.completed_at DESC, a.id DESC
+       LIMIT 1`,
+      [normalizedEmail]
+    );
+    const attempt = (attemptRows as IqSondageReviewAttemptRow[])[0];
+
+    if (!attempt) {
+      return { review: null, error: "not-found" };
+    }
+
+    return await loadIqSondageReviewByAttempt(connection, attempt);
+  } catch {
+    return { review: null, error: "load-error" };
+  } finally {
+    await connection?.end();
+  }
+}
+
+export async function getIqSondageReviewByToken(token: string): Promise<IqSondageReviewResult> {
+  let connection: mysql.Connection | undefined;
+
+  try {
+    connection = await mysql.createConnection(dbConfig);
+
+    const [attemptRows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT a.id, a.attempt_token, u.email, u.pseudo
+       FROM iq_attempts a
+       INNER JOIN iq_tests t ON t.id = a.test_id
+       LEFT JOIN users u ON u.id = a.user_id
+       WHERE a.attempt_token = ?
+         AND t.slug = 'sondage'
+         AND a.status = 'completed'
+       LIMIT 1`,
+      [token]
+    );
+    const attempt = (attemptRows as IqSondageReviewAttemptRow[])[0];
+
+    if (!attempt) {
+      return { review: null, error: "not-found" };
+    }
+
+    return await loadIqSondageReviewByAttempt(connection, attempt);
+  } catch {
+    return { review: null, error: "load-error" };
   } finally {
     await connection?.end();
   }
@@ -3786,7 +4097,7 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
     connection = await mysql.createConnection(dbConfig);
 
     const [rows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT a.id, a.attempt_token, a.test_id, t.title AS test_title, a.status, a.user_id, a.started_at, a.completed_at,
+      `SELECT a.id, a.attempt_token, a.test_id, t.title AS test_title, t.slug AS test_slug, a.status, a.user_id, a.started_at, a.completed_at,
               a.total_questions, a.answered_questions, a.raw_score, a.weighted_score, a.estimated_iq_score,
               a.speed_score, a.memory_score, a.verbal_score, a.logic_score, a.quantitative_score, a.audio_memory_score, a.long_memory_score, a.spatial_score,
               a.average_response_time_ms
@@ -3825,16 +4136,8 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
       sequencePlan,
       getEnabledLongMemoryItems(resolvedSequence)
     );
-    const sectionScoreByKey = {
-      verbal: row.verbal_score === null ? 0 : Number(row.verbal_score),
-      logic: row.logic_score === null ? 0 : Number(row.logic_score),
-      quantitative: row.quantitative_score === null ? 0 : Number(row.quantitative_score),
-      audio_memory: row.audio_memory_score === null ? 0 : Number(row.audio_memory_score),
-      long_memory: row.long_memory_score === null ? 0 : Number(row.long_memory_score),
-      spatial: row.spatial_score === null ? 0 : Number(row.spatial_score),
-      memory: row.memory_score === null ? 0 : Number(row.memory_score),
-      speed: row.speed_score === null ? 0 : Number(row.speed_score),
-    };
+    const computedScores = await computeIqAttemptScores(connection, row.id);
+    const sectionScoreByKey = computedScores.sectionScoreByKey;
     const sectionRowsByKey = new Map((sectionRows as IqSectionBreakdownRow[]).map((section) => [section.section_key, section]));
     const sectionBreakdown = orderedSectionKeys.map((sectionKey) => {
       const section = sectionRowsByKey.get(sectionKey);
@@ -3860,24 +4163,25 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
       result: {
         attemptToken: row.attempt_token,
         testTitle: row.test_title,
+        testSlug: row.test_slug,
         status: row.status,
         userId: row.user_id,
         startedAt: row.started_at,
         completedAt: row.completed_at,
         totalQuestions: row.total_questions,
-        answeredQuestions: row.answered_questions,
-        rawScore: Number(row.raw_score),
-        weightedScore: Number(row.weighted_score),
+        answeredQuestions: computedScores.answeredQuestions,
+        rawScore: computedScores.rawScore,
+        weightedScore: computedScores.weightedScore,
         estimatedIqScore: row.estimated_iq_score === null ? null : Number(row.estimated_iq_score),
-        speedScore: row.speed_score === null ? null : Number(row.speed_score),
-        memoryScore: row.memory_score === null ? null : Number(row.memory_score),
-        verbalScore: row.verbal_score === null ? null : Number(row.verbal_score),
-        logicScore: row.logic_score === null ? null : Number(row.logic_score),
-        quantitativeScore: row.quantitative_score === null ? null : Number(row.quantitative_score),
-        audioMemoryScore: row.audio_memory_score === null ? null : Number(row.audio_memory_score),
-        longMemoryScore: row.long_memory_score === null ? null : Number(row.long_memory_score),
-        spatialScore: row.spatial_score === null ? null : Number(row.spatial_score),
-        averageResponseTimeMs: row.average_response_time_ms,
+        speedScore: computedScores.sectionScoreByKey.speed,
+        memoryScore: computedScores.sectionScoreByKey.memory,
+        verbalScore: computedScores.sectionScoreByKey.verbal,
+        logicScore: computedScores.sectionScoreByKey.logic,
+        quantitativeScore: computedScores.sectionScoreByKey.quantitative,
+        audioMemoryScore: computedScores.sectionScoreByKey.audio_memory,
+        longMemoryScore: computedScores.sectionScoreByKey.long_memory,
+        spatialScore: computedScores.sectionScoreByKey.spatial,
+        averageResponseTimeMs: computedScores.averageResponseTimeMs,
         sectionBreakdown,
       },
     };

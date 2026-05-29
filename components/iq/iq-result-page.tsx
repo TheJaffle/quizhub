@@ -4,13 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AlertTriangle, Brain, Gauge, RotateCcw, Share2, Sparkles, Trophy, WalletCards } from "lucide-react";
+import { AlertTriangle, Brain, Eye, Gauge, RotateCcw, Share2, Sparkles, Trophy, WalletCards } from "lucide-react";
 import Link from "next/link";
 
 type IqResultPageProps = {
   result: IqResult | null;
   error?: "not-found" | "forbidden" | "load-error";
   userPseudo?: string;
+  emailToken?: string | null;
 };
 
 const sectionScores = [
@@ -58,7 +59,7 @@ function getErrorText(error?: IqResultPageProps["error"]) {
   return "Ce resultat de test de logique est invalide ou introuvable.";
 }
 
-export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
+export function IqResultPage({ result, error, userPseudo, emailToken }: IqResultPageProps) {
   if (!result) {
     return (
       <div className="mx-auto max-w-3xl py-10">
@@ -75,6 +76,10 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
   const totalPossibleScore = result.sectionBreakdown.reduce((total, section) => total + section.maxScore, 0);
   const precisionProgress = totalPossibleScore > 0 ? clampScore((result.rawScore / totalPossibleScore) * 100) : 0;
   const cognitiveScore = precisionProgress;
+  const correctionUrl =
+    result.testSlug === "sondage"
+      ? `/iq/sondage-review/${encodeURIComponent(result.attemptToken)}${emailToken ? `?email_token=${encodeURIComponent(emailToken)}` : ""}`
+      : null;
   const rankedSections = sectionScores
     .map((section) => {
       const value = result.sectionBreakdown.find((item) => item.key === section.key);
@@ -102,6 +107,14 @@ export function IqResultPage({ result, error, userPseudo }: IqResultPageProps) {
           {userPseudo ? <p className="text-muted-foreground">Connecte en tant que {userPseudo}</p> : null}
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
+          {correctionUrl ? (
+            <Button asChild variant="outline">
+              <Link href={correctionUrl}>
+                <Eye className="mr-2 h-4 w-4" />
+                Correction
+              </Link>
+            </Button>
+          ) : null}
           <Button asChild variant="outline">
             <Link href="/dashboard/user">
               <WalletCards className="mr-2 h-4 w-4" />

@@ -1,11 +1,11 @@
-import { IqResultPage } from "@/components/iq/iq-result-page";
+import { IqSondageReviewPage } from "@/components/iq/iq-sondage-review-page";
 import { getUserById } from "@/lib/auth";
-import { getIqResultByToken, getIqResultByTokenForEmail } from "@/lib/iq-tests";
+import { getIqSondageReviewByToken } from "@/lib/iq-tests";
 import { canAccessResultWithEmailToken } from "@/lib/result-email-links";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-type IqResultRouteProps = {
+type IqSondageReviewByTokenRouteProps = {
   params: Promise<{
     token: string;
   }>;
@@ -16,16 +16,14 @@ type IqResultRouteProps = {
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: IqResultRouteProps) {
-  const { token } = await params;
-
+export async function generateMetadata() {
   return {
-    title: "Résultat de logique | brainspark",
-    description: `Résultat indicatif du test de logique ${token}.`,
+    title: "Correction sondage | brainspark",
+    description: "Correction question par question du sondage IQ.",
   };
 }
 
-export default async function IqResultRoute({ params, searchParams }: IqResultRouteProps) {
+export default async function IqSondageReviewByTokenRoute({ params, searchParams }: IqSondageReviewByTokenRouteProps) {
   const { token } = await params;
   const resolvedSearchParams = await searchParams;
   const emailToken = resolvedSearchParams?.email_token ?? null;
@@ -47,11 +45,7 @@ export default async function IqResultRoute({ params, searchParams }: IqResultRo
     redirect(`/login?attempt_token=${encodeURIComponent(token)}`);
   }
 
-  const { result, error } = hasEmailAccess ? await getIqResultByTokenForEmail(token) : user ? await getIqResultByToken(token, user.id) : { result: null, error: "forbidden" as const };
+  const { review, error } = await getIqSondageReviewByToken(token);
 
-  if (error === "unattached") {
-    redirect(`/login?attempt_token=${encodeURIComponent(token)}`);
-  }
-
-  return <IqResultPage result={result} error={error} userPseudo={user?.pseudo} emailToken={emailToken} />;
+  return <IqSondageReviewPage initialEmail="" review={review} error={error} hideLookupForm />;
 }
