@@ -48,6 +48,8 @@ export type IqDiagnosticAttempt = {
   totalQuestions: number;
   answeredQuestions: number;
   sections: string[];
+  sectionCounts: Record<string, number>;
+  sectionScores: Record<string, number | null>;
   answers: IqDiagnosticAnswer[];
 };
 
@@ -62,6 +64,14 @@ type IqDiagnosticRow = {
   completed_at: Date | null;
   total_questions: number | null;
   answered_questions: number | null;
+  verbal_score: string | number | null;
+  logic_score: string | number | null;
+  spatial_score: string | number | null;
+  quantitative_score: string | number | null;
+  long_memory_score: string | number | null;
+  memory_score: string | number | null;
+  audio_memory_score: string | number | null;
+  speed_score: string | number | null;
   section_key: string | null;
   section_title: string | null;
   question_key: string | null;
@@ -90,12 +100,20 @@ export async function getIqDiagnosticAttempts() {
           a.attempt_token,
           a.status,
           t.title AS test_title,
-          u.email,
+          COALESCE(u.email, rel.email) AS email,
           u.pseudo,
           a.started_at,
           a.completed_at,
           a.total_questions,
           a.answered_questions,
+          a.verbal_score,
+          a.logic_score,
+          a.spatial_score,
+          a.quantitative_score,
+          a.long_memory_score,
+          a.memory_score,
+          a.audio_memory_score,
+          a.speed_score,
           s.section_key,
           s.title AS section_title,
           q.question_key,
@@ -113,6 +131,12 @@ export async function getIqDiagnosticAttempts() {
        FROM iq_attempts a
        INNER JOIN iq_tests t ON t.id = a.test_id
        LEFT JOIN users u ON u.id = a.user_id
+       LEFT JOIN (
+         SELECT result_token, MIN(email) AS email
+         FROM result_email_links
+         WHERE result_type = 'iq'
+         GROUP BY result_token
+       ) rel ON rel.result_token = a.attempt_token
        LEFT JOIN iq_attempt_answers aa ON aa.attempt_id = a.id
        LEFT JOIN iq_questions q ON q.id = aa.question_id
        LEFT JOIN iq_sections s ON s.id = aa.section_id
@@ -121,8 +145,8 @@ export async function getIqDiagnosticAttempts() {
          ON correct_option.question_id = aa.question_id
         AND correct_option.is_correct = 1
         AND correct_option.is_active = 1
-       WHERE u.email IS NOT NULL
-         AND u.email <> ''
+       WHERE COALESCE(u.email, rel.email) IS NOT NULL
+         AND COALESCE(u.email, rel.email) <> ''
          AND (
            a.status = 'completed'
             OR EXISTS (
@@ -152,6 +176,17 @@ export async function getIqDiagnosticAttempts() {
           totalQuestions: Number(row.total_questions ?? 0),
           answeredQuestions: Number(row.answered_questions ?? 0),
           sections: [],
+          sectionCounts: {},
+          sectionScores: {
+            verbal: row.verbal_score === null ? null : Number(row.verbal_score),
+            logic: row.logic_score === null ? null : Number(row.logic_score),
+            spatial: row.spatial_score === null ? null : Number(row.spatial_score),
+            quantitative: row.quantitative_score === null ? null : Number(row.quantitative_score),
+            long_memory: row.long_memory_score === null ? null : Number(row.long_memory_score),
+            memory: row.memory_score === null ? null : Number(row.memory_score),
+            audio_memory: row.audio_memory_score === null ? null : Number(row.audio_memory_score),
+            speed: row.speed_score === null ? null : Number(row.speed_score),
+          },
           answers: [],
         };
 
@@ -160,6 +195,10 @@ export async function getIqDiagnosticAttempts() {
       }
 
       if (row.question_key || row.question_text) {
+        if (row.section_key) {
+          attempt.sectionCounts[row.section_key] = (attempt.sectionCounts[row.section_key] ?? 0) + 1;
+        }
+
         attempt.answers.push({
           attemptId: row.attempt_id,
           attemptToken: row.attempt_token,

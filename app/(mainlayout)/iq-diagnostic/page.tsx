@@ -2,6 +2,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { getIqDiagnosticAttempts } from "@/lib/iq-diagnostic";
 import { AlertTriangle } from "lucide-react";
+import { Fragment } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,17 @@ export const metadata = {
     follow: false,
   },
 };
+
+const sectionColumns = [
+  { key: "verbal", label: "Verb" },
+  { key: "logic", label: "Log" },
+  { key: "spatial", label: "Spa" },
+  { key: "quantitative", label: "Quant" },
+  { key: "long_memory", label: "Long" },
+  { key: "memory", label: "Mem" },
+  { key: "audio_memory", label: "Audio" },
+  { key: "speed", label: "Speed" },
+];
 
 function formatDate(date: Date | null) {
   if (!date) return "-";
@@ -68,7 +80,7 @@ export default async function IqDiagnosticPage() {
       </div>
 
       <section className="mb-5 overflow-x-auto rounded-lg border bg-background">
-        <table className="w-full min-w-[980px] border-collapse text-[8px] leading-tight">
+        <table className="w-full min-w-[1420px] border-collapse text-[8px] leading-tight">
           <thead className="sticky top-0 bg-muted text-left">
             <tr>
               <th className="border-b px-1.5 py-1">Date</th>
@@ -77,8 +89,27 @@ export default async function IqDiagnosticPage() {
               <th className="border-b px-1.5 py-1">Test</th>
               <th className="border-b px-1.5 py-1">Statut</th>
               <th className="border-b px-1.5 py-1">Réponses</th>
+              {sectionColumns.map((section) => (
+                <th key={section.key} className="border-b px-1.5 py-1 text-center" colSpan={2}>
+                  {section.label}
+                </th>
+              ))}
               <th className="border-b px-1.5 py-1">Sections vues</th>
               <th className="border-b px-1.5 py-1">Token</th>
+            </tr>
+            <tr>
+              <th className="border-b px-1.5 py-1" colSpan={6} />
+              {sectionColumns.map((section) => (
+                <Fragment key={`${section.key}-subhead`}>
+                  <th className="border-b px-1.5 py-1 text-center">
+                    R
+                  </th>
+                  <th className="border-b px-1.5 py-1 text-center">
+                    S
+                  </th>
+                </Fragment>
+              ))}
+              <th className="border-b px-1.5 py-1" colSpan={2} />
             </tr>
           </thead>
           <tbody>
@@ -92,6 +123,21 @@ export default async function IqDiagnosticPage() {
                 <td className="border-b px-1.5 py-1 whitespace-nowrap">
                   {attempt.answers.length} / {attempt.totalQuestions || attempt.answeredQuestions || "-"}
                 </td>
+                {sectionColumns.map((section) => {
+                  const count = attempt.sectionCounts[section.key] ?? 0;
+                  const score = attempt.sectionScores[section.key] ?? null;
+
+                  return (
+                    <Fragment key={section.key}>
+                      <td className={`border-b px-1.5 py-1 text-center font-semibold ${count === 0 ? "text-red-500" : "text-emerald-700"}`}>
+                        {count}
+                      </td>
+                      <td className={`border-b px-1.5 py-1 text-center font-semibold ${score === null ? "text-muted-foreground" : score > 0 ? "text-blue-700" : "text-slate-500"}`}>
+                        {score ?? "-"}
+                      </td>
+                    </Fragment>
+                  );
+                })}
                 <td className="border-b px-1.5 py-1">{attempt.sections.join(", ") || "-"}</td>
                 <td className="border-b px-1.5 py-1 font-mono">{attempt.attemptToken}</td>
               </tr>
