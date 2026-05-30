@@ -442,7 +442,6 @@ type IqAnswerCheckRow = {
   user_id: number | null;
   question_id: number;
   question_key: string;
-  difficulty_level: number;
   weight: string | number;
   question_format: string;
   selected_option_id: number | null;
@@ -2941,7 +2940,7 @@ async function prepareIqAttemptAnswer(
   }
 
   const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id,
-                            q.difficulty_level, q.weight, q.question_format,
+                            q.weight, q.question_format,
                             selected.id AS selected_option_id, selected.is_correct,
                             correct.id AS correct_option_id,
                             selected.position AS selected_position,
@@ -3110,8 +3109,8 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
     await connection.execute(
       `INSERT INTO iq_attempt_answers
        (attempt_id, test_id, section_id, question_id, user_id, selected_option_id, selected_position,
-        correct_position, is_correct, difficulty_level, weight, points_earned, response_time_ms, displayed_at, answered_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        correct_position, is_correct, points_earned, response_time_ms, displayed_at, answered_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         answerData.attempt_id,
         answerData.test_id,
@@ -3122,8 +3121,6 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
         answerData.selected_position,
         null,
         null,
-        answerData.difficulty_level,
-        Number(answerData.weight),
         null,
         responseTimeMs,
         safeDisplayedAt,
@@ -3781,7 +3778,7 @@ async function insertChoiceSiblingSentinelAnswers(
 
   const placeholders = siblingQuestionKeys.map(() => "?").join(", ");
   const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
-    `SELECT q.id AS question_id, q.section_id, q.difficulty_level, q.weight
+    `SELECT q.id AS question_id, q.section_id
      FROM iq_tests t
      INNER JOIN iq_questions q ON q.test_id = COALESCE(t.question_bank_test_id, t.id)
      INNER JOIN iq_sections s ON s.id = q.section_id
@@ -3792,7 +3789,7 @@ async function insertChoiceSiblingSentinelAnswers(
     [answerData.test_id, ...siblingQuestionKeys]
   );
 
-  for (const row of questionRows as Array<{ question_id: number; section_id: number; difficulty_level: number; weight: string | number }>) {
+  for (const row of questionRows as Array<{ question_id: number; section_id: number }>) {
     const [existingRows] = await connection.execute<mysql.RowDataPacket[]>(
       `SELECT id
        FROM iq_attempt_answers
@@ -3808,8 +3805,8 @@ async function insertChoiceSiblingSentinelAnswers(
     await connection.execute(
       `INSERT INTO iq_attempt_answers
        (attempt_id, test_id, section_id, question_id, user_id, selected_option_id, selected_position,
-        correct_position, is_correct, difficulty_level, points_earned, response_time_ms, displayed_at, answered_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        correct_position, is_correct, points_earned, response_time_ms, displayed_at, answered_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         answerData.attempt_id,
         answerData.test_id,
@@ -3820,7 +3817,6 @@ async function insertChoiceSiblingSentinelAnswers(
         null,
         null,
         null,
-        row.difficulty_level,
         null,
         NOT_PRESENTED_RESPONSE_TIME_MS,
         null,
