@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 import crypto from "crypto";
 import mysql from "mysql2/promise";
 
@@ -453,10 +453,12 @@ type IqAnswerCheckRow = {
 };
 
 type IqExistingAnswerRow = {
-  is_correct: number;
+  question_format: string;
+  selected_option_id: number | null;
+  selected_position: number | null;
   correct_option_id: number | null;
   correct_position: number | null;
-  points_earned: string | number;
+  weight: string | number;
 };
 
 type PreparedIqAnswerRow = IqAnswerCheckRow & {
@@ -475,6 +477,32 @@ type PreparedIqAnswer = {
 
 const NOT_PRESENTED_RESPONSE_TIME_MS = 123456;
 const UNANSWERED_RESPONSE_TIME_MS = 1000;
+
+function isIqOverlayFormat(questionFormat: string | null | undefined) {
+  return questionFormat === "visual_overlay" || questionFormat === "spatial_overlay";
+}
+
+function computeIqAnswerCorrectness(params: {
+  questionFormat: string | null | undefined;
+  selectedOptionId: number | null;
+  selectedPosition: number | null;
+  correctOptionId: number | null;
+  correctPosition: number | null;
+}) {
+  if (isIqOverlayFormat(params.questionFormat)) {
+    return (
+      params.selectedPosition !== null &&
+      params.correctPosition !== null &&
+      params.selectedPosition === params.correctPosition
+    );
+  }
+
+  return (
+    params.selectedOptionId !== null &&
+    params.correctOptionId !== null &&
+    params.selectedOptionId === params.correctOptionId
+  );
+}
 
 type IqMemoryIntroRow = {
   attempt_id: number;
@@ -575,13 +603,14 @@ type IqSondageReviewRow = {
   question_image_url: string | null;
   answers_image_url: string | null;
   prompt_audio_url: string | null;
+  selected_option_id: number | null;
+  current_correct_option_id: number | null;
   selected_option_key: string | null;
   selected_option_text: string | null;
   correct_option_key: string | null;
   correct_option_text: string | null;
   selected_position: number | null;
   correct_position: number | null;
-  is_correct: number;
   response_time_ms: number | null;
   question_id: number;
 };
@@ -2430,7 +2459,7 @@ export async function getCompletedIqAttemptByToken(attemptToken: string, slug?: 
       resultUrl: `/iq/results/${encodeURIComponent(row.attempt_token)}`,
     };
   } catch {
-    return { attemptToken: null, resultUrl: null, error: "Impossible de vérifier l'ancienne tentative QI." };
+    return { attemptToken: null, resultUrl: null, error: "Impossible de vÃ©rifier l'ancienne tentative QI." };
   } finally {
     await connection?.end();
   }
@@ -2467,7 +2496,7 @@ export async function getCompletedIqAttemptForUser(userId: number, slug?: string
       resultUrl: `/iq/results/${encodeURIComponent(row.attempt_token)}`,
     };
   } catch {
-    return { attemptToken: null, resultUrl: null, error: "Impossible de vérifier l'ancienne tentative QI." };
+    return { attemptToken: null, resultUrl: null, error: "Impossible de vÃ©rifier l'ancienne tentative QI." };
   } finally {
     await connection?.end();
   }
@@ -2485,7 +2514,7 @@ export async function createIqAttempt(
     const gender = demographics?.gender ?? "";
 
     if (!isValidBirthDate(birthDate) || !ALLOWED_IQ_GENDERS.has(gender)) {
-      return { attemptToken: null, nextUrl: null, error: "Veuillez renseigner votre année de naissance et votre genre." };
+      return { attemptToken: null, nextUrl: null, error: "Veuillez renseigner votre annÃ©e de naissance et votre genre." };
     }
 
     connection = await mysql.createConnection(dbConfig);
@@ -2605,8 +2634,8 @@ export async function createIqAttempt(
       nextUrl: null,
       error:
         process.env.NODE_ENV === "development"
-          ? `Impossible de créer une tentative de test de logique depuis MySQL : ${message}`
-          : "Impossible de démarrer le test de logique pour le moment.",
+          ? `Impossible de crÃ©er une tentative de test de logique depuis MySQL : ${message}`
+          : "Impossible de dÃ©marrer le test de logique pour le moment.",
     };
   } finally {
     await connection?.end();
@@ -2908,7 +2937,7 @@ async function prepareIqAttemptAnswer(
   const hasSelectedPosition = Number.isInteger(payload.selectedPosition);
 
   if (!Number.isInteger(payload.questionId)) {
-    return { prepared: null, error: "RÃ©ponse invalide." };
+    return { prepared: null, error: "RÃƒÂ©ponse invalide." };
   }
 
   const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id,
@@ -2940,8 +2969,7 @@ async function prepareIqAttemptAnswer(
   ]);
   const rawAnswerData = (answerRows as PreparedIqAnswerRow[])[0];
 
-  const isOverlayQuestion =
-    rawAnswerData?.question_format === "visual_overlay" || rawAnswerData?.question_format === "spatial_overlay";
+  const isOverlayQuestion = isIqOverlayFormat(rawAnswerData?.question_format);
   const selectedPosition = hasSelectedPosition ? Number(payload.selectedPosition) : rawAnswerData?.selected_position ?? null;
   const isTimedOut = !hasSelectedOption && !hasSelectedPosition;
   const isMainSection =
@@ -2958,7 +2986,7 @@ async function prepareIqAttemptAnswer(
   const answerCount = rawAnswerData?.overlay_answer_count ? Number(rawAnswerData.overlay_answer_count) : null;
 
   if (rawAnswerData && isTimedOut && !allowsTimeoutAnswer) {
-    return { prepared: null, error: "RÃ©ponse invalide." };
+    return { prepared: null, error: "RÃƒÂ©ponse invalide." };
   }
 
   const answerData =
@@ -2966,7 +2994,6 @@ async function prepareIqAttemptAnswer(
       ? {
           ...rawAnswerData,
           selected_option_id: null,
-          is_correct: 0,
           correct_option_id: rawAnswerData.correct_option_id ?? null,
           selected_position: null,
           correct_position: isOverlayQuestion ? rawAnswerData.overlay_correct_position : rawAnswerData.correct_position ?? null,
@@ -2975,7 +3002,6 @@ async function prepareIqAttemptAnswer(
         ? {
             ...rawAnswerData,
             selected_option_id: null,
-            is_correct: selectedPosition === rawAnswerData.overlay_correct_position ? 1 : 0,
             correct_option_id: null,
             selected_position: selectedPosition,
             correct_position: rawAnswerData.overlay_correct_position,
@@ -2985,20 +3011,26 @@ async function prepareIqAttemptAnswer(
           : null;
 
   if (!answerData) {
-    return { prepared: null, error: "Question ou rÃ©ponse introuvable pour cette tentative." };
+    return { prepared: null, error: "Question ou rÃƒÂ©ponse introuvable pour cette tentative." };
   }
 
   if (!isTimedOut && isOverlayQuestion) {
     const numericSelectedPosition = Number(selectedPosition);
 
     if (!Number.isInteger(numericSelectedPosition) || !answerCount || numericSelectedPosition < 1 || numericSelectedPosition > answerCount || !answerData.correct_position) {
-      return { prepared: null, error: "Zone de rÃ©ponse invalide pour cette question." };
+      return { prepared: null, error: "Zone de rÃƒÂ©ponse invalide pour cette question." };
     }
   } else if (!isTimedOut && !answerData.selected_option_id) {
-    return { prepared: null, error: "Option de rÃ©ponse invalide pour cette question." };
+    return { prepared: null, error: "Option de rÃƒÂ©ponse invalide pour cette question." };
   }
 
-  const isCorrect = answerData.is_correct === 1;
+  const isCorrect = computeIqAnswerCorrectness({
+    questionFormat: answerData.question_format,
+    selectedOptionId: answerData.selected_option_id,
+    selectedPosition: answerData.selected_position,
+    correctOptionId: answerData.correct_option_id,
+    correctPosition: answerData.correct_position,
+  });
   const weight = Number(answerData.weight);
   const pointsEarned = isCorrect ? weight : 0;
   const responseTimeMsInput = payload.responseTimeMs;
@@ -3025,106 +3057,30 @@ async function prepareIqAttemptAnswer(
 export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptAnswerPayload): Promise<SaveIqAttemptAnswerResult> {
   let connection: mysql.Connection | undefined;
 
-  const hasSelectedOption = Number.isInteger(payload.selectedOptionId);
-  const hasSelectedPosition = Number.isInteger(payload.selectedPosition);
-
   if (!Number.isInteger(payload.questionId)) {
-    return { answer: null, error: "Réponse invalide." };
+    return { answer: null, error: "R??ponse invalide." };
   }
 
   try {
     connection = await mysql.createConnection(dbConfig);
 
-    const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id, q.question_key,
-                              q.difficulty_level, q.weight, q.question_format,
-                              selected.id AS selected_option_id, selected.is_correct,
-                              correct.id AS correct_option_id,
-                              selected.position AS selected_position,
-                              correct.position AS correct_position,
-                              overlay.correct_position AS overlay_correct_position,
-                              overlay.answer_count AS overlay_answer_count
-                       FROM iq_attempts a
-                       INNER JOIN iq_tests t ON t.id = a.test_id
-                       INNER JOIN iq_questions q ON q.test_id = COALESCE(t.question_bank_test_id, a.test_id)
-                       INNER JOIN iq_sections s ON s.id = q.section_id
-                       LEFT JOIN iq_question_options selected ON selected.question_id = q.id AND selected.id = ? AND selected.is_active = 1
-                       LEFT JOIN iq_question_options correct ON correct.question_id = q.id AND correct.is_correct = 1 AND correct.is_active = 1
-                       LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
-                       WHERE a.attempt_token = ?
-                         AND a.status = 'started'
-                         AND q.id = ?
-                         AND q.is_active = 1
-                         AND s.is_active = 1
-                         AND s.section_key IN ('verbal', 'logic', 'quantitative', 'spatial', 'memory', 'audio_memory', 'long_memory', 'speed')
-                       LIMIT 1`;
-    const [answerRows] = await connection.execute<mysql.RowDataPacket[]>(baseQuery, [
-      hasSelectedOption ? Number(payload.selectedOptionId) : null,
-      token,
-      payload.questionId,
-    ]);
-    const rawAnswerData = (answerRows as (IqAnswerCheckRow & { overlay_correct_position: number | null; overlay_answer_count: string | number | null })[])[0];
-
-    const isOverlayQuestion =
-      rawAnswerData?.question_format === "visual_overlay" || rawAnswerData?.question_format === "spatial_overlay";
-    const selectedPosition = hasSelectedPosition ? Number(payload.selectedPosition) : rawAnswerData?.selected_position ?? null;
-    const isTimedOut = !hasSelectedOption && !hasSelectedPosition;
-    const isMainSection =
-      rawAnswerData?.section_key === "verbal" ||
-      rawAnswerData?.section_key === "logic" ||
-      rawAnswerData?.section_key === "quantitative" ||
-      rawAnswerData?.section_key === "long_memory" ||
-      rawAnswerData?.section_key === "spatial";
-    const allowsTimeoutAnswer =
-      isMainSection ||
-      rawAnswerData?.section_key === "memory" ||
-      rawAnswerData?.section_key === "audio_memory" ||
-      rawAnswerData?.section_key === "speed";
-    const answerCount = rawAnswerData?.overlay_answer_count ? Number(rawAnswerData.overlay_answer_count) : null;
-
-    if (rawAnswerData && isTimedOut && !allowsTimeoutAnswer) {
-      return { answer: null, error: "Réponse invalide." };
+    const preparedResult = await prepareIqAttemptAnswer(connection, token, payload);
+    if (preparedResult.error || !preparedResult.prepared) {
+      return { answer: null, error: preparedResult.error ?? "Impossible d'enregistrer cette r??ponse pour le moment." };
     }
 
-    const answerData =
-      rawAnswerData && isTimedOut && allowsTimeoutAnswer
-        ? {
-            ...rawAnswerData,
-            selected_option_id: null,
-            is_correct: 0,
-            correct_option_id: rawAnswerData.correct_option_id ?? null,
-            selected_position: null,
-            correct_position: isOverlayQuestion ? rawAnswerData.overlay_correct_position : rawAnswerData.correct_position ?? null,
-          }
-        : rawAnswerData && isOverlayQuestion
-        ? {
-            ...rawAnswerData,
-            selected_option_id: null,
-            is_correct: selectedPosition === rawAnswerData.overlay_correct_position ? 1 : 0,
-            correct_option_id: null,
-            selected_position: selectedPosition,
-            correct_position: rawAnswerData.overlay_correct_position,
-          }
-        : rawAnswerData
-          ? { ...rawAnswerData, correct_position: rawAnswerData.correct_position ?? null }
-          : null;
-
-    if (!answerData) {
-      return { answer: null, error: "Question ou réponse introuvable pour cette tentative." };
-    }
-
-    if (!isTimedOut && isOverlayQuestion) {
-      const numericSelectedPosition = Number(selectedPosition);
-
-      if (!Number.isInteger(numericSelectedPosition) || !answerCount || numericSelectedPosition < 1 || numericSelectedPosition > answerCount || !answerData.correct_position) {
-        return { answer: null, error: "Zone de réponse invalide pour cette question." };
-      }
-    } else if (!isTimedOut && !answerData.selected_option_id) {
-      return { answer: null, error: "Option de réponse invalide pour cette question." };
-    }
+    const { answerData, isCorrect, pointsEarned, responseTimeMs, safeDisplayedAt } = preparedResult.prepared;
 
     const [existingRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT aa.is_correct, aa.points_earned, aa.correct_position, correct.id AS correct_option_id
+      `SELECT q.question_format,
+              q.weight,
+              aa.selected_option_id,
+              aa.selected_position,
+              correct.id AS correct_option_id,
+              COALESCE(overlay.correct_position, correct.position) AS correct_position
        FROM iq_attempt_answers aa
+       INNER JOIN iq_questions q ON q.id = aa.question_id
+       LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
        LEFT JOIN iq_question_options correct ON correct.question_id = aa.question_id AND correct.is_correct = 1 AND correct.is_active = 1
        WHERE aa.attempt_id = ? AND aa.question_id = ?
        LIMIT 1`,
@@ -3133,27 +3089,23 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
     const existingAnswer = (existingRows as IqExistingAnswerRow[])[0];
 
     if (existingAnswer) {
+      const existingIsCorrect = computeIqAnswerCorrectness({
+        questionFormat: existingAnswer.question_format,
+        selectedOptionId: existingAnswer.selected_option_id,
+        selectedPosition: existingAnswer.selected_position,
+        correctOptionId: existingAnswer.correct_option_id,
+        correctPosition: existingAnswer.correct_position,
+      });
+
       return {
         answer: {
-          isCorrect: existingAnswer.is_correct === 1,
+          isCorrect: existingIsCorrect,
           correctOptionId: existingAnswer.correct_option_id,
           correctPosition: existingAnswer.correct_position,
-          pointsEarned: Number(existingAnswer.points_earned),
+          pointsEarned: existingIsCorrect ? Number(existingAnswer.weight) : 0,
         },
       };
     }
-
-    const isCorrect = answerData.is_correct === 1;
-    const weight = Number(answerData.weight);
-    const pointsEarned = isCorrect ? weight : 0;
-    const responseTimeMsInput = payload.responseTimeMs;
-    const responseTimeMs =
-      typeof responseTimeMsInput === "number" && Number.isInteger(responseTimeMsInput) && responseTimeMsInput >= 0
-        ? responseTimeMsInput
-        : null;
-    const displayedAt = payload.displayedAt ? new Date(payload.displayedAt) : null;
-    const safeDisplayedAt =
-      displayedAt && !Number.isNaN(displayedAt.getTime()) ? displayedAt.toISOString().slice(0, 19).replace("T", " ") : null;
 
     await connection.execute(
       `INSERT INTO iq_attempt_answers
@@ -3168,11 +3120,11 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
         answerData.user_id,
         answerData.selected_option_id,
         answerData.selected_position,
-        answerData.correct_position,
-        isCorrect ? 1 : 0,
+        null,
+        null,
         answerData.difficulty_level,
-        weight,
-        pointsEarned,
+        Number(answerData.weight),
+        null,
         responseTimeMs,
         safeDisplayedAt,
       ]
@@ -3180,46 +3132,21 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
 
     await insertChoiceSiblingSentinelAnswers(connection, answerData);
 
+    const computedScores = await computeIqAttemptScores(connection, answerData.attempt_id);
+
     await connection.execute(
       `UPDATE iq_attempts
-       SET answered_questions = (
-             SELECT COUNT(DISTINCT question_id)
-             FROM iq_attempt_answers
-             WHERE attempt_id = ?
-               AND (
-                 response_time_ms IS NULL
-                 OR (response_time_ms <> ? AND response_time_ms <> ?)
-               )
-           ),
-           raw_score = (
-             SELECT COALESCE(SUM(points_earned), 0)
-             FROM iq_attempt_answers
-             WHERE attempt_id = ?
-           ),
-           weighted_score = (
-             SELECT COALESCE(SUM(points_earned), 0)
-             FROM iq_attempt_answers
-             WHERE attempt_id = ?
-           ),
-           average_response_time_ms = (
-             SELECT ROUND(AVG(response_time_ms))
-             FROM iq_attempt_answers
-             WHERE attempt_id = ?
-               AND response_time_ms IS NOT NULL
-               AND response_time_ms <> ?
-               AND response_time_ms <> ?
-           ),
+       SET answered_questions = ?,
+           raw_score = ?,
+           weighted_score = ?,
+           average_response_time_ms = ?,
            updated_at = NOW()
        WHERE id = ?`,
       [
-        answerData.attempt_id,
-        NOT_PRESENTED_RESPONSE_TIME_MS,
-        UNANSWERED_RESPONSE_TIME_MS,
-        answerData.attempt_id,
-        answerData.attempt_id,
-        answerData.attempt_id,
-        NOT_PRESENTED_RESPONSE_TIME_MS,
-        UNANSWERED_RESPONSE_TIME_MS,
+        computedScores.answeredQuestions,
+        computedScores.rawScore,
+        computedScores.weightedScore,
+        computedScores.averageResponseTimeMs,
         answerData.attempt_id,
       ]
     );
@@ -3241,117 +3168,40 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
       answer: null,
       error:
         process.env.NODE_ENV === "development"
-          ? `Impossible d'enregistrer la réponse de QI dans MySQL : ${message}`
-          : "Impossible d'enregistrer cette réponse pour le moment.",
+          ? `Impossible d'enregistrer la r??ponse de QI dans MySQL : ${message}`
+          : "Impossible d'enregistrer cette r??ponse pour le moment."
     };
   } finally {
     await connection?.end();
   }
 }
-
 export async function previewIqAttemptAnswer(token: string, payload: SaveIqAttemptAnswerPayload): Promise<SaveIqAttemptAnswerResult> {
   let connection: mysql.Connection | undefined;
 
-  const hasSelectedOption = Number.isInteger(payload.selectedOptionId);
-  const hasSelectedPosition = Number.isInteger(payload.selectedPosition);
-
   if (!Number.isInteger(payload.questionId)) {
-    return { answer: null, error: "RÃ©ponse invalide." };
+    return { answer: null, error: "R????ponse invalide." };
   }
 
   try {
     connection = await mysql.createConnection(dbConfig);
 
-    const baseQuery = `SELECT a.id AS attempt_id, a.test_id, q.section_id, s.section_key, a.user_id, q.id AS question_id, q.question_key,
-                              q.difficulty_level, q.weight, q.question_format,
-                              selected.id AS selected_option_id, selected.is_correct,
-                              correct.id AS correct_option_id,
-                              selected.position AS selected_position,
-                              correct.position AS correct_position,
-                              overlay.correct_position AS overlay_correct_position,
-                              overlay.answer_count AS overlay_answer_count
-                       FROM iq_attempts a
-                       INNER JOIN iq_tests t ON t.id = a.test_id
-                       INNER JOIN iq_questions q ON q.test_id = COALESCE(t.question_bank_test_id, a.test_id)
-                       INNER JOIN iq_sections s ON s.id = q.section_id
-                       LEFT JOIN iq_question_options selected ON selected.question_id = q.id AND selected.id = ? AND selected.is_active = 1
-                       LEFT JOIN iq_question_options correct ON correct.question_id = q.id AND correct.is_correct = 1 AND correct.is_active = 1
-                       LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
-                       WHERE a.attempt_token = ?
-                         AND a.status = 'started'
-                         AND q.id = ?
-                         AND q.is_active = 1
-                         AND s.is_active = 1
-                         AND s.section_key IN ('verbal', 'logic', 'quantitative', 'spatial', 'memory', 'audio_memory', 'long_memory', 'speed')
-                       LIMIT 1`;
-    const [answerRows] = await connection.execute<mysql.RowDataPacket[]>(baseQuery, [
-      hasSelectedOption ? Number(payload.selectedOptionId) : null,
-      token,
-      payload.questionId,
-    ]);
-    const rawAnswerData = (answerRows as PreparedIqAnswerRow[])[0];
-
-    const isOverlayQuestion =
-      rawAnswerData?.question_format === "visual_overlay" || rawAnswerData?.question_format === "spatial_overlay";
-    const selectedPosition = hasSelectedPosition ? Number(payload.selectedPosition) : rawAnswerData?.selected_position ?? null;
-    const isTimedOut = !hasSelectedOption && !hasSelectedPosition;
-    const isMainSection =
-      rawAnswerData?.section_key === "verbal" ||
-      rawAnswerData?.section_key === "logic" ||
-      rawAnswerData?.section_key === "quantitative" ||
-      rawAnswerData?.section_key === "long_memory" ||
-      rawAnswerData?.section_key === "spatial";
-    const allowsTimeoutAnswer =
-      isMainSection ||
-      rawAnswerData?.section_key === "memory" ||
-      rawAnswerData?.section_key === "audio_memory" ||
-      rawAnswerData?.section_key === "speed";
-    const answerCount = rawAnswerData?.overlay_answer_count ? Number(rawAnswerData.overlay_answer_count) : null;
-
-    if (rawAnswerData && isTimedOut && !allowsTimeoutAnswer) {
-      return { answer: null, error: "RÃ©ponse invalide." };
+    const preparedResult = await prepareIqAttemptAnswer(connection, token, payload);
+    if (preparedResult.error || !preparedResult.prepared) {
+      return { answer: null, error: preparedResult.error ?? "Impossible de valider cette r????ponse pour le moment." };
     }
 
-    const answerData =
-      rawAnswerData && isTimedOut && allowsTimeoutAnswer
-        ? {
-            ...rawAnswerData,
-            selected_option_id: null,
-            is_correct: 0,
-            correct_option_id: rawAnswerData.correct_option_id ?? null,
-            selected_position: null,
-            correct_position: isOverlayQuestion ? rawAnswerData.overlay_correct_position : rawAnswerData.correct_position ?? null,
-          }
-        : rawAnswerData && isOverlayQuestion
-          ? {
-              ...rawAnswerData,
-              selected_option_id: null,
-              is_correct: selectedPosition === rawAnswerData.overlay_correct_position ? 1 : 0,
-              correct_option_id: null,
-              selected_position: selectedPosition,
-              correct_position: rawAnswerData.overlay_correct_position,
-            }
-          : rawAnswerData
-            ? { ...rawAnswerData, correct_position: rawAnswerData.correct_position ?? null }
-            : null;
-
-    if (!answerData) {
-      return { answer: null, error: "Question ou rÃ©ponse introuvable pour cette tentative." };
-    }
-
-    if (!isTimedOut && isOverlayQuestion) {
-      const numericSelectedPosition = Number(selectedPosition);
-
-      if (!Number.isInteger(numericSelectedPosition) || !answerCount || numericSelectedPosition < 1 || numericSelectedPosition > answerCount || !answerData.correct_position) {
-        return { answer: null, error: "Zone de rÃ©ponse invalide pour cette question." };
-      }
-    } else if (!isTimedOut && !answerData.selected_option_id) {
-      return { answer: null, error: "Option de rÃ©ponse invalide pour cette question." };
-    }
+    const { answerData, isCorrect, pointsEarned } = preparedResult.prepared;
 
     const [existingRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT aa.is_correct, aa.points_earned, aa.correct_position, correct.id AS correct_option_id
+      `SELECT q.question_format,
+              q.weight,
+              aa.selected_option_id,
+              aa.selected_position,
+              correct.id AS correct_option_id,
+              COALESCE(overlay.correct_position, correct.position) AS correct_position
        FROM iq_attempt_answers aa
+       INNER JOIN iq_questions q ON q.id = aa.question_id
+       LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
        LEFT JOIN iq_question_options correct ON correct.question_id = aa.question_id AND correct.is_correct = 1 AND correct.is_active = 1
        WHERE aa.attempt_id = ? AND aa.question_id = ?
        LIMIT 1`,
@@ -3360,18 +3210,23 @@ export async function previewIqAttemptAnswer(token: string, payload: SaveIqAttem
     const existingAnswer = (existingRows as IqExistingAnswerRow[])[0];
 
     if (existingAnswer) {
+      const existingIsCorrect = computeIqAnswerCorrectness({
+        questionFormat: existingAnswer.question_format,
+        selectedOptionId: existingAnswer.selected_option_id,
+        selectedPosition: existingAnswer.selected_position,
+        correctOptionId: existingAnswer.correct_option_id,
+        correctPosition: existingAnswer.correct_position,
+      });
+
       return {
         answer: {
-          isCorrect: existingAnswer.is_correct === 1,
+          isCorrect: existingIsCorrect,
           correctOptionId: existingAnswer.correct_option_id,
           correctPosition: existingAnswer.correct_position,
-          pointsEarned: Number(existingAnswer.points_earned),
+          pointsEarned: existingIsCorrect ? Number(existingAnswer.weight) : 0,
         },
       };
     }
-
-    const isCorrect = answerData.is_correct === 1;
-    const pointsEarned = isCorrect ? Number(answerData.weight) : 0;
 
     await markLongMemoryQuestionProgress(connection, answerData.attempt_id, answerData.section_key);
 
@@ -3390,17 +3245,16 @@ export async function previewIqAttemptAnswer(token: string, payload: SaveIqAttem
       answer: null,
       error:
         process.env.NODE_ENV === "development"
-          ? `Impossible de previsualiser la rÃ©ponse de QI dans MySQL : ${message}`
-          : "Impossible de valider cette rÃ©ponse pour le moment.",
+          ? `Impossible de previsualiser la r????ponse de QI dans MySQL : ${message}`
+          : "Impossible de valider cette r????ponse pour le moment."
     };
   } finally {
     await connection?.end();
   }
 }
-
 export async function persistIqAttemptDraft(token: string, payload: PersistIqAttemptDraftPayload) {
   if (!payload || !Array.isArray(payload.answers) || payload.answers.length === 0) {
-    return { ok: false, error: "Aucune rÃ©ponse Ã  persister." };
+    return { ok: false, error: "Aucune rÃƒÂ©ponse ÃƒÂ  persister." };
   }
 
   const dedupedAnswers = payload.answers
@@ -3455,7 +3309,7 @@ export async function getIqMemoryIntroByAttemptToken(token: string): Promise<IqM
     const memoryQuestionKeys = resolvedQuestions?.specialQuestionKeysByType.memory ?? null;
 
     if (!row) {
-      return { data: null, error: "Introduction mémoire introuvable pour cette tentative." };
+      return { data: null, error: "Introduction mÃ©moire introuvable pour cette tentative." };
     }
 
     return {
@@ -3487,8 +3341,8 @@ export async function getIqMemoryIntroByAttemptToken(token: string): Promise<IqM
       data: null,
       error:
         process.env.NODE_ENV === "development"
-          ? `Impossible de charger l'introduction mémoire depuis MySQL : ${message}`
-          : "Impossible de charger l'introduction mémoire pour le moment.",
+          ? `Impossible de charger l'introduction mÃ©moire depuis MySQL : ${message}`
+          : "Impossible de charger l'introduction mÃ©moire pour le moment.",
     };
   } finally {
     await connection?.end();
@@ -3677,42 +3531,7 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
       getEnabledLongMemoryItems(resolvedSequence)
     );
 
-    const [aggregateRows] = await connection.execute<mysql.RowDataPacket[]>(
-      `SELECT
-          COUNT(DISTINCT CASE
-            WHEN aa.response_time_ms IS NULL OR (aa.response_time_ms <> ? AND aa.response_time_ms <> ?)
-            THEN aa.question_id
-          END) AS answered_questions,
-          COALESCE(SUM(aa.points_earned), 0) AS raw_score,
-          COALESCE(SUM(aa.points_earned), 0) AS weighted_score,
-          ROUND(AVG(CASE WHEN aa.response_time_ms <> ? AND aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS average_response_time_ms,
-          COALESCE(SUM(CASE WHEN s.section_key = 'speed' THEN aa.points_earned ELSE 0 END), 0) AS speed_score,
-          COALESCE(SUM(CASE WHEN s.section_key = 'memory' THEN aa.points_earned ELSE 0 END), 0) AS memory_score,
-          COALESCE(SUM(CASE WHEN s.section_key = 'verbal' THEN aa.points_earned ELSE 0 END), 0) AS verbal_score,
-          COALESCE(SUM(CASE WHEN s.section_key = 'logic' THEN aa.points_earned ELSE 0 END), 0) AS logic_score,
-          COALESCE(SUM(CASE WHEN s.section_key = 'quantitative' THEN aa.points_earned ELSE 0 END), 0) AS quantitative_score,
-          COALESCE(SUM(CASE WHEN s.section_key = 'audio_memory' THEN aa.points_earned ELSE 0 END), 0) AS audio_memory_score,
-          COALESCE(SUM(CASE WHEN s.section_key = 'long_memory' THEN aa.points_earned ELSE 0 END), 0) AS long_memory_score,
-          COALESCE(SUM(CASE WHEN s.section_key = 'spatial' THEN aa.points_earned ELSE 0 END), 0) AS spatial_score
-       FROM iq_attempt_answers aa
-       INNER JOIN iq_sections s ON s.id = aa.section_id
-       WHERE aa.attempt_id = ?`,
-      [NOT_PRESENTED_RESPONSE_TIME_MS, UNANSWERED_RESPONSE_TIME_MS, NOT_PRESENTED_RESPONSE_TIME_MS, UNANSWERED_RESPONSE_TIME_MS, attempt.id]
-    );
-    const aggregates = (aggregateRows as mysql.RowDataPacket[])[0] as {
-      answered_questions: number;
-      raw_score: string | number;
-      weighted_score: string | number;
-      average_response_time_ms: number | null;
-      speed_score: string | number;
-      memory_score: string | number;
-      verbal_score: string | number;
-      logic_score: string | number;
-      quantitative_score: string | number;
-      audio_memory_score: string | number;
-      long_memory_score: string | number;
-      spatial_score: string | number;
-    };
+    const computedScores = await computeIqAttemptScores(connection, attempt.id);
 
     await connection.execute(
       `UPDATE iq_attempts
@@ -3736,18 +3555,18 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
        WHERE id = ?`,
       [
         totalQuestions,
-        aggregates.answered_questions ?? 0,
-        Number(aggregates.raw_score ?? 0),
-        Number(aggregates.weighted_score ?? 0),
-        Number(aggregates.speed_score ?? 0),
-        Number(aggregates.memory_score ?? 0),
-        Number(aggregates.verbal_score ?? 0),
-        Number(aggregates.logic_score ?? 0),
-        Number(aggregates.quantitative_score ?? 0),
-        Number(aggregates.audio_memory_score ?? 0),
-        Number(aggregates.long_memory_score ?? 0),
-        Number(aggregates.spatial_score ?? 0),
-        aggregates.average_response_time_ms ?? null,
+        computedScores.answeredQuestions,
+        computedScores.rawScore,
+        computedScores.weightedScore,
+        computedScores.sectionScoreByKey.speed,
+        computedScores.sectionScoreByKey.memory,
+        computedScores.sectionScoreByKey.verbal,
+        computedScores.sectionScoreByKey.logic,
+        computedScores.sectionScoreByKey.quantitative,
+        computedScores.sectionScoreByKey.audio_memory,
+        computedScores.sectionScoreByKey.long_memory,
+        computedScores.sectionScoreByKey.spatial,
+        computedScores.averageResponseTimeMs,
         attempt.id,
       ]
     );
@@ -3871,19 +3690,60 @@ async function computeIqAttemptScores(connection: mysql.Connection, attemptId: n
 
   const [aggregateRows] = await connection.execute<mysql.RowDataPacket[]>(
     `SELECT
-        COALESCE(SUM(CASE WHEN aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS raw_score,
+        COALESCE(
+          SUM(
+            CASE
+              WHEN overlay.question_id IS NOT NULL
+                THEN CASE WHEN aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position
+                  THEN q.weight
+                  ELSE 0
+                END
+              ELSE CASE WHEN aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id
+                THEN q.weight
+                ELSE 0
+              END
+            END
+          ),
+          0
+        ) AS raw_score,
         ROUND(AVG(CASE WHEN aa.response_time_ms <> ? AND aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS average_response_time_ms,
-        COALESCE(SUM(CASE WHEN s.section_key = 'speed' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS speed_score,
-        COALESCE(SUM(CASE WHEN s.section_key = 'memory' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS memory_score,
-        COALESCE(SUM(CASE WHEN s.section_key = 'verbal' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS verbal_score,
-        COALESCE(SUM(CASE WHEN s.section_key = 'logic' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS logic_score,
-        COALESCE(SUM(CASE WHEN s.section_key = 'quantitative' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS quantitative_score,
-        COALESCE(SUM(CASE WHEN s.section_key = 'audio_memory' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS audio_memory_score,
-        COALESCE(SUM(CASE WHEN s.section_key = 'long_memory' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS long_memory_score,
-        COALESCE(SUM(CASE WHEN s.section_key = 'spatial' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS spatial_score
+        COALESCE(SUM(CASE WHEN s.section_key = 'speed' AND (
+            (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+            OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+          ) THEN q.weight ELSE 0 END), 0) AS speed_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'memory' AND (
+            (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+            OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+          ) THEN q.weight ELSE 0 END), 0) AS memory_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'verbal' AND (
+            (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+            OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+          ) THEN q.weight ELSE 0 END), 0) AS verbal_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'logic' AND (
+            (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+            OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+          ) THEN q.weight ELSE 0 END), 0) AS logic_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'quantitative' AND (
+            (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+            OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+          ) THEN q.weight ELSE 0 END), 0) AS quantitative_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'audio_memory' AND (
+            (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+            OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+          ) THEN q.weight ELSE 0 END), 0) AS audio_memory_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'long_memory' AND (
+            (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+            OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+          ) THEN q.weight ELSE 0 END), 0) AS long_memory_score,
+        COALESCE(SUM(CASE WHEN s.section_key = 'spatial' AND (
+            (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+            OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+          ) THEN q.weight ELSE 0 END), 0) AS spatial_score
      FROM iq_attempt_answers aa
      INNER JOIN iq_questions q ON q.id = aa.question_id
      INNER JOIN iq_sections s ON s.id = aa.section_id
+     LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
+     LEFT JOIN iq_question_options correct ON correct.question_id = q.id AND correct.is_correct = 1 AND correct.is_active = 1
      WHERE aa.attempt_id = ?`,
     [NOT_PRESENTED_RESPONSE_TIME_MS, UNANSWERED_RESPONSE_TIME_MS, attemptId]
   );
@@ -3948,8 +3808,8 @@ async function insertChoiceSiblingSentinelAnswers(
     await connection.execute(
       `INSERT INTO iq_attempt_answers
        (attempt_id, test_id, section_id, question_id, user_id, selected_option_id, selected_position,
-        correct_position, is_correct, difficulty_level, response_time_ms, displayed_at, answered_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        correct_position, is_correct, difficulty_level, points_earned, response_time_ms, displayed_at, answered_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         answerData.attempt_id,
         answerData.test_id,
@@ -3959,8 +3819,9 @@ async function insertChoiceSiblingSentinelAnswers(
         null,
         null,
         null,
-        0,
+        null,
         row.difficulty_level,
+        null,
         NOT_PRESENTED_RESPONSE_TIME_MS,
         null,
       ]
@@ -4086,9 +3947,13 @@ async function loadIqSondageReviewByAttempt(
     `SELECT q.id AS question_id, s.section_key, s.title AS section_title, q.question_key, q.question_text, q.answer_prompt_text, q.stimulus_text,
             q.question_format, COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url,
             overlay.answers_image_url, audio.prompt_audio_url,
+            aa.selected_option_id,
+            correct.id AS current_correct_option_id,
             selected.option_key AS selected_option_key, selected.option_text AS selected_option_text,
             correct.option_key AS correct_option_key, correct.option_text AS correct_option_text,
-            aa.selected_position, aa.correct_position, aa.is_correct, aa.response_time_ms
+            aa.selected_position,
+            COALESCE(overlay.correct_position, correct.position) AS correct_position,
+            aa.response_time_ms
      FROM iq_attempt_answers aa
      INNER JOIN iq_questions q ON q.id = aa.question_id
      INNER JOIN iq_sections s ON s.id = aa.section_id
@@ -4143,8 +4008,14 @@ async function loadIqSondageReviewByAttempt(
         questions: [],
       };
     const options = optionsByQuestionId.get(row.question_id) ?? [];
-    const correctOptionFromStoredPosition =
+    const correctOptionFromCurrentPosition =
       row.correct_position === null ? null : options.find((option) => option.position === row.correct_position) ?? null;
+    const isOverlayQuestion = row.answers_image_url !== null;
+    const isCorrect = isOverlayQuestion
+      ? row.selected_position !== null && row.correct_position !== null && row.selected_position === row.correct_position
+      : row.selected_option_id !== null &&
+        row.current_correct_option_id !== null &&
+        row.selected_option_id === row.current_correct_option_id;
 
     section.questions.push({
       sectionKey: row.section_key,
@@ -4159,11 +4030,11 @@ async function loadIqSondageReviewByAttempt(
       promptAudioUrl: row.prompt_audio_url,
       selectedOptionKey: row.selected_option_key,
       selectedOptionText: row.selected_option_text,
-      correctOptionKey: correctOptionFromStoredPosition?.key ?? row.correct_option_key,
-      correctOptionText: correctOptionFromStoredPosition?.text ?? row.correct_option_text,
+      correctOptionKey: correctOptionFromCurrentPosition?.key ?? row.correct_option_key,
+      correctOptionText: correctOptionFromCurrentPosition?.text ?? row.correct_option_text,
       selectedPosition: row.selected_position,
       correctPosition: row.correct_position,
-      isCorrect: row.is_correct === 1,
+      isCorrect,
       responseTimeMs: row.response_time_ms,
       options,
     });
@@ -4361,3 +4232,4 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
     await connection?.end();
   }
 }
+

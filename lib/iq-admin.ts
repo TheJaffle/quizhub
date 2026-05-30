@@ -95,12 +95,20 @@ export async function getIqAdminStats(): Promise<IqAdminStats> {
               q.question_format,
               q.weight,
               COUNT(aa.id) AS displayed_count,
-              COALESCE(SUM(CASE WHEN aa.is_correct = 1 THEN 1 ELSE 0 END), 0) AS correct_count,
-              COALESCE(SUM(CASE WHEN aa.is_correct = 0 THEN 1 ELSE 0 END), 0) AS incorrect_count,
+              COALESCE(SUM(CASE WHEN (
+                (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+                OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+              ) THEN 1 ELSE 0 END), 0) AS correct_count,
+              COALESCE(SUM(CASE WHEN aa.id IS NOT NULL AND NOT (
+                (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
+                OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
+              ) THEN 1 ELSE 0 END), 0) AS incorrect_count,
               ROUND(AVG(aa.response_time_ms)) AS average_response_time_ms
        FROM iq_questions q
        INNER JOIN iq_sections s ON s.id = q.section_id
        LEFT JOIN iq_attempt_answers aa ON aa.question_id = q.id
+       LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
+       LEFT JOIN iq_question_options correct ON correct.question_id = q.id AND correct.is_correct = 1 AND correct.is_active = 1
        WHERE q.is_active = 1
        GROUP BY q.id, s.title, s.section_key, q.question_key, q.question_text, q.question_image_url, q.question_format, q.weight, q.position
        ORDER BY s.position ASC, q.position ASC, q.id ASC`

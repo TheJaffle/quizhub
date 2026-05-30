@@ -89,14 +89,16 @@ type AnswerRow = {
   section_title: string | null;
   question_key: string | null;
   question_text: string | null;
+  question_format: string | null;
+  weight: string | number | null;
+  selected_option_id: number | null;
   selected_option_key: string | null;
   selected_option_text: string | null;
   selected_position: number | null;
+  current_correct_option_id: number | null;
   correct_option_key: string | null;
   correct_option_text: string | null;
   correct_position: number | null;
-  is_correct: number | null;
-  points_earned: string | number | null;
   response_time_ms: number | null;
   answered_at: Date | null;
 };
@@ -204,6 +206,10 @@ function extractExpectedQuestions(resolvedSequenceDefinition: string | null): Ex
 
 function numberOrNull(value: string | number | null) {
   return value === null ? null : Number(value);
+}
+
+function isOverlayFormat(questionFormat: string | null) {
+  return questionFormat === "visual_overlay" || questionFormat === "spatial_overlay";
 }
 
 function makeAttempt(row: AttemptRow): IqDiagnosticAttempt {
@@ -342,19 +348,22 @@ export async function getIqDiagnosticAttempts() {
           s.title AS section_title,
           q.question_key,
           q.question_text,
+          q.question_format,
+          q.weight,
+          aa.selected_option_id,
           selected.option_key AS selected_option_key,
           selected.option_text AS selected_option_text,
           aa.selected_position,
+          correct_option.id AS current_correct_option_id,
           correct_option.option_key AS correct_option_key,
           correct_option.option_text AS correct_option_text,
-          aa.correct_position,
-          aa.is_correct,
-          aa.points_earned,
+          COALESCE(overlay.correct_position, correct_option.position) AS correct_position,
           aa.response_time_ms,
           aa.answered_at
        FROM iq_attempt_answers aa
        LEFT JOIN iq_questions q ON q.id = aa.question_id
        LEFT JOIN iq_sections s ON s.id = aa.section_id
+       LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
        LEFT JOIN iq_question_options selected ON selected.id = aa.selected_option_id
        LEFT JOIN iq_question_options correct_option
          ON correct_option.question_id = aa.question_id
@@ -370,6 +379,13 @@ export async function getIqDiagnosticAttempts() {
     for (const row of answerRows as AnswerRow[]) {
       const attempt = attemptsById.get(row.attempt_id);
       if (!attempt) continue;
+
+      const isCorrect = isOverlayFormat(row.question_format)
+        ? row.selected_position !== null && row.correct_position !== null && row.selected_position === row.correct_position
+        : row.selected_option_id !== null &&
+          row.current_correct_option_id !== null &&
+          row.selected_option_id === row.current_correct_option_id;
+      const pointsEarned = isCorrect ? Number(row.weight ?? 0) : 0;
 
       if (row.section_key) {
         attempt.sectionCounts[row.section_key] = (attempt.sectionCounts[row.section_key] ?? 0) + 1;
@@ -396,8 +412,8 @@ export async function getIqDiagnosticAttempts() {
         correctOptionKey: row.correct_option_key,
         correctOptionText: row.correct_option_text,
         correctPosition: row.correct_position,
-        isCorrect: row.is_correct === null ? null : Number(row.is_correct) === 1,
-        pointsEarned: Number(row.points_earned ?? 0),
+        isCorrect,
+        pointsEarned,
         responseTimeMs: row.response_time_ms,
         answeredAt: row.answered_at,
         source: "recorded",
