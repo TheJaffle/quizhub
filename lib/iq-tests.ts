@@ -4142,6 +4142,9 @@ async function loadIqSondageReviewByAttempt(
         label: row.section_title,
         questions: [],
       };
+    const options = optionsByQuestionId.get(row.question_id) ?? [];
+    const correctOptionFromStoredPosition =
+      row.correct_position === null ? null : options.find((option) => option.position === row.correct_position) ?? null;
 
     section.questions.push({
       sectionKey: row.section_key,
@@ -4156,13 +4159,13 @@ async function loadIqSondageReviewByAttempt(
       promptAudioUrl: row.prompt_audio_url,
       selectedOptionKey: row.selected_option_key,
       selectedOptionText: row.selected_option_text,
-      correctOptionKey: row.correct_option_key,
-      correctOptionText: row.correct_option_text,
+      correctOptionKey: correctOptionFromStoredPosition?.key ?? row.correct_option_key,
+      correctOptionText: correctOptionFromStoredPosition?.text ?? row.correct_option_text,
       selectedPosition: row.selected_position,
       correctPosition: row.correct_position,
       isCorrect: row.is_correct === 1,
       responseTimeMs: row.response_time_ms,
-      options: optionsByQuestionId.get(row.question_id) ?? [],
+      options,
     });
 
     if (!existingSection) {
