@@ -123,7 +123,6 @@ export default async function IqAuditPage() {
                         <>
                           <div className="space-y-4">
                             <div className="rounded-xl border bg-slate-50 p-3 sm:rounded-2xl sm:p-4">
-                              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:mb-3 sm:text-sm">Question</h3>
                               {mainImageUrl ? (
                                 <div className="overflow-hidden rounded-xl border bg-white">
                                   <Image
@@ -142,7 +141,6 @@ export default async function IqAuditPage() {
 
                               {question.promptAudioUrl ? (
                                 <div className="mt-4 rounded-xl border bg-white p-3">
-                                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">Audio stimulus</p>
                                   <audio controls preload="none" className="w-full" src={question.promptAudioUrl}>
                                     Votre navigateur ne peut pas lire cet audio.
                                   </audio>
@@ -167,7 +165,7 @@ export default async function IqAuditPage() {
                                       <div className="text-[11px] text-slate-500 sm:text-xs">pos {option.position}</div>
                                     </div>
 
-                                    {option.imageUrl ? (
+                                    {option.imageUrl && question.sectionKey !== "audio_memory" ? (
                                       <div className="overflow-hidden rounded-lg border bg-slate-50">
                                         <Image
                                           src={option.imageUrl}
