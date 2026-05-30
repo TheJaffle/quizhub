@@ -117,33 +117,8 @@ export default async function IqAuditPage() {
                               </div>
 
                               <div className="rounded-xl border bg-white p-3">
-                                <div className="space-y-3 text-[11px] text-slate-700 sm:text-xs">
-                                  <div className="rounded-lg border bg-slate-50 p-3">
-                                    <span className="font-semibold text-slate-950">Reponses possibles en base :</span>{" "}
-                                    {question.options.length > 0
-                                      ? question.options.map((option) => formatOptionSummary(option.key, option.text, option.position)).join(" | ")
-                                      : "Aucune"}
-                                  </div>
-                                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                                    <div className="rounded-lg border bg-slate-50 p-3">
-                                      <p className="flex items-baseline justify-between gap-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                        <span>Nombre d'options</span>
-                                        <span className="text-sm font-bold normal-case text-slate-950 sm:text-base">{question.optionCount}</span>
-                                      </p>
-                                    </div>
-                                    <div className="rounded-lg border bg-slate-50 p-3">
-                                      <p className="flex items-baseline justify-between gap-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                        <span>answer_count</span>
-                                        <span className="text-sm font-bold normal-case text-slate-950 sm:text-base">{displayedAnswerCount}</span>
-                                      </p>
-                                    </div>
-                                    <div className="rounded-lg border bg-slate-50 p-3">
-                                      <p className="flex items-baseline justify-between gap-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                                        <span>Bonne reponse</span>
-                                        <span className="text-sm font-bold normal-case text-slate-950 sm:text-base">{formatCorrectAnswer(question)}</span>
-                                      </p>
-                                    </div>
-                                  </div>
+                                <div className="text-[11px] text-slate-500 sm:text-xs">
+                                  Les reponses visibles ci-contre font foi pour cette question graphique.
                                 </div>
                               </div>
                             </div>
@@ -217,27 +192,6 @@ export default async function IqAuditPage() {
                                     ) : null}
                                   </div>
                                 ))}
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-3 text-[11px] sm:grid-cols-3 sm:text-xs">
-                              <div className="rounded-xl border bg-white p-3 sm:rounded-2xl sm:p-4">
-                                <p className="flex items-baseline justify-between gap-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
-                                  <span>Nombre d'options</span>
-                                  <span className="text-sm font-bold normal-case text-slate-950 sm:text-base">{question.optionCount}</span>
-                                </p>
-                              </div>
-                              <div className="rounded-xl border bg-white p-3 sm:rounded-2xl sm:p-4">
-                                <p className="flex items-baseline justify-between gap-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
-                                  <span>answer_count</span>
-                                  <span className="text-sm font-bold normal-case text-slate-950 sm:text-base">{displayedAnswerCount}</span>
-                                </p>
-                              </div>
-                              <div className="rounded-xl border bg-white p-3 sm:rounded-2xl sm:p-4">
-                                <p className="flex items-baseline justify-between gap-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 sm:text-xs">
-                                  <span>Bonne reponse</span>
-                                  <span className="text-sm font-bold normal-case text-slate-950 sm:text-base">{formatCorrectAnswer(question)}</span>
-                                </p>
                               </div>
                             </div>
                           </div>
