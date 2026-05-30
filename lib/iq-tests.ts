@@ -474,6 +474,7 @@ type PreparedIqAnswer = {
 };
 
 const NOT_PRESENTED_RESPONSE_TIME_MS = 123456;
+const UNANSWERED_RESPONSE_TIME_MS = 1000;
 
 type IqMemoryIntroRow = {
   attempt_id: number;
@@ -3185,7 +3186,10 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
              SELECT COUNT(DISTINCT question_id)
              FROM iq_attempt_answers
              WHERE attempt_id = ?
-               AND (response_time_ms IS NULL OR response_time_ms <> ?)
+               AND (
+                 response_time_ms IS NULL
+                 OR (response_time_ms <> ? AND response_time_ms <> ?)
+               )
            ),
            raw_score = (
              SELECT COALESCE(SUM(points_earned), 0)
@@ -3200,17 +3204,22 @@ export async function saveIqAttemptAnswer(token: string, payload: SaveIqAttemptA
            average_response_time_ms = (
              SELECT ROUND(AVG(response_time_ms))
              FROM iq_attempt_answers
-             WHERE attempt_id = ? AND response_time_ms IS NOT NULL AND response_time_ms <> ?
+             WHERE attempt_id = ?
+               AND response_time_ms IS NOT NULL
+               AND response_time_ms <> ?
+               AND response_time_ms <> ?
            ),
            updated_at = NOW()
        WHERE id = ?`,
       [
         answerData.attempt_id,
         NOT_PRESENTED_RESPONSE_TIME_MS,
+        UNANSWERED_RESPONSE_TIME_MS,
         answerData.attempt_id,
         answerData.attempt_id,
         answerData.attempt_id,
         NOT_PRESENTED_RESPONSE_TIME_MS,
+        UNANSWERED_RESPONSE_TIME_MS,
         answerData.attempt_id,
       ]
     );
@@ -3670,10 +3679,13 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
 
     const [aggregateRows] = await connection.execute<mysql.RowDataPacket[]>(
       `SELECT
-          COUNT(DISTINCT CASE WHEN aa.response_time_ms <> ? OR aa.response_time_ms IS NULL THEN aa.question_id END) AS answered_questions,
+          COUNT(DISTINCT CASE
+            WHEN aa.response_time_ms IS NULL OR (aa.response_time_ms <> ? AND aa.response_time_ms <> ?)
+            THEN aa.question_id
+          END) AS answered_questions,
           COALESCE(SUM(aa.points_earned), 0) AS raw_score,
           COALESCE(SUM(aa.points_earned), 0) AS weighted_score,
-          ROUND(AVG(CASE WHEN aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS average_response_time_ms,
+          ROUND(AVG(CASE WHEN aa.response_time_ms <> ? AND aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS average_response_time_ms,
           COALESCE(SUM(CASE WHEN s.section_key = 'speed' THEN aa.points_earned ELSE 0 END), 0) AS speed_score,
           COALESCE(SUM(CASE WHEN s.section_key = 'memory' THEN aa.points_earned ELSE 0 END), 0) AS memory_score,
           COALESCE(SUM(CASE WHEN s.section_key = 'verbal' THEN aa.points_earned ELSE 0 END), 0) AS verbal_score,
@@ -3685,7 +3697,7 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
        FROM iq_attempt_answers aa
        INNER JOIN iq_sections s ON s.id = aa.section_id
        WHERE aa.attempt_id = ?`,
-      [NOT_PRESENTED_RESPONSE_TIME_MS, NOT_PRESENTED_RESPONSE_TIME_MS, attempt.id]
+      [NOT_PRESENTED_RESPONSE_TIME_MS, UNANSWERED_RESPONSE_TIME_MS, NOT_PRESENTED_RESPONSE_TIME_MS, UNANSWERED_RESPONSE_TIME_MS, attempt.id]
     );
     const aggregates = (aggregateRows as mysql.RowDataPacket[])[0] as {
       answered_questions: number;
@@ -3821,8 +3833,11 @@ async function computeIqAttemptScores(connection: mysql.Connection, attemptId: n
      FROM iq_attempt_answers aa
      INNER JOIN iq_questions q ON q.id = aa.question_id
      WHERE aa.attempt_id = ?
-       AND (aa.response_time_ms IS NULL OR aa.response_time_ms <> ?)`,
-    [attemptId, NOT_PRESENTED_RESPONSE_TIME_MS]
+       AND (
+         aa.response_time_ms IS NULL
+         OR (aa.response_time_ms <> ? AND aa.response_time_ms <> ?)
+       )`,
+    [attemptId, NOT_PRESENTED_RESPONSE_TIME_MS, UNANSWERED_RESPONSE_TIME_MS]
   );
   const answeredQuestionKeys = new Set((answeredQuestionRows as Array<{ question_key: string }>).map((row) => row.question_key));
   const resolvedSequenceDefinition = await loadResolvedAttemptSequenceDefinitionByAttemptId(connection, attemptId);
@@ -3857,7 +3872,7 @@ async function computeIqAttemptScores(connection: mysql.Connection, attemptId: n
   const [aggregateRows] = await connection.execute<mysql.RowDataPacket[]>(
     `SELECT
         COALESCE(SUM(CASE WHEN aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS raw_score,
-        ROUND(AVG(CASE WHEN aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS average_response_time_ms,
+        ROUND(AVG(CASE WHEN aa.response_time_ms <> ? AND aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS average_response_time_ms,
         COALESCE(SUM(CASE WHEN s.section_key = 'speed' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS speed_score,
         COALESCE(SUM(CASE WHEN s.section_key = 'memory' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS memory_score,
         COALESCE(SUM(CASE WHEN s.section_key = 'verbal' AND aa.is_correct = 1 THEN q.weight ELSE 0 END), 0) AS verbal_score,
@@ -3870,7 +3885,7 @@ async function computeIqAttemptScores(connection: mysql.Connection, attemptId: n
      INNER JOIN iq_questions q ON q.id = aa.question_id
      INNER JOIN iq_sections s ON s.id = aa.section_id
      WHERE aa.attempt_id = ?`,
-    [NOT_PRESENTED_RESPONSE_TIME_MS, attemptId]
+    [NOT_PRESENTED_RESPONSE_TIME_MS, UNANSWERED_RESPONSE_TIME_MS, attemptId]
   );
 
   const aggregate = (aggregateRows as IqComputedScoreRow[])[0];
