@@ -105,7 +105,7 @@ export default async function IqAuditPage() {
 
                           <div className="rounded-xl border bg-slate-50 p-3 sm:rounded-2xl sm:p-4">
                             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:mb-3 sm:text-sm">Reponses graphiques</h3>
-                            <div className="grid gap-3 lg:grid-cols-[minmax(0,720px)_minmax(260px,1fr)] lg:gap-4">
+                            <div className="grid gap-3 lg:gap-4">
                               <div className="overflow-hidden rounded-xl border bg-white">
                                 <Image
                                   src={question.answersImageUrl!}
@@ -114,12 +114,6 @@ export default async function IqAuditPage() {
                                   height={700}
                                   className="h-[170px] w-auto max-w-full object-contain sm:h-[190px] lg:h-[220px]"
                                 />
-                              </div>
-
-                              <div className="rounded-xl border bg-white p-3">
-                                <div className="text-[11px] text-slate-500 sm:text-xs">
-                                  Les reponses visibles ci-contre font foi pour cette question graphique.
-                                </div>
                               </div>
                             </div>
                           </div>
