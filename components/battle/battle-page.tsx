@@ -5,6 +5,13 @@ import { ActiveBattle } from "./active-battle";
 import { BattleLobby } from "./battle-lobby";
 import { BattleModeSelection } from "./battle-mode-selection";
 import { BattleResults } from "./battle-results";
+import {
+  createDuelIdentity,
+  DUEL_IDENTITY_COOKIE_MAX_AGE,
+  DUEL_IDENTITY_COOKIE_NAME,
+  parseDuelIdentity,
+  serializeDuelIdentity,
+} from "@/lib/duel-identity";
 
 type BattleStage = "selection" | "lobby" | "active" | "results";
 type BattleMode = "1v1" | "group";
@@ -89,6 +96,15 @@ export function BattlePage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const roomCode = params.get("room");
+    const savedDuelIdentity = readDuelIdentityCookie();
+
+    if (savedDuelIdentity) {
+      setBattleState((current) => ({
+        ...current,
+        participantEmail: current.participantEmail || savedDuelIdentity.email,
+        participantPseudo: current.participantPseudo || savedDuelIdentity.pseudo,
+      }));
+    }
 
     void loadCurrentUser();
 
@@ -179,6 +195,8 @@ export function BattlePage() {
   };
 
   const handleStartBattle = (participant: { email: string; pseudo: string }) => {
+    writeDuelIdentityCookie(participant);
+
     setBattleState((current) => ({
       ...current,
       participantEmail: participant.email,
@@ -237,4 +255,25 @@ export function BattlePage() {
       {stage === "results" && <BattleResults battleState={battleState} onRematch={handleRematch} onReturnHome={handleReturnHome} />}
     </div>
   );
+}
+
+function readDuelIdentityCookie() {
+  if (typeof document === "undefined") return null;
+
+  const cookie = document.cookie
+    .split("; ")
+    .find((item) => item.startsWith(`${DUEL_IDENTITY_COOKIE_NAME}=`))
+    ?.split("=")[1];
+
+  return parseDuelIdentity(cookie);
+}
+
+function writeDuelIdentityCookie(participant: { email: string; pseudo: string }) {
+  if (typeof document === "undefined") return;
+
+  const identity = createDuelIdentity(participant.email, participant.pseudo);
+
+  if (!identity) return;
+
+  document.cookie = `${DUEL_IDENTITY_COOKIE_NAME}=${serializeDuelIdentity(identity)}; path=/; max-age=${DUEL_IDENTITY_COOKIE_MAX_AGE}; samesite=lax`;
 }

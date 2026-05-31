@@ -84,7 +84,7 @@ export function IqLongMemoryExposurePage({ data, error }: IqLongMemoryExposurePa
         ) : (
           <div className="space-y-5 text-center">
             <div className="rounded-lg border bg-white px-3 py-6 sm:px-5 md:p-10">
-              <p className="mx-auto max-w-full whitespace-nowrap text-[clamp(1.45rem,7vw,2.25rem)] font-bold tracking-normal sm:tracking-wide md:text-5xl">
+              <p className="mx-auto max-w-full whitespace-normal break-words text-[clamp(1.45rem,7vw,2.25rem)] font-bold leading-tight tracking-normal sm:tracking-wide md:text-5xl">
                 {data.question.stimulusText || data.question.questionText || ""}
               </p>
             </div>

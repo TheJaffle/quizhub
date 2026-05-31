@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, Copy, Link2, ListChecks, Trophy, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BattleState } from "./battle-page";
 
 interface BattleLobbyProps {
@@ -22,6 +22,17 @@ export function BattleLobby({ battleState, onStartBattle, onCancel }: BattleLobb
   const emailToUse = currentUser?.email ?? email.trim();
   const pseudoToUse = currentUser?.pseudo ?? pseudo.trim();
   const canStart = currentUser ? true : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailToUse);
+
+  useEffect(() => {
+    if (currentUser) {
+      setEmail(currentUser.email);
+      setPseudo(currentUser.pseudo);
+      return;
+    }
+
+    setEmail(battleState.participantEmail);
+    setPseudo(battleState.participantPseudo);
+  }, [battleState.participantEmail, battleState.participantPseudo, currentUser]);
 
   const copyRoomLink = () => {
     const valueToCopy = battleState.roomLink || battleState.roomCode;

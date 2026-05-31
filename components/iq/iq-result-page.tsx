@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { AlertTriangle, Brain, Eye, Gauge, RotateCcw, Share2, Sparkles, Trophy, WalletCards } from "lucide-react";
+import { AlertTriangle, Brain, Eye, Gauge, Sparkles, Trophy } from "lucide-react";
 import Link from "next/link";
 
 type IqResultPageProps = {
@@ -59,7 +59,7 @@ function getErrorText(error?: IqResultPageProps["error"]) {
   return "Ce resultat de test de logique est invalide ou introuvable.";
 }
 
-export function IqResultPage({ result, error, userPseudo, emailToken }: IqResultPageProps) {
+export function IqResultPage({ result, error, emailToken }: IqResultPageProps) {
   if (!result) {
     return (
       <div className="mx-auto max-w-3xl py-10">
@@ -96,61 +96,48 @@ export function IqResultPage({ result, error, userPseudo, emailToken }: IqResult
   const strongestSections = [...rankedSections].sort((a, b) => b.percentage - a.percentage).slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-5xl py-4 md:py-8">
+    <div className="mx-auto max-w-5xl py-4 text-[#3B3B3B] md:py-8">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Badge className="mb-3 bg-indigo-500 text-white hover:bg-indigo-600">
+          <Badge className="mb-3 bg-[#802E7B] text-white hover:bg-[#802E7B]">
             <Brain className="mr-1 h-3.5 w-3.5" />
             Resultat indicatif
           </Badge>
           <h1 className="text-3xl font-bold tracking-tight">Votre resultat brainspark</h1>
-          {userPseudo ? <p className="text-muted-foreground">Connecte en tant que {userPseudo}</p> : null}
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           {correctionUrl ? (
-            <Button asChild variant="outline">
+            <Button asChild className="bg-[#802E7B] text-white hover:bg-[#6f286b]">
               <Link href={correctionUrl}>
                 <Eye className="mr-2 h-4 w-4" />
                 Correction
               </Link>
             </Button>
           ) : null}
-          <Button asChild variant="outline">
-            <Link href="/dashboard/user">
-              <WalletCards className="mr-2 h-4 w-4" />
-              Retour au dashboard
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/iq">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Recommencer
-            </Link>
-          </Button>
         </div>
       </div>
 
-      <Card className="mb-6 overflow-hidden border-0 bg-slate-950 text-white shadow-xl">
-        <CardContent className="p-5 md:p-8">
+      <Card className="mb-6 overflow-hidden border-0 bg-[#802E7B] text-[#3B3B3B] shadow-xl">
+        <CardContent className="px-6 pb-7 pt-12 md:px-10 md:pb-10 md:pt-14">
           <div className="grid gap-6 md:grid-cols-[1.15fr_0.85fr] md:items-center">
-            <div>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#E91663]">
+            <div className="pt-4 md:pt-6">
+              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 text-white ring-1 ring-white/35">
                 <Trophy className="h-6 w-6" />
               </div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-white/60">{result.testTitle}</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">Nous vous remercions pour votre aide</h2>
+              <p className="text-sm font-semibold uppercase tracking-wide text-white/80">{result.testTitle}</p>
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-white md:text-4xl">Nous vous remercions pour votre aide</h2>
             </div>
 
-            <div className="rounded-2xl bg-white p-5 text-slate-950">
+            <div className="rounded-2xl bg-white p-5 text-[#3B3B3B]">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-slate-500">Score brainspark</p>
                   <p className="mt-1 text-5xl font-black">{cognitiveScore}</p>
                 </div>
-                <Gauge className="h-10 w-10 text-[#E91663]" />
+                <Gauge className="h-10 w-10 text-[#802E7B]" />
               </div>
-              <Progress value={cognitiveScore} className="mt-4 h-2" />
-              <p className="mt-3 text-sm font-semibold text-slate-700">{getProfileLabel(cognitiveScore)}</p>
+              <Progress value={cognitiveScore} className="mt-4 h-2 [&>div]:bg-[#802E7B]" />
+              <p className="mt-3 text-sm font-semibold text-[#3B3B3B]">{getProfileLabel(cognitiveScore)}</p>
               <p className="mt-1 text-xs text-slate-500">
                 {result.answeredQuestions}/{result.totalQuestions} questions repondues
               </p>
@@ -183,7 +170,7 @@ export function IqResultPage({ result, error, userPseudo, emailToken }: IqResult
             <p className="text-sm text-muted-foreground">Points forts</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {strongestSections.map((section) => (
-                <Badge key={section.key} variant="secondary">
+                <Badge key={section.key} className="bg-[#802E7B] font-semibold text-white hover:bg-[#802E7B]">
                   {section.label}
                 </Badge>
               ))}
@@ -196,7 +183,7 @@ export function IqResultPage({ result, error, userPseudo, emailToken }: IqResult
       <Card className="mb-6 border-0 shadow-sm">
         <CardContent className="p-5">
           <div className="mb-4 flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-[#E91663]" />
+            <Sparkles className="h-5 w-5 text-[#802E7B]" />
             <h2 className="text-xl font-bold">Vos notes par categorie</h2>
           </div>
 
@@ -207,26 +194,13 @@ export function IqResultPage({ result, error, userPseudo, emailToken }: IqResult
                   <p className="font-semibold">{section.label}</p>
                   <Badge variant="outline">{section.note}/20</Badge>
                 </div>
-                <Progress value={section.percentage} className="h-2" />
+                <Progress value={section.percentage} className="h-2 [&>div]:bg-[#802E7B]" />
                 <p className="mt-2 text-xs text-muted-foreground">
                   {section.score} / {section.maxScore} points
                 </p>
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-0 bg-[#fff1f6] shadow-sm">
-        <CardContent className="flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between">
-          <div>
-            <div className="flex items-center gap-2 font-bold text-slate-950">
-              <Share2 className="h-5 w-5 text-[#E91663]" />
-              A comparer avec vos amis
-            </div>
-            <p className="mt-1 text-sm text-slate-600">Votre score partageable : {cognitiveScore}/100.</p>
-          </div>
-          <Badge className="w-fit bg-[#E91663] text-white hover:bg-[#E91663]">{getProfileLabel(cognitiveScore)}</Badge>
         </CardContent>
       </Card>
     </div>

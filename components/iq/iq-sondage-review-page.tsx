@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -141,6 +142,7 @@ function getOptionLabel(option: ReviewQuestion["options"][number]) {
 }
 
 export function IqSondageReviewPage({ initialEmail, review, error, hideLookupForm = false }: IqSondageReviewPageProps) {
+  const router = useRouter();
   const [sectionIndex, setSectionIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(-1);
   const [finished, setFinished] = useState(false);
@@ -159,6 +161,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
   const currentQuestion = currentSection && questionIndex >= 0 ? currentSection.questions[questionIndex] ?? null : null;
   const currentQuestionNumber = currentQuestion ? answeredPrefixCount + questionIndex + 1 : answeredPrefixCount;
   const shouldShowOptionList = Boolean(currentQuestion?.options.length) && !currentQuestion?.answersImageUrl;
+  const canGoBack = finished || sectionIndex > 0 || questionIndex >= 0;
 
   const handleAdvance = () => {
     if (!review || !currentSection) return;
@@ -192,6 +195,15 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
   const handleBack = () => {
     if (!review) return;
 
+    if (!canGoBack) {
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        router.push(`/iq/results/${encodeURIComponent(review.attemptToken)}`);
+      }
+      return;
+    }
+
     if (finished) {
       const lastSectionIndex = review.sections.length - 1;
       const lastSection = review.sections[lastSectionIndex];
@@ -218,8 +230,6 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
       setQuestionIndex(Math.max((previousSection?.questions.length ?? 1) - 1, 0));
     }
   };
-
-  const canGoBack = finished || sectionIndex > 0 || questionIndex >= 0;
 
   return (
     <div className="mx-auto max-w-5xl px-2 py-1 md:px-0 md:py-8">
@@ -279,7 +289,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
               {currentSection.questions.length} question{currentSection.questions.length > 1 ? "s" : ""} repondue{currentSection.questions.length > 1 ? "s" : ""} dans cette categorie.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button variant="outline" onClick={handleBack} disabled={!canGoBack}>
+              <Button variant="outline" onClick={handleBack}>
                 <ChevronLeft className="h-4 w-4" />
                 Retour
               </Button>

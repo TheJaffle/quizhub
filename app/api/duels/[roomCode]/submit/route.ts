@@ -1,5 +1,6 @@
 import { getUserById } from "@/lib/auth";
 import { getDuelChallengeWithParticipants, submitDuelResult } from "@/lib/duels";
+import { createDuelIdentity, DUEL_IDENTITY_COOKIE_MAX_AGE, DUEL_IDENTITY_COOKIE_NAME, serializeDuelIdentity } from "@/lib/duel-identity";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -30,8 +31,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ roo
     }
 
     const { challenge } = await getDuelChallengeWithParticipants(roomCode);
+    const response = NextResponse.json({ result: result.result, challenge });
+    const duelIdentity = createDuelIdentity(result.result.email, result.result.pseudo);
 
-    return NextResponse.json({ result: result.result, challenge });
+    if (duelIdentity) {
+      response.cookies.set(DUEL_IDENTITY_COOKIE_NAME, serializeDuelIdentity(duelIdentity), {
+        sameSite: "lax",
+        maxAge: DUEL_IDENTITY_COOKIE_MAX_AGE,
+        path: "/",
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error("Duel submit error", error);
     return NextResponse.json({ error: "Impossible d'enregistrer le résultat du duel." }, { status: 500 });

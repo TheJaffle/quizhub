@@ -23,6 +23,7 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
   const [isNotificationsDrawerOpen, setIsNotificationsDrawerOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id: number; email: string; pseudo: string; avatarUrl: string | null } | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const isIqArea = pathname === "/iq" || pathname.startsWith("/iq/") || pathname.startsWith("/iq-");
 
   // Close drawers when navigating to a new page
   useEffect(() => {
@@ -32,6 +33,14 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
 
   useEffect(() => {
     let isMounted = true;
+
+    if (isIqArea) {
+      setCurrentUser(null);
+      setIsAuthLoading(false);
+      return () => {
+        isMounted = false;
+      };
+    }
 
     const loadCurrentUser = async () => {
       try {
@@ -57,7 +66,7 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
     return () => {
       isMounted = false;
     };
-  }, [pathname]);
+  }, [isIqArea, pathname]);
 
   useEffect(() => {
     const handleUserUpdated = (event: Event) => {
@@ -91,7 +100,7 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
   const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
   const unreadMessagesCount = recentMessages.filter((m) => m.unread).length;
   const username = currentUser ? `@${currentUser.pseudo}` : null;
-  const disableBrandNavigation = pathname === "/iq/sondage" || pathname.startsWith("/iq/attempt/");
+  const disableBrandNavigation = isIqArea;
   const brandContent = (
     <>
       <BookOpen className="h-6 w-6 text-primary" />
@@ -142,7 +151,7 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          {SHOW_HEADER_COMMUNICATIONS ? (
+          {SHOW_HEADER_COMMUNICATIONS && !isIqArea ? (
             <>
               <Button variant="outline" size="icon" className="relative shrink-0" onClick={() => setIsMessagesDrawerOpen(true)}>
                 <MessageSquare className="h-5 w-5" />
@@ -156,7 +165,7 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
             </>
           ) : null}
 
-          {!isAuthLoading && !currentUser ? (
+          {!isIqArea && !isAuthLoading && !currentUser ? (
             <div className="flex items-center gap-2">
               <Button variant="outline" asChild className="shrink-0 max-sm:px-3">
                 <Link href="/login">
@@ -173,7 +182,7 @@ export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
             </div>
           ) : null}
 
-          {!isAuthLoading && currentUser ? (
+          {!isIqArea && !isAuthLoading && currentUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="shrink-0 rounded-full gap-2 px-2">
