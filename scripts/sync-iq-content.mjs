@@ -174,32 +174,154 @@ async function ensureSection(connection, bankId, section) {
   return Number(sectionRow.id);
 }
 
-async function clearSectionQuestions(connection, bankId, sectionId, clearAudioTable = false) {
-  if (clearAudioTable) {
+// IMPORTANT: persistance des donnees.
+// On ne supprime JAMAIS une question, une option, un overlay ou une ligne audio.
+// Chaque entite est identifiee par une cle stable (question_key, option_key, ou question_id)
+// et mise a jour en place (UPSERT). Une question/option absente du JSON est laissee telle quelle
+// (UPSERT pur, aucune desactivation automatique). Ainsi le ON DELETE CASCADE ne se declenche
+// jamais et aucune reponse d'un test deja passe ne peut disparaitre.
+
+async function upsertQuestion(connection, bankId, sectionId, fields) {
+  const [rows] = await connection.query(
+    `SELECT id FROM iq_questions WHERE test_id = ? AND question_key = ? LIMIT 1`,
+    [bankId, fields.questionKey]
+  );
+
+  const values = [
+    fields.questionText ?? null,
+    fields.answerPromptText ?? null,
+    fields.questionFormat,
+    Number(fields.difficultyLevel ?? 1),
+    Number(fields.weight ?? 1),
+    fields.timeLimitSeconds ?? null,
+    fields.displayTimeSeconds ?? null,
+    fields.hideStimulusAfterSeconds ?? null,
+    fields.stimulusText ?? null,
+    fields.questionImageUrl ?? null,
+    fields.explanation ?? "",
+    fields.position,
+  ];
+
+  if (rows.length > 0) {
+    const questionId = Number(rows[0].id);
     await connection.query(
-      `DELETE audio
-       FROM iq_audio_memory_questions audio
-       INNER JOIN iq_questions q ON q.id = audio.question_id
-       WHERE q.test_id = ? AND q.section_id = ?`,
-      [bankId, sectionId]
+      `UPDATE iq_questions SET
+         section_id = ?, question_text = ?, answer_prompt_text = ?, question_format = ?,
+         difficulty_level = ?, weight = ?, time_limit_seconds = ?, display_time_seconds = ?,
+         hide_stimulus_after_seconds = ?, stimulus_text = ?, question_image_url = ?, explanation = ?,
+         position = ?, is_active = 1, updated_at = NOW()
+       WHERE id = ?`,
+      [sectionId, ...values, questionId]
     );
+    return questionId;
+  }
+
+  const [result] = await connection.query(
+    `INSERT INTO iq_questions (
+       test_id, section_id, question_key, question_text, answer_prompt_text, question_format,
+       difficulty_level, weight, time_limit_seconds, display_time_seconds, hide_stimulus_after_seconds,
+       stimulus_text, question_image_url, explanation, position, is_active, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+    [bankId, sectionId, fields.questionKey, ...values]
+  );
+  return Number(result.insertId);
+}
+
+async function upsertOption(connection, questionId, option) {
+  const [rows] = await connection.query(
+    `SELECT id FROM iq_question_options WHERE question_id = ? AND option_key = ? LIMIT 1`,
+    [questionId, option.key]
+  );
+
+  const values = [
+    option.text ?? null,
+    option.imageUrl ?? null,
+    option.isCorrect ? 1 : 0,
+    option.position,
+  ];
+
+  if (rows.length > 0) {
+    await connection.query(
+      `UPDATE iq_question_options SET
+         option_text = ?, option_image_url = ?, is_correct = ?, position = ?, is_active = 1, updated_at = NOW()
+       WHERE id = ?`,
+      [...values, Number(rows[0].id)]
+    );
+    return;
   }
 
   await connection.query(
-    `DELETE overlay
-     FROM iq_spatial_overlay_questions overlay
-     INNER JOIN iq_questions q ON q.id = overlay.question_id
-     WHERE q.test_id = ? AND q.section_id = ?`,
-    [bankId, sectionId]
+    `INSERT INTO iq_question_options (
+       question_id, option_key, option_text, option_image_url, is_correct, position, is_active, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+    [questionId, option.key, ...values]
   );
+}
+
+async function upsertOverlay(connection, questionId, overlay) {
+  const values = [
+    overlay.questionImageUrl,
+    overlay.answersImageUrl,
+    String(overlay.answerCount ?? 4),
+    Number(overlay.gridColumns ?? 2),
+    Number(overlay.gridRows ?? 2),
+    Number(overlay.correctPosition),
+    overlay.correctionText ?? "",
+  ];
+
+  const [rows] = await connection.query(
+    `SELECT id FROM iq_spatial_overlay_questions WHERE question_id = ? LIMIT 1`,
+    [questionId]
+  );
+
+  if (rows.length > 0) {
+    await connection.query(
+      `UPDATE iq_spatial_overlay_questions SET
+         question_image_url = ?, answers_image_url = ?, answer_count = ?, grid_columns = ?, grid_rows = ?,
+         correct_position = ?, correction_text = ?, is_active = 1, updated_at = NOW()
+       WHERE id = ?`,
+      [...values, Number(rows[0].id)]
+    );
+    return;
+  }
+
   await connection.query(
-    `DELETE opt
-     FROM iq_question_options opt
-     INNER JOIN iq_questions q ON q.id = opt.question_id
-     WHERE q.test_id = ? AND q.section_id = ?`,
-    [bankId, sectionId]
+    `INSERT INTO iq_spatial_overlay_questions (
+       question_id, question_image_url, answers_image_url, answer_count, grid_columns, grid_rows,
+       correct_position, correction_text, is_active, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
+    [questionId, ...values]
   );
-  await connection.query(`DELETE FROM iq_questions WHERE test_id = ? AND section_id = ?`, [bankId, sectionId]);
+}
+
+async function upsertAudioMemory(connection, questionId, audio) {
+  const values = [
+    audio.promptAudioUrl,
+    Number(audio.maxStimulusPlays ?? 1),
+    Number(audio.transitionDelayMs ?? 1800),
+  ];
+
+  const [rows] = await connection.query(
+    `SELECT id FROM iq_audio_memory_questions WHERE question_id = ? LIMIT 1`,
+    [questionId]
+  );
+
+  if (rows.length > 0) {
+    await connection.query(
+      `UPDATE iq_audio_memory_questions SET
+         prompt_audio_url = ?, max_stimulus_plays = ?, transition_delay_ms = ?, updated_at = NOW()
+       WHERE id = ?`,
+      [...values, Number(rows[0].id)]
+    );
+    return;
+  }
+
+  await connection.query(
+    `INSERT INTO iq_audio_memory_questions (
+       question_id, prompt_audio_url, max_stimulus_plays, transition_delay_ms, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, NOW(), NOW())`,
+    [questionId, ...values]
+  );
 }
 
 async function syncLongMemory(connection, bankId) {
@@ -213,65 +335,41 @@ async function syncLongMemory(connection, bankId) {
     position: 7,
   });
 
-  await clearSectionQuestions(connection, bankId, sectionId);
-
   const questions = readJson("data/iq/long-memory.json");
 
   for (let index = 0; index < questions.length; index += 1) {
     const question = questions[index];
-    const [result] = await connection.query(
-      `INSERT INTO iq_questions (
-         test_id, section_id, question_key, question_text, answer_prompt_text, question_format,
-         difficulty_level, weight, time_limit_seconds, display_time_seconds, hide_stimulus_after_seconds,
-         stimulus_text, question_image_url, explanation, position, is_active, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, NULL, ?, ?, ?, ?, 1, NOW(), NOW())`,
-      [
-        bankId,
-        sectionId,
-        question.questionKey,
-        question.questionText ?? null,
-        normalizeLongMemoryPrompt(question),
-        question.questionFormat,
-        Number(question.difficultyLevel ?? 1),
-        Number(question.weight ?? 1),
-        Number(question.displayTimeSeconds ?? 6),
-        question.stimulusText ?? null,
-        question.questionImageUrl ?? null,
-        question.explanation ?? "",
-        index + 1,
-      ]
-    );
-    const questionId = result.insertId;
+    const questionId = await upsertQuestion(connection, bankId, sectionId, {
+      questionKey: question.questionKey,
+      questionText: question.questionText ?? null,
+      answerPromptText: normalizeLongMemoryPrompt(question),
+      questionFormat: question.questionFormat,
+      difficultyLevel: question.difficultyLevel,
+      weight: question.weight,
+      timeLimitSeconds: null,
+      displayTimeSeconds: Number(question.displayTimeSeconds ?? 6),
+      hideStimulusAfterSeconds: null,
+      stimulusText: question.stimulusText ?? null,
+      questionImageUrl: question.questionImageUrl ?? null,
+      explanation: question.explanation ?? "",
+      position: index + 1,
+    });
 
     if (Array.isArray(question.options)) {
       for (let optionIndex = 0; optionIndex < question.options.length; optionIndex += 1) {
         const option = question.options[optionIndex];
-        await connection.query(
-          `INSERT INTO iq_question_options (
-             question_id, option_key, option_text, option_image_url, is_correct, position, is_active, created_at, updated_at
-           ) VALUES (?, ?, ?, NULL, ?, ?, 1, NOW(), NOW())`,
-          [questionId, option.key, option.text ?? null, option.isCorrect ? 1 : 0, optionIndex + 1]
-        );
+        await upsertOption(connection, questionId, {
+          key: option.key,
+          text: option.text ?? null,
+          imageUrl: null,
+          isCorrect: option.isCorrect,
+          position: optionIndex + 1,
+        });
       }
     }
 
     if (question.overlay) {
-      await connection.query(
-        `INSERT INTO iq_spatial_overlay_questions (
-           question_id, question_image_url, answers_image_url, answer_count, grid_columns, grid_rows,
-           correct_position, correction_text, is_active, created_at, updated_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
-        [
-          questionId,
-          question.overlay.questionImageUrl,
-          question.overlay.answersImageUrl,
-          String(question.overlay.answerCount ?? 4),
-          Number(question.overlay.gridColumns ?? 2),
-          Number(question.overlay.gridRows ?? 2),
-          Number(question.overlay.correctPosition),
-          question.overlay.correctionText ?? "",
-        ]
-      );
+      await upsertOverlay(connection, questionId, question.overlay);
     }
   }
 }
@@ -295,65 +393,41 @@ async function syncMemory(connection, bankId) {
     position: 4,
   });
 
-  await clearSectionQuestions(connection, bankId, sectionId);
-
   const questions = readJson("data/iq/memory.json");
 
   for (let index = 0; index < questions.length; index += 1) {
     const question = questions[index];
-    const [result] = await connection.query(
-      `INSERT INTO iq_questions (
-         test_id, section_id, question_key, question_text, answer_prompt_text, question_format,
-         difficulty_level, weight, time_limit_seconds, display_time_seconds, hide_stimulus_after_seconds,
-         stimulus_text, question_image_url, explanation, position, is_active, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, 1, NOW(), NOW())`,
-      [
-        bankId,
-        sectionId,
-        question.questionKey,
-        question.questionText ?? null,
-        question.questionFormat,
-        Number(question.difficultyLevel ?? 1),
-        Number(question.weight ?? 1),
-        Number(question.timeLimitSeconds ?? memorySectionRow?.time_limit_seconds ?? 15),
-        Number(question.displayTimeSeconds ?? memorySectionRow?.display_time_seconds ?? 4),
-        question.stimulusText ?? null,
-        question.questionImageUrl ?? null,
-        question.explanation ?? "",
-        index + 1,
-      ]
-    );
-    const questionId = result.insertId;
+    const questionId = await upsertQuestion(connection, bankId, sectionId, {
+      questionKey: question.questionKey,
+      questionText: question.questionText ?? null,
+      answerPromptText: null,
+      questionFormat: question.questionFormat,
+      difficultyLevel: question.difficultyLevel,
+      weight: question.weight,
+      timeLimitSeconds: Number(question.timeLimitSeconds ?? memorySectionRow?.time_limit_seconds ?? 15),
+      displayTimeSeconds: Number(question.displayTimeSeconds ?? memorySectionRow?.display_time_seconds ?? 4),
+      hideStimulusAfterSeconds: null,
+      stimulusText: question.stimulusText ?? null,
+      questionImageUrl: question.questionImageUrl ?? null,
+      explanation: question.explanation ?? "",
+      position: index + 1,
+    });
 
     if (Array.isArray(question.options)) {
       for (let optionIndex = 0; optionIndex < question.options.length; optionIndex += 1) {
         const option = question.options[optionIndex];
-        await connection.query(
-          `INSERT INTO iq_question_options (
-             question_id, option_key, option_text, option_image_url, is_correct, position, is_active, created_at, updated_at
-           ) VALUES (?, ?, ?, NULL, ?, ?, 1, NOW(), NOW())`,
-          [questionId, option.key, option.text ?? null, option.isCorrect ? 1 : 0, optionIndex + 1]
-        );
+        await upsertOption(connection, questionId, {
+          key: option.key,
+          text: option.text ?? null,
+          imageUrl: null,
+          isCorrect: option.isCorrect,
+          position: optionIndex + 1,
+        });
       }
     }
 
     if (question.overlay) {
-      await connection.query(
-        `INSERT INTO iq_spatial_overlay_questions (
-           question_id, question_image_url, answers_image_url, answer_count, grid_columns, grid_rows,
-           correct_position, correction_text, is_active, created_at, updated_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
-        [
-          questionId,
-          question.overlay.questionImageUrl,
-          question.overlay.answersImageUrl,
-          String(question.overlay.answerCount ?? 4),
-          Number(question.overlay.gridColumns ?? 2),
-          Number(question.overlay.gridRows ?? 2),
-          Number(question.overlay.correctPosition),
-          question.overlay.correctionText ?? "",
-        ]
-      );
+      await upsertOverlay(connection, questionId, question.overlay);
     }
   }
 }
@@ -377,64 +451,41 @@ async function syncQuantitative(connection, bankId) {
     position: 6,
   });
 
-  await clearSectionQuestions(connection, bankId, sectionId);
-
   const questions = readJson("data/iq/quantitative.json");
 
   for (let index = 0; index < questions.length; index += 1) {
     const question = questions[index];
-    const [result] = await connection.query(
-      `INSERT INTO iq_questions (
-         test_id, section_id, question_key, question_text, answer_prompt_text, question_format,
-         difficulty_level, weight, time_limit_seconds, display_time_seconds, hide_stimulus_after_seconds,
-         stimulus_text, question_image_url, explanation, position, is_active, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, 1, NOW(), NOW())`,
-      [
-        bankId,
-        sectionId,
-        question.questionKey,
-        question.questionText ?? null,
-        question.questionFormat,
-        Number(question.difficultyLevel ?? 1),
-        Number(question.weight ?? 1),
-        Number(question.timeLimitSeconds ?? 45),
-        question.stimulusText ?? null,
-        question.questionImageUrl ?? null,
-        question.explanation ?? "",
-        index + 1,
-      ]
-    );
-    const questionId = result.insertId;
+    const questionId = await upsertQuestion(connection, bankId, sectionId, {
+      questionKey: question.questionKey,
+      questionText: question.questionText ?? null,
+      answerPromptText: null,
+      questionFormat: question.questionFormat,
+      difficultyLevel: question.difficultyLevel,
+      weight: question.weight,
+      timeLimitSeconds: Number(question.timeLimitSeconds ?? 45),
+      displayTimeSeconds: null,
+      hideStimulusAfterSeconds: null,
+      stimulusText: question.stimulusText ?? null,
+      questionImageUrl: question.questionImageUrl ?? null,
+      explanation: question.explanation ?? "",
+      position: index + 1,
+    });
 
     if (Array.isArray(question.options)) {
       for (let optionIndex = 0; optionIndex < question.options.length; optionIndex += 1) {
         const option = question.options[optionIndex];
-        await connection.query(
-          `INSERT INTO iq_question_options (
-             question_id, option_key, option_text, option_image_url, is_correct, position, is_active, created_at, updated_at
-           ) VALUES (?, ?, ?, NULL, ?, ?, 1, NOW(), NOW())`,
-          [questionId, option.key, option.text ?? null, option.isCorrect ? 1 : 0, optionIndex + 1]
-        );
+        await upsertOption(connection, questionId, {
+          key: option.key,
+          text: option.text ?? null,
+          imageUrl: null,
+          isCorrect: option.isCorrect,
+          position: optionIndex + 1,
+        });
       }
     }
 
     if (question.overlay) {
-      await connection.query(
-        `INSERT INTO iq_spatial_overlay_questions (
-           question_id, question_image_url, answers_image_url, answer_count, grid_columns, grid_rows,
-           correct_position, correction_text, is_active, created_at, updated_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
-        [
-          questionId,
-          question.overlay.questionImageUrl,
-          question.overlay.answersImageUrl,
-          String(question.overlay.answerCount ?? 4),
-          Number(question.overlay.gridColumns ?? 2),
-          Number(question.overlay.gridRows ?? 2),
-          Number(question.overlay.correctPosition),
-          question.overlay.correctionText ?? "",
-        ]
-      );
+      await upsertOverlay(connection, questionId, question.overlay);
     }
   }
 }
@@ -458,64 +509,41 @@ async function syncSpeed(connection, bankId) {
     position: 9,
   });
 
-  await clearSectionQuestions(connection, bankId, sectionId);
-
   const questions = readJson("data/iq/speed.json");
 
   for (let index = 0; index < questions.length; index += 1) {
     const question = questions[index];
-    const [result] = await connection.query(
-      `INSERT INTO iq_questions (
-         test_id, section_id, question_key, question_text, answer_prompt_text, question_format,
-         difficulty_level, weight, time_limit_seconds, display_time_seconds, hide_stimulus_after_seconds,
-         stimulus_text, question_image_url, explanation, position, is_active, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, 1, NOW(), NOW())`,
-      [
-        bankId,
-        sectionId,
-        question.questionKey,
-        question.questionText ?? null,
-        question.questionFormat,
-        Number(question.difficultyLevel ?? 1),
-        Number(question.weight ?? 1),
-        Number(question.timeLimitSeconds ?? speedSectionRow?.time_limit_seconds ?? 8),
-        question.stimulusText ?? null,
-        question.questionImageUrl ?? null,
-        question.explanation ?? "",
-        index + 1,
-      ]
-    );
-    const questionId = result.insertId;
+    const questionId = await upsertQuestion(connection, bankId, sectionId, {
+      questionKey: question.questionKey,
+      questionText: question.questionText ?? null,
+      answerPromptText: null,
+      questionFormat: question.questionFormat,
+      difficultyLevel: question.difficultyLevel,
+      weight: question.weight,
+      timeLimitSeconds: Number(question.timeLimitSeconds ?? speedSectionRow?.time_limit_seconds ?? 8),
+      displayTimeSeconds: null,
+      hideStimulusAfterSeconds: null,
+      stimulusText: question.stimulusText ?? null,
+      questionImageUrl: question.questionImageUrl ?? null,
+      explanation: question.explanation ?? "",
+      position: index + 1,
+    });
 
     if (Array.isArray(question.options)) {
       for (let optionIndex = 0; optionIndex < question.options.length; optionIndex += 1) {
         const option = question.options[optionIndex];
-        await connection.query(
-          `INSERT INTO iq_question_options (
-             question_id, option_key, option_text, option_image_url, is_correct, position, is_active, created_at, updated_at
-           ) VALUES (?, ?, ?, NULL, ?, ?, 1, NOW(), NOW())`,
-          [questionId, option.key, option.text ?? null, option.isCorrect ? 1 : 0, optionIndex + 1]
-        );
+        await upsertOption(connection, questionId, {
+          key: option.key,
+          text: option.text ?? null,
+          imageUrl: null,
+          isCorrect: option.isCorrect,
+          position: optionIndex + 1,
+        });
       }
     }
 
     if (question.overlay) {
-      await connection.query(
-        `INSERT INTO iq_spatial_overlay_questions (
-           question_id, question_image_url, answers_image_url, answer_count, grid_columns, grid_rows,
-           correct_position, correction_text, is_active, created_at, updated_at
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
-        [
-          questionId,
-          question.overlay.questionImageUrl,
-          question.overlay.answersImageUrl,
-          String(question.overlay.answerCount ?? 4),
-          Number(question.overlay.gridColumns ?? 2),
-          Number(question.overlay.gridRows ?? 2),
-          Number(question.overlay.correctPosition),
-          question.overlay.correctionText ?? "",
-        ]
-      );
+      await upsertOverlay(connection, questionId, question.overlay);
     }
   }
 }
@@ -531,53 +559,149 @@ async function syncAudioMemory(connection, bankId) {
     position: 8,
   });
 
-  await clearSectionQuestions(connection, bankId, sectionId, true);
-
   const questions = readJson("data/iq/audio-memory.json");
 
   for (let index = 0; index < questions.length; index += 1) {
     const question = questions[index];
-    const [result] = await connection.query(
-      `INSERT INTO iq_questions (
-         test_id, section_id, question_key, question_text, answer_prompt_text, question_format,
-         difficulty_level, weight, time_limit_seconds, display_time_seconds, hide_stimulus_after_seconds,
-         stimulus_text, question_image_url, explanation, position, is_active, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, ?, 'text', ?, ?, NULL, NULL, NULL, NULL, NULL, '', ?, 1, NOW(), NOW())`,
-      [
-        bankId,
-        sectionId,
-        question.questionKey,
-        question.questionText ?? null,
-        question.answerPromptText ?? null,
-        Number(question.difficultyLevel ?? 1),
-        Number(question.weight ?? 1),
-        index + 1,
-      ]
-    );
-    const questionId = result.insertId;
+    const questionId = await upsertQuestion(connection, bankId, sectionId, {
+      questionKey: question.questionKey,
+      questionText: question.questionText ?? null,
+      answerPromptText: question.answerPromptText ?? null,
+      questionFormat: "text",
+      difficultyLevel: question.difficultyLevel,
+      weight: question.weight,
+      timeLimitSeconds: null,
+      displayTimeSeconds: null,
+      hideStimulusAfterSeconds: null,
+      stimulusText: null,
+      questionImageUrl: null,
+      explanation: "",
+      position: index + 1,
+    });
 
     for (let optionIndex = 0; optionIndex < question.options.length; optionIndex += 1) {
       const option = question.options[optionIndex];
-      await connection.query(
-        `INSERT INTO iq_question_options (
-           question_id, option_key, option_text, option_image_url, is_correct, position, is_active, created_at, updated_at
-         ) VALUES (?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`,
-        [questionId, option.key, `Proposition ${option.key}`, option.audioUrl, option.isCorrect ? 1 : 0, optionIndex + 1]
-      );
+      await upsertOption(connection, questionId, {
+        key: option.key,
+        text: `Proposition ${option.key}`,
+        imageUrl: option.audioUrl,
+        isCorrect: option.isCorrect,
+        position: optionIndex + 1,
+      });
     }
 
-    await connection.query(
-      `INSERT INTO iq_audio_memory_questions (
-         question_id, prompt_audio_url, max_stimulus_plays, transition_delay_ms, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, NOW(), NOW())`,
-      [
-        questionId,
-        question.stimulusAudioUrl,
-        Number(question.maxStimulusPlays ?? 1),
-        Number(question.transitionDelayMs ?? 1800),
-      ]
-    );
+    await upsertAudioMemory(connection, questionId, {
+      promptAudioUrl: question.stimulusAudioUrl,
+      maxStimulusPlays: question.maxStimulusPlays,
+      transitionDelayMs: question.transitionDelayMs,
+    });
   }
+}
+
+// Sync generique pour les sections pilotees par un simple JSON (questions text
+// et/ou overlay). Meme logique UPSERT que les autres : aucune suppression, chaque
+// question/option/overlay est mise a jour en place via sa cle stable.
+async function syncSimpleSection(connection, bankId, config) {
+  const sectionId = await ensureSection(connection, bankId, {
+    key: config.key,
+    title: config.title,
+    description: config.description,
+    sectionType: config.sectionType,
+    timeLimitSeconds: config.timeLimitSeconds ?? null,
+    displayTimeSeconds: config.displayTimeSeconds ?? null,
+    position: config.position,
+  });
+
+  const questions = readJson(config.file);
+
+  for (let index = 0; index < questions.length; index += 1) {
+    const question = questions[index];
+    const questionId = await upsertQuestion(connection, bankId, sectionId, {
+      questionKey: question.questionKey,
+      questionText: question.questionText ?? null,
+      answerPromptText: null,
+      questionFormat: question.questionFormat,
+      difficultyLevel: question.difficultyLevel,
+      weight: question.weight,
+      timeLimitSeconds: Number(question.timeLimitSeconds ?? 45),
+      displayTimeSeconds: null,
+      hideStimulusAfterSeconds: null,
+      stimulusText: question.stimulusText ?? null,
+      questionImageUrl: question.questionImageUrl ?? null,
+      explanation: question.explanation ?? "",
+      position: index + 1,
+    });
+
+    if (Array.isArray(question.options)) {
+      for (let optionIndex = 0; optionIndex < question.options.length; optionIndex += 1) {
+        const option = question.options[optionIndex];
+        await upsertOption(connection, questionId, {
+          key: option.key,
+          text: option.text ?? null,
+          imageUrl: option.imageUrl ?? null,
+          isCorrect: option.isCorrect,
+          position: optionIndex + 1,
+        });
+      }
+    }
+
+    if (question.overlay) {
+      await upsertOverlay(connection, questionId, question.overlay);
+    }
+  }
+}
+
+async function getExistingSection(connection, bankId, sectionKey) {
+  const [[row]] = await connection.query(
+    `SELECT section_type, time_limit_seconds, display_time_seconds
+     FROM iq_sections
+     WHERE test_id = ? AND section_key = ?
+     LIMIT 1`,
+    [bankId, sectionKey]
+  );
+  return row ?? null;
+}
+
+async function syncVerbal(connection, bankId) {
+  const existing = await getExistingSection(connection, bankId, "verbal");
+  await syncSimpleSection(connection, bankId, {
+    key: "verbal",
+    title: "Verbal",
+    description: "Questions de vocabulaire, analogies et compréhension verbale.",
+    sectionType: existing?.section_type ?? "verbal",
+    timeLimitSeconds: existing?.time_limit_seconds ?? 1200,
+    displayTimeSeconds: existing?.display_time_seconds ?? null,
+    position: 3,
+    file: "data/iq/verbal.json",
+  });
+}
+
+async function syncLogic(connection, bankId) {
+  const existing = await getExistingSection(connection, bankId, "logic");
+  await syncSimpleSection(connection, bankId, {
+    key: "logic",
+    title: "Logique",
+    description: "Questions de raisonnement logique.",
+    sectionType: existing?.section_type ?? "logic",
+    timeLimitSeconds: existing?.time_limit_seconds ?? 1200,
+    displayTimeSeconds: existing?.display_time_seconds ?? null,
+    position: 4,
+    file: "data/iq/logic.json",
+  });
+}
+
+async function syncSpatial(connection, bankId) {
+  const existing = await getExistingSection(connection, bankId, "spatial");
+  await syncSimpleSection(connection, bankId, {
+    key: "spatial",
+    title: "Spatial",
+    description: "Questions visuelles et raisonnement spatial.",
+    sectionType: existing?.section_type ?? "spatial",
+    timeLimitSeconds: existing?.time_limit_seconds ?? 1200,
+    displayTimeSeconds: existing?.display_time_seconds ?? null,
+    position: 5,
+    file: "data/iq/spatial.json",
+  });
 }
 
 async function main() {
@@ -590,6 +714,9 @@ async function main() {
     await ensureAudioMemoryTable(connection);
     const bankId = await ensureTests(connection);
     await syncTestSequences(connection, bankId);
+    await syncVerbal(connection, bankId);
+    await syncLogic(connection, bankId);
+    await syncSpatial(connection, bankId);
     await syncMemory(connection, bankId);
     await syncQuantitative(connection, bankId);
     await syncLongMemory(connection, bankId);
@@ -610,3 +737,4 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
+// 8 categories pilotees par JSON: verbal, logic, spatial, memory, quantitative, long_memory, speed, audio_memory.

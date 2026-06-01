@@ -1,0 +1,308 @@
+[
+  {
+    "questionKey": "spatial-001",
+    "questionText": "Quel cube correspond a ce patron ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-001-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-001-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-002",
+    "questionText": "Quel cube correspond a ce patron ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-002-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-002-answers.png",
+      "answerCount": 6,
+      "gridColumns": 3,
+      "gridRows": 2,
+      "correctPosition": 4,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-003",
+    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-003-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-003-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-004",
+    "questionText": "Combien de cube y a t il en tout ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-004-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-004-answers.png",
+      "answerCount": 6,
+      "gridColumns": 2,
+      "gridRows": 3,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-005",
+    "questionText": "Combien de cube faut il pour former un cube complet ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-005-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-005-answers.png",
+      "answerCount": 6,
+      "gridColumns": 2,
+      "gridRows": 3,
+      "correctPosition": 6,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-006",
+    "questionText": "Combien de cube voyez vous ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-006-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-006-answers.png",
+      "answerCount": 6,
+      "gridColumns": 2,
+      "gridRows": 3,
+      "correctPosition": 1,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-007",
+    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-007-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-007-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 1,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-008",
+    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-008-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-008-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-009",
+    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-009-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-009-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-010",
+    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-010-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-010-answers.png",
+      "answerCount": 4,
+      "gridColumns": 4,
+      "gridRows": 1,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-011",
+    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Imaginez mentalement la transformation spatiale puis choisissez la bonne image.",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-011-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-011-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-012",
+    "questionText": "Quelle est la forme qui arriverait en 5eme position ?",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-012-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-012-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 1,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-013",
+    "questionText": "Quel cube correspond a ce patron ?",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-013-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-013-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-014",
+    "questionText": "Quel cube correspond a ce patron ?",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-014-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-014-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 4,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-015",
+    "questionText": "Quelle figure obtient t on au dépliage",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-015-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-015-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-016",
+    "questionText": "Quelle figure obtient t on au dépliage",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-016-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-016-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "spatial-017",
+    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionFormat": "spatial_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/spatial/spatial-017-question.png",
+      "answersImageUrl": "/iq/spatial/spatial-017-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  }
+]

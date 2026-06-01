@@ -1,0 +1,632 @@
+[
+  {
+    "questionKey": "logic-001",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Analysez la logique visuelle et choisissez la figure qui complète la série.",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-001-question.png",
+      "answersImageUrl": "/iq/logique/logique-001-answers.png",
+      "answerCount": 6,
+      "gridColumns": 3,
+      "gridRows": 2,
+      "correctPosition": 5,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-002",
+    "questionText": "8 – 13 – 21 – 34 – 55 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Suite de Fibonacci décalée : chaque terme est la somme des deux précédents. 8 + 13 = 21, 13 + 21 = 34, 21 + 34 = 55, donc 34 + 55 = 89.",
+    "options": [
+      {
+        "key": "A",
+        "text": "76",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "81",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "89",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "92",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-003",
+    "questionText": "2 – 6 – 7 – 21 – 23 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Alternance : ×3, +1, ×3, +2, ×3. 2 × 3 = 6, 6 + 1 = 7, 7 × 3 = 21, 21 + 2 = 23, 23 × 3 = 69.",
+    "options": [
+      {
+        "key": "A",
+        "text": "46",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "69",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "70",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "71",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-004",
+    "questionText": "2 – 5 – 4 – 7 – 6 – 9 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Deux suites alternées : positions impaires 2 → 4 → 6 → 8, positions paires 5 → 7 → 9.",
+    "options": [
+      {
+        "key": "A",
+        "text": "8",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "9",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "10",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "11",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-005",
+    "questionText": "4 – 6 – 9 – 13 – 18 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Les différences augmentent : +2, +3, +4, +5, puis +6. Donc 18 + 6 = 24.",
+    "options": [
+      {
+        "key": "A",
+        "text": "22",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "23",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "24",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "25",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-006",
+    "questionText": "A – C – F – J – O – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Les écarts entre les lettres sont : +2, +3, +4, +5, puis +6. O + 6 = U.",
+    "options": [
+      {
+        "key": "A",
+        "text": "S",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "T",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "U",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "V",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-007",
+    "questionText": "2 – 3 – 6 – 11 – 18 – 27 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Différences impaires successives : +1, +3, +5, +7, +9, puis +11. Donc 27 + 11 = 38.",
+    "options": [
+      {
+        "key": "A",
+        "text": "36",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "38",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "40",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "42",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-008",
+    "questionText": "3 – 6 – 18 – 21 – 63 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Alternance : +3 puis ×3. 3 + 3 = 6, 6 × 3 = 18, 18 + 3 = 21, 21 × 3 = 63, donc 63 + 3 = 66.",
+    "options": [
+      {
+        "key": "A",
+        "text": "66",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "84",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "126",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "189",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-009",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Il faut combiner les éléments de la ligne et de la colonne : cercle, carré, losange et point.",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-009-question.png",
+      "answersImageUrl": "/iq/logique/logique-009-answers.png",
+      "answerCount": 6,
+      "gridColumns": 3,
+      "gridRows": 2,
+      "correctPosition": 6,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-010",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Analysez la logique visuelle et choisissez la figure qui complète la série.",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-010-question.png",
+      "answersImageUrl": "/iq/logique/logique-010-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 1,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-011",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Analysez la logique visuelle et choisissez la figure qui complète la série.",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-011-question.png",
+      "answersImageUrl": "/iq/logique/logique-011-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 1,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-012",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "Analysez la logique visuelle et choisissez la figure qui complète la série.",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-012-question.png",
+      "answersImageUrl": "/iq/logique/logique-012-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-013",
+    "questionText": "2 – 4 – 10 – 28 – 82 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Règle : ×3 puis −2. 2 × 3 − 2 = 4, 4 × 3 − 2 = 10, 10 × 3 − 2 = 28, 28 × 3 − 2 = 82, 82 × 3 − 2 = 244.",
+    "options": [
+      {
+        "key": "A",
+        "text": "226",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "238",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "244",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "246",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-014",
+    "questionText": "1 – 2 – 4 – 7 – 11 – 16 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Les différences augmentent : +1, +2, +3, +4, +5, puis +6. Donc 16 + 6 = 22.",
+    "options": [
+      {
+        "key": "A",
+        "text": "20",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "21",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "22",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "23",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-015",
+    "questionText": "2 – 4 – 12 – 48 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Chaque étape multiplie par un entier croissant : ×2, ×3, ×4, puis ×5. Donc 48 × 5 = 240.",
+    "options": [
+      {
+        "key": "A",
+        "text": "96",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "144",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "240",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "288",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-016",
+    "questionText": "5 – 10 – 8 – 16 – 14 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Alternance : ×2 puis −2. 5 × 2 = 10, 10 − 2 = 8, 8 × 2 = 16, 16 − 2 = 14, donc 14 × 2 = 28.",
+    "options": [
+      {
+        "key": "A",
+        "text": "18",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "24",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "28",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "30",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-017",
+    "questionText": "1 – 3 – 9 – 27 – ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Chaque terme est multiplié par 3 : 1 × 3 = 3, 3 × 3 = 9, 9 × 3 = 27, 27 × 3 = 81.",
+    "options": [
+      {
+        "key": "A",
+        "text": "54",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "72",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "81",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "108",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "logic-018",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 30,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-018-question.png",
+      "answersImageUrl": "/iq/logique/logique-018-answers.png",
+      "answerCount": 6,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 6,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-019",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 30,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-019-question.png",
+      "answersImageUrl": "/iq/logique/logique-019-answers.png",
+      "answerCount": 6,
+      "gridColumns": 2,
+      "gridRows": 3,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-020",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 30,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-020-question.png",
+      "answersImageUrl": "/iq/logique/logique-020-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-021",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-021-question.png",
+      "answersImageUrl": "/iq/logique/logique-021-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-022",
+    "questionText": "Quelle est la figure qui manque ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-022-question.png",
+      "answersImageUrl": "/iq/logique/logique-022-answers.png",
+      "answerCount": 6,
+      "gridColumns": 3,
+      "gridRows": 2,
+      "correctPosition": 5,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-023",
+    "questionText": "Quelle est la figure manquante ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-023-question.png",
+      "answersImageUrl": "/iq/logique/logique-023-answers.png",
+      "answerCount": 6,
+      "gridColumns": 3,
+      "gridRows": 2,
+      "correctPosition": 6,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-024",
+    "questionText": "Quelle est la figure manquante ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-024-question.png",
+      "answersImageUrl": "/iq/logique/logique-024-answers.png",
+      "answerCount": 6,
+      "gridColumns": 3,
+      "gridRows": 2,
+      "correctPosition": 3,
+      "correctionText": ""
+    }
+  },
+  {
+    "questionKey": "logic-025",
+    "questionText": "Quelle est la figure manquante ?",
+    "questionFormat": "visual_overlay",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "explanation": "",
+    "overlay": {
+      "questionImageUrl": "/iq/logique/logique-025-question.png",
+      "answersImageUrl": "/iq/logique/logique-025-answers.png",
+      "answerCount": 4,
+      "gridColumns": 2,
+      "gridRows": 2,
+      "correctPosition": 2,
+      "correctionText": ""
+    }
+  }
+]

@@ -1,0 +1,794 @@
+[
+  {
+    "questionKey": "verbal-001",
+    "questionText": "Quel est le synonyme le plus proche de “lacunaire” ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "“Lacunaire” signifie incomplet, avec des manques ou des lacunes.",
+    "options": [
+      {
+        "key": "A",
+        "text": "incomplet",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "confus",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "détaillé",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "superficiel",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-002",
+    "questionText": "Fragile est à solide ce que :",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "La relation est une opposition. Fragile s’oppose à solide, comme précaire s’oppose à stable.",
+    "options": [
+      {
+        "key": "A",
+        "text": "précaire est à stable",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "faible est à fort",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "mince est à épais",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "léger est à lourd",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-003",
+    "questionText": "Main est à gant ce que pied est à :",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Le gant couvre directement la main ; la chaussette couvre directement le pied.",
+    "options": [
+      {
+        "key": "A",
+        "text": "botte",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "chaussette",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "chaussure",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "semelle",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-004",
+    "questionText": "Complétez : Son discours était tellement ______ qu’il ne laissait place à aucune interprétation.",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "“Limpide” signifie clair, évident, sans ambiguïté.",
+    "options": [
+      {
+        "key": "A",
+        "text": "ambigu",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "équivoque",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "limpide",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "confus",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-005",
+    "questionText": "Quel mot est le plus proche de “circonspect” ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Une personne circonspecte est prudente, méfiante, attentive avant d’agir.",
+    "options": [
+      {
+        "key": "A",
+        "text": "méfiant",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "discret",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "réservé",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "hésitant",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-006",
+    "questionText": "Quel mot n’appartient pas au même groupe ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Obstiné, tenace et persévérant indiquent la constance. “Versatile” signifie changeant.",
+    "options": [
+      {
+        "key": "A",
+        "text": "obstiné",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "tenace",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "persévérant",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "versatile",
+        "isCorrect": true
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-007",
+    "questionText": "Que signifie : Il a accepté sans broncher.",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "“Sans broncher” signifie sans protester, sans réagir négativement.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Il a protesté légèrement",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "Il a refusé calmement",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Il a accepté sans protester",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "Il a hésité",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-008",
+    "questionText": "Une théorie “réfutable” est une théorie qui :",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Une théorie réfutable peut être contredite ou testée par des faits.",
+    "options": [
+      {
+        "key": "A",
+        "text": "peut être démontrée",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "peut être contredite par des faits",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "est forcément fausse",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "repose sur une opinion",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-009",
+    "questionText": "Médecin est à diagnostic ce que juge est à :",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Le médecin établit un diagnostic ; le juge rend un verdict.",
+    "options": [
+      {
+        "key": "A",
+        "text": "verdict",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "loi",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "procès",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "tribunal",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-010",
+    "questionText": "Quel mot n’appartient pas au même groupe ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Austère, sobre et frugal évoquent la simplicité. “Fastueux” signifie luxueux, somptueux.",
+    "options": [
+      {
+        "key": "A",
+        "text": "austère",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "sobre",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "fastueux",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "frugal",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-011",
+    "questionText": "Quel mot est le plus proche de “sagace” ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "“Sagace” signifie perspicace, capable de comprendre finement les choses.",
+    "options": [
+      {
+        "key": "A",
+        "text": "rusé",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "intelligent",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "attentif",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "perspicace",
+        "isCorrect": true
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-012",
+    "questionText": "Quel mot complète le mieux : Une personne ______ change facilement d’avis ou de comportement.",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Une personne versatile change facilement d’avis ou d’attitude.",
+    "options": [
+      {
+        "key": "A",
+        "text": "persévérante",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "versatile",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "stoïque",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "rigoureuse",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-013",
+    "questionText": "Horloge est à temps ce que thermomètre est à :",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "L’horloge mesure le temps ; le thermomètre mesure la température.",
+    "options": [
+      {
+        "key": "A",
+        "text": "chaleur",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "température",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "climat",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "météo",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-014",
+    "questionText": "Quel mot n’appartient pas au même ensemble ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Axiome, hypothèse et intuition peuvent servir de point de départ. La démonstration est le raisonnement qui prouve.",
+    "options": [
+      {
+        "key": "A",
+        "text": "axiome",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "hypothèse",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "démonstration",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "intuition",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-015",
+    "questionText": "Langage est à signification ce que symbole est à :",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Le langage porte une signification ; un symbole porte une représentation.",
+    "options": [
+      {
+        "key": "A",
+        "text": "objet",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "représentation",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "convention",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "signal",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-016",
+    "questionText": "Que signifie un raisonnement “spécieux” ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Un raisonnement spécieux semble juste en apparence, mais il est trompeur.",
+    "options": [
+      {
+        "key": "A",
+        "text": "convaincant",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "trompeur par apparence",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "mal construit",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "simpliste",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-017",
+    "questionText": "Quel mot est le plus proche de \\\"equivoque\\\" ?",
+    "questionFormat": "text",
+    "difficultyLevel": 3,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Une théorie réfutable est une théorie qui peut être contredite par des faits observables.",
+    "options": [
+      {
+        "key": "A",
+        "text": "ambigu",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "precis",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "franc",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "visible",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-018",
+    "questionText": "Complétez : Un argument ______ semble logique mais contient une erreur subtile.",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Un argument spécieux paraît logique, mais il contient une erreur ou une tromperie.",
+    "options": [
+      {
+        "key": "A",
+        "text": "cohérent",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "spécieux",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "rigoureux",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "objectif",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-019",
+    "questionText": "Livre est à bibliothèque ce que œuvre est à :",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Une bibliothèque contient des livres ; une collection contient des œuvres.",
+    "options": [
+      {
+        "key": "A",
+        "text": "artiste",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "musée",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "galerie",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "collection",
+        "isCorrect": true
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-020",
+    "questionText": "Quel mot est le plus proche de “parcimonieux” ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "“Parcimonieux” signifie qui dépense ou utilise très peu ; proche d’avare selon le contexte.",
+    "options": [
+      {
+        "key": "A",
+        "text": "prudent",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "avare",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "discret",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "lent",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-021",
+    "questionText": "Quel mot n’appartient pas au même groupe ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Euphorique, enthousiaste et exalté sont positifs ou très animés. “Morose” signifie triste ou sombre.",
+    "options": [
+      {
+        "key": "A",
+        "text": "euphorique",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "enthousiaste",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "morose",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "exalté",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-022",
+    "questionText": "Que signifie : “Il prêche pour sa paroisse.”",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "“Prêcher pour sa paroisse” signifie défendre ses propres intérêts.",
+    "options": [
+      {
+        "key": "A",
+        "text": "Il défend ses intérêts",
+        "isCorrect": true
+      },
+      {
+        "key": "B",
+        "text": "Il parle de religion",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "Il convainc un groupe",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "Il donne un conseil",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-023",
+    "questionText": "Partie est à tout ce que fragment est à :",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Une partie appartient à un tout ; un fragment appartient à une totalité.",
+    "options": [
+      {
+        "key": "A",
+        "text": "ensemble",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "unité",
+        "isCorrect": false
+      },
+      {
+        "key": "C",
+        "text": "totalité",
+        "isCorrect": true
+      },
+      {
+        "key": "D",
+        "text": "groupe",
+        "isCorrect": false
+      }
+    ]
+  },
+  {
+    "questionKey": "verbal-024",
+    "questionText": "Quel mot décrit le mieux une personne “conciliante” ?",
+    "questionFormat": "text",
+    "difficultyLevel": 1,
+    "weight": 1,
+    "timeLimitSeconds": 45,
+    "stimulusText": null,
+    "questionImageUrl": null,
+    "explanation": "Une personne conciliante cherche l’accord et accepte les compromis ; elle est flexible.",
+    "options": [
+      {
+        "key": "A",
+        "text": "agressive",
+        "isCorrect": false
+      },
+      {
+        "key": "B",
+        "text": "flexible",
+        "isCorrect": true
+      },
+      {
+        "key": "C",
+        "text": "orgueilleuse",
+        "isCorrect": false
+      },
+      {
+        "key": "D",
+        "text": "distante",
+        "isCorrect": false
+      }
+    ]
+  }
+]
