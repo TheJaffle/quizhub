@@ -39,13 +39,13 @@ INNER JOIN (
   UNION ALL SELECT 'quantitative-006', 4, 4, 3
   UNION ALL SELECT 'quantitative-009', 4, 4, 3
   UNION ALL SELECT 'memory-002', 4, 4, 2
-  UNION ALL SELECT 'memory-003', 4, 4, 2
+  UNION ALL SELECT 'memory-003', 4, 4, 3
   UNION ALL SELECT 'memory-004', 4, 4, 2
   UNION ALL SELECT 'memory-006', 4, 4, 3
-  UNION ALL SELECT 'memory-007', 4, 4, 4
+  UNION ALL SELECT 'memory-007', 4, 4, 2
   UNION ALL SELECT 'memory-008', 4, 4, 2
-  UNION ALL SELECT 'memory-009', 4, 4, 4
-  UNION ALL SELECT 'memory-010', 4, 4, 4
+  UNION ALL SELECT 'memory-009', 4, 4, 2
+  UNION ALL SELECT 'memory-010', 4, 4, 2
 ) targets ON targets.question_key = q.question_key
 INNER JOIN (
   SELECT 1 AS position, 'A' AS option_key
@@ -92,13 +92,13 @@ INNER JOIN (
   UNION ALL SELECT 'quantitative-006', 4, 4, 3
   UNION ALL SELECT 'quantitative-009', 4, 4, 3
   UNION ALL SELECT 'memory-002', 4, 4, 2
-  UNION ALL SELECT 'memory-003', 4, 4, 2
+  UNION ALL SELECT 'memory-003', 4, 4, 3
   UNION ALL SELECT 'memory-004', 4, 4, 2
   UNION ALL SELECT 'memory-006', 4, 4, 3
-  UNION ALL SELECT 'memory-007', 4, 4, 4
+  UNION ALL SELECT 'memory-007', 4, 4, 2
   UNION ALL SELECT 'memory-008', 4, 4, 2
-  UNION ALL SELECT 'memory-009', 4, 4, 4
-  UNION ALL SELECT 'memory-010', 4, 4, 4
+  UNION ALL SELECT 'memory-009', 4, 4, 2
+  UNION ALL SELECT 'memory-010', 4, 4, 2
 ) targets ON targets.question_key = q.question_key
 SET opt.is_active = CASE WHEN opt.position <= targets.option_count THEN 1 ELSE 0 END,
     opt.option_image_url = NULL,
