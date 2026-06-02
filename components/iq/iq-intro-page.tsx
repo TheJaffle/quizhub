@@ -169,7 +169,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
             <div className="rounded-lg border bg-background p-3">
               <div className="grid grid-cols-2 items-start gap-4">
                 <div className="flex min-w-0 flex-col items-center space-y-2 text-center">
-                  <Label htmlFor="iq-birth-year" className="text-center text-sm leading-tight">
+                  <Label htmlFor="iq-birth-year" className="flex min-h-10 items-end justify-center text-center text-sm leading-tight">
                     Annee de naissance
                   </Label>
                   <select
@@ -188,7 +188,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
                 </div>
 
                 <div className="flex min-w-0 flex-col items-center space-y-2 text-center">
-                  <Label htmlFor="iq-gender" className="flex items-center text-center text-sm leading-tight">
+                  <Label htmlFor="iq-gender" className="flex min-h-10 items-end justify-center text-center text-sm leading-tight">
                     Genre
                   </Label>
                   <select
