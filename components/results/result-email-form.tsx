@@ -26,6 +26,11 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (hasSentEmail) {
+      return;
+    }
+
     setMessage(null);
     setError(null);
     setDevAccessUrl(null);
@@ -62,7 +67,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
       }
 
       setHasSentEmail(true);
-      setMessage("Email envoye. Verifiez votre boite mail et, par securite, regardez aussi dans vos spams. Si l'adresse n'est pas la bonne, corrigez-la puis renvoyez un mail.");
+      setMessage("Email envoye. Verifiez votre boite mail et, par securite, regardez aussi dans vos spams.");
       setDevAccessUrl(typeof payload.devAccessUrl === "string" ? payload.devAccessUrl : null);
       if (resultType === "iq") {
         clearIqDraftSubmission(resultToken);
@@ -84,7 +89,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
         <h2 className="text-2xl font-bold">Recevoir mon resultat</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           {hasSentEmail
-            ? "Vous pouvez verifier vos spams ou corriger votre adresse email avant de renvoyer un lien."
+            ? "Votre lien de resultat a ete envoye a l'adresse confirmee."
             : "Entrez votre email. Nous envoyons un lien securise pour afficher votre resultat."}
         </p>
       </div>
@@ -97,7 +102,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
 
         <div className="space-y-2">
           <Label htmlFor="result-email">Email</Label>
-          <Input id="result-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="vous@example.com" autoComplete="email" required />
+          <Input id="result-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="vous@example.com" autoComplete="email" disabled={hasSentEmail} required />
         </div>
 
         <div className="space-y-2">
@@ -112,6 +117,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
             onCut={(event) => event.preventDefault()}
             placeholder="Retapez votre email"
             autoComplete="off"
+            disabled={hasSentEmail}
             required
           />
         </div>
@@ -124,9 +130,9 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
           </p>
         ) : null}
 
-        <Button type="submit" className="h-auto min-h-11 w-full whitespace-normal px-3 py-3 text-center leading-tight" disabled={isSending}>
+        <Button type="submit" className="h-auto min-h-11 w-full whitespace-normal px-3 py-3 text-center leading-tight" disabled={isSending || hasSentEmail}>
           <Send className="h-4 w-4 shrink-0" />
-          <span>{isSending ? "Envoi..." : hasSentEmail ? "Renvoyer un mail" : "M'envoyer mon resultat"}</span>
+          <span>{isSending ? "Envoi..." : hasSentEmail ? "Email envoye" : "M'envoyer mon resultat"}</span>
         </Button>
       </form>
     </Card>
