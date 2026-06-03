@@ -1,0 +1,21 @@
+# Socket d'activation a la demande pour l'outil d'analyse IQ.
+# systemd ecoute sur ce port a la place de l'appli (cout nul) et demarre
+# le service iq-analysis.service a la premiere connexion.
+#
+# Installation :
+#   sudo cp deploy/iq-analysis.socket  /etc/systemd/system/
+#   sudo cp deploy/iq-analysis.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now iq-analysis.socket
+#
+# (On active uniquement le .socket, jamais le .service : c'est le socket qui
+#  declenche le service a la demande.)
+
+[Unit]
+Description=Socket - Outil analyse reponses IQ (activation a la demande)
+
+[Socket]
+ListenStream=127.0.0.1:4555
+
+[Install]
+WantedBy=sockets.target
