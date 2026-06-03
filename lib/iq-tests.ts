@@ -3499,6 +3499,80 @@ export async function getIqSpeedIntroByAttemptToken(token: string): Promise<IqSp
   }
 }
 
+// Rattrapage memoire longue.
+// Les rappels de memoire longue sont presentes de maniere differee et espaces de
+// minDelaySeconds (ex: 60 s) pendant la phase de rapidite. Si le test se termine avant
+// que les 10 rappels aient pu etre declenches, les rappels restants ne sont jamais affiches
+// et n'ont donc aucune ligne de reponse. Avant de finaliser, on insere pour chacun de ces
+// rappels non atteints une reponse sentinelle UNANSWERED (response_time_ms = 1000) :
+// la question est tracee comme "presentee mais non repondue" (visible en revue, score = 0).
+async function backfillUnansweredLongMemoryAnswers(
+  connection: mysql.Connection,
+  attempt: { id: number; test_id: number; user_id: number | null },
+  questionBankTestId: number,
+  resolvedSequence: ResolvedTestSequenceDefinition
+) {
+  const longMemoryItems = getEnabledLongMemoryItems(resolvedSequence);
+
+  if (longMemoryItems.length === 0) {
+    return;
+  }
+
+  const questionKeys = Array.from(new Set(longMemoryItems.map((item) => item.questionKey)));
+
+  if (questionKeys.length === 0) {
+    return;
+  }
+
+  const placeholders = questionKeys.map(() => "?").join(", ");
+  const [questionRows] = await connection.execute<mysql.RowDataPacket[]>(
+    `SELECT q.id AS question_id, q.section_id
+     FROM iq_questions q
+     INNER JOIN iq_sections s ON s.id = q.section_id
+     WHERE q.test_id = ?
+       AND s.section_key = 'long_memory'
+       AND q.is_active = 1
+       AND s.is_active = 1
+       AND q.question_key IN (${placeholders})`,
+    [questionBankTestId, ...questionKeys]
+  );
+
+  for (const row of questionRows as Array<{ question_id: number; section_id: number }>) {
+    const [existingRows] = await connection.execute<mysql.RowDataPacket[]>(
+      `SELECT id
+       FROM iq_attempt_answers
+       WHERE attempt_id = ? AND question_id = ?
+       LIMIT 1`,
+      [attempt.id, row.question_id]
+    );
+
+    if ((existingRows as Array<{ id: number }>).length > 0) {
+      continue;
+    }
+
+    await connection.execute(
+      `INSERT INTO iq_attempt_answers
+       (attempt_id, test_id, section_id, question_id, user_id, selected_option_id, selected_position,
+        correct_position, is_correct, points_earned, response_time_ms, displayed_at, answered_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        attempt.id,
+        attempt.test_id,
+        row.section_id,
+        row.question_id,
+        attempt.user_id,
+        null,
+        null,
+        null,
+        null,
+        null,
+        UNANSWERED_RESPONSE_TIME_MS,
+        null,
+      ]
+    );
+  }
+}
+
 export async function completeIqAttempt(token: string): Promise<CompleteIqAttemptResult> {
   let connection: mysql.Connection | undefined;
 
@@ -3527,6 +3601,8 @@ export async function completeIqAttempt(token: string): Promise<CompleteIqAttemp
       sequencePlan,
       getEnabledLongMemoryItems(resolvedSequence)
     );
+
+    await backfillUnansweredLongMemoryAnswers(connection, attempt, questionBankTestId, resolvedSequence);
 
     const computedScores = await computeIqAttemptScores(connection, attempt.id);
 

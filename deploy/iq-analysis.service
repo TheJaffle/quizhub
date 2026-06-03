@@ -1,0 +1,29 @@
+# Service de l'outil d'analyse IQ, declenche par iq-analysis.socket.
+# Le process s'arrete seul apres 30 min sans requete (IQ_ANALYSIS_IDLE_MINUTES),
+# et systemd le relance a la prochaine connexion sur le socket.
+#
+# A AJUSTER avant installation :
+#   - ExecStart : chemin de node (verifier avec `which node`)
+#   - User/Group : utilisateur proprietaire de /var/www/quizhub (souvent ubuntu)
+#   - WorkingDirectory si l'app n'est pas dans /var/www/quizhub
+#
+# Les identifiants (IQ_ANALYSIS_USERS) et la connexion base (QUIZHUB_DB_*) sont
+# lus automatiquement depuis /var/www/quizhub/.env.local par le programme.
+# Pense a definir un IQ_ANALYSIS_SECRET stable dans .env.local pour que les
+# sessions survivent aux redemarrages (sinon un secret aleatoire est genere).
+
+[Unit]
+Description=Outil d'analyse des reponses IQ (a la demande)
+Requires=iq-analysis.socket
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/quizhub
+ExecStart=/usr/bin/node scripts/iq-analysis-tool.mjs
+Environment=IQ_ANALYSIS_IDLE_MINUTES=30
+User=ubuntu
+Group=ubuntu
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=true
