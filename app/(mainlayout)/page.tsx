@@ -1,6 +1,5 @@
 import { CategoriesHowItWorks } from "@/components/categories/categories-how-it-works";
 import { CategoriesSlider } from "@/components/home/categories-slider";
-import { BrevoTestMailButton } from "@/components/home/brevo-test-mail-button";
 import { HeroSection } from "@/components/home/hero-section";
 import { LatestQuizzes } from "@/components/home/latest-quizzes";
 import { LiveWinners } from "@/components/home/live-winners";
@@ -53,7 +52,6 @@ export default async function Home() {
       {SHOW_RESOURCES_AND_REFERRAL ? <ResourcesAndReferral /> : null}
       {SHOW_NEWSLETTER_SECTION ? <NewsletterSection /> : null}
       <Footer />
-      <BrevoTestMailButton />
     </div>
   );
 }

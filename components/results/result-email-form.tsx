@@ -39,7 +39,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
     const normalizedEmailConfirmation = emailConfirmation.trim().toLowerCase();
 
     if (normalizedEmail !== normalizedEmailConfirmation) {
-      setError("Les deux adresses email ne correspondent pas. Verifiez votre saisie avant de continuer.");
+      setError("Les deux adresses email ne correspondent pas. Vérifiez votre saisie avant de continuer.");
       return;
     }
 
@@ -67,7 +67,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
       }
 
       setHasSentEmail(true);
-      setMessage("Email envoye. Verifiez votre boite mail et, par securite, regardez aussi dans vos spams.");
+      setMessage("Email envoyé. Vérifiez votre boîte mail et, par sécurité, regardez aussi dans vos spams.");
       setDevAccessUrl(typeof payload.devAccessUrl === "string" ? payload.devAccessUrl : null);
       if (resultType === "iq") {
         clearIqDraftSubmission(resultToken);
@@ -86,11 +86,11 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
           <Mail className="h-7 w-7" />
         </div>
-        <h2 className="text-2xl font-bold">Recevoir mon resultat</h2>
+        <h2 className="text-2xl font-bold">Recevoir mon résultat</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           {hasSentEmail
-            ? "Votre lien de resultat a ete envoye a l'adresse confirmee."
-            : "Entrez votre email. Nous envoyons un lien securise pour afficher votre resultat."}
+            ? "Votre lien de résultat a été envoyé à l'adresse confirmée."
+            : "Entrez votre email. Nous envoyons un lien sécurisé pour afficher votre résultat."}
         </p>
       </div>
 
@@ -132,7 +132,7 @@ export function ResultEmailForm({ resultType, resultToken }: ResultEmailFormProp
 
         <Button type="submit" className="h-auto min-h-11 w-full whitespace-normal px-3 py-3 text-center leading-tight" disabled={isSending || hasSentEmail}>
           <Send className="h-4 w-4 shrink-0" />
-          <span>{isSending ? "Envoi..." : hasSentEmail ? "Email envoye" : "M'envoyer mon resultat"}</span>
+          <span>{isSending ? "Envoi..." : hasSentEmail ? "Email envoyé" : "M'envoyer mon résultat"}</span>
         </Button>
       </form>
     </Card>

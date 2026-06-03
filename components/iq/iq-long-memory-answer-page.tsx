@@ -222,8 +222,8 @@ export function IqLongMemoryAnswerPage({ data, error }: IqLongMemoryAnswerPagePr
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-violet-100 text-violet-700">
             <Brain className="h-9 w-9" />
           </div>
-          <h2 className="mb-2 text-2xl font-bold">Votre resultat est pret</h2>
-          <p className="mb-6 text-muted-foreground">Recevez un lien securise par email pour consulter votre resultat.</p>
+          <h2 className="mb-2 text-2xl font-bold">Votre résultat est prêt</h2>
+          <p className="mb-6 text-muted-foreground">Recevez un lien sécurisé par email pour consulter votre résultat.</p>
           <ResultEmailForm resultType="iq" resultToken={data.attempt.token} />
         </Card>
       </div>
