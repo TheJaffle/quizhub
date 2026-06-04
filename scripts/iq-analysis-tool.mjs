@@ -27,6 +27,7 @@ const PORT = Number(process.env.IQ_ANALYSIS_PORT ?? 4555);
 // reverse proxy (nginx + HTTPS). Mettre IQ_ANALYSIS_HOST=0.0.0.0 pour exposer
 // directement (deconseille, HTTP en clair).
 const HOST = process.env.IQ_ANALYSIS_HOST ?? "127.0.0.1";
+const APP_BASE_URL = String(process.env.NEXT_PUBLIC_SITE_URL ?? process.env.SITE_URL ?? "").replace(/\/+$/, "");
 // Arret automatique apres inactivite (0 = desactive, l'appli tourne en continu).
 // Prevu pour l'activation a la demande via systemd socket : le process s'arrete
 // seul apres IQ_ANALYSIS_IDLE_MINUTES sans requete, et systemd le relance a la
@@ -241,6 +242,7 @@ async function listUsersForTest(testId) {
               END AS user_key,
               COALESCE(u.email, rel.email) AS email,
               COALESCE(u.pseudo, '') AS name,
+              SUBSTRING_INDEX(GROUP_CONCAT(a.attempt_token ORDER BY a.completed_at DESC, a.id DESC), ',', 1) AS latest_attempt_token,
               COUNT(a.id) AS attempt_count
        FROM iq_attempts a
        LEFT JOIN users u ON u.id = a.user_id
@@ -365,6 +367,7 @@ async function analyzeTest(testId) {
           q.question_format,
           q.difficulty_level,
           q.weight,
+          q.time_limit_seconds,
           COUNT(*) AS rows_total,
           SUM(CASE WHEN aa.response_time_ms = ? THEN 1 ELSE 0 END) AS not_presented,
           SUM(CASE WHEN aa.response_time_ms = ? THEN 1 ELSE 0 END) AS unanswered,
@@ -372,6 +375,30 @@ async function analyzeTest(testId) {
           ROUND(AVG(CASE WHEN aa.response_time_ms IS NOT NULL AND aa.response_time_ms <> ? AND aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS avg_ms,
           ROUND(MIN(CASE WHEN aa.response_time_ms IS NOT NULL AND aa.response_time_ms <> ? AND aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS min_ms,
           ROUND(MAX(CASE WHEN aa.response_time_ms IS NOT NULL AND aa.response_time_ms <> ? AND aa.response_time_ms <> ? THEN aa.response_time_ms END)) AS max_ms,
+          SUM(CASE
+                WHEN q.time_limit_seconds IS NOT NULL
+                 AND q.time_limit_seconds > 0
+                 AND aa.response_time_ms IS NOT NULL
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms > q.time_limit_seconds * 1000 * 0.9
+                THEN 1 ELSE 0 END) AS lost_10,
+          SUM(CASE
+                WHEN q.time_limit_seconds IS NOT NULL
+                 AND q.time_limit_seconds > 0
+                 AND aa.response_time_ms IS NOT NULL
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms > q.time_limit_seconds * 1000 * 0.8
+                THEN 1 ELSE 0 END) AS lost_20,
+          SUM(CASE
+                WHEN q.time_limit_seconds IS NOT NULL
+                 AND q.time_limit_seconds > 0
+                 AND aa.response_time_ms IS NOT NULL
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms > q.time_limit_seconds * 1000 * 0.7
+                THEN 1 ELSE 0 END) AS lost_30,
           SUM(CASE
                 WHEN (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
                   OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
@@ -383,9 +410,12 @@ async function analyzeTest(testId) {
        LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
        LEFT JOIN iq_question_options correct ON correct.question_id = q.id AND correct.is_correct = 1 AND correct.is_active = 1
        WHERE a.test_id = ? AND a.status = 'completed'
-       GROUP BY q.id, s.section_key, s.title, s.position, q.position, q.question_key, q.question_format, q.difficulty_level, q.weight
+       GROUP BY q.id, s.section_key, s.title, s.position, q.position, q.question_key, q.question_format, q.difficulty_level, q.weight, q.time_limit_seconds
        ORDER BY s.position, q.position, q.question_key`,
       [
+        NOT_PRESENTED_MS, UNANSWERED_MS,
+        NOT_PRESENTED_MS, UNANSWERED_MS,
+        NOT_PRESENTED_MS, UNANSWERED_MS,
         NOT_PRESENTED_MS, UNANSWERED_MS,
         NOT_PRESENTED_MS, UNANSWERED_MS,
         NOT_PRESENTED_MS, UNANSWERED_MS,
@@ -400,6 +430,9 @@ async function analyzeTest(testId) {
       const unanswered = Number(r.unanswered) || 0;
       const notPresented = Number(r.not_presented) || 0;
       const correct = Number(r.correct) || 0;
+      const lost10 = Number(r.lost_10) || 0;
+      const lost20 = Number(r.lost_20) || 0;
+      const lost30 = Number(r.lost_30) || 0;
       const presented = answered + unanswered; // affichee a l'utilisateur
       return {
         section_key: r.section_key,
@@ -408,15 +441,22 @@ async function analyzeTest(testId) {
         question_format: r.question_format,
         difficulty_level: Number(r.difficulty_level),
         weight: Number(r.weight),
+        time_limit_seconds: r.time_limit_seconds == null ? null : Number(r.time_limit_seconds),
         completed_attempts: completed,
         presented,
         not_presented: notPresented,
         answered,
         unanswered,
         correct,
+        lost_10: lost10,
+        lost_20: lost20,
+        lost_30: lost30,
         presentation_rate: completed > 0 ? presented / completed : 0,
         unanswered_rate: presented > 0 ? unanswered / presented : 0,
         correct_rate: answered > 0 ? correct / answered : 0,
+        lost_10_rate: answered > 0 ? lost10 / answered : 0,
+        lost_20_rate: answered > 0 ? lost20 / answered : 0,
+        lost_30_rate: answered > 0 ? lost30 / answered : 0,
         avg_ms: r.avg_ms == null ? null : Number(r.avg_ms),
         min_ms: r.min_ms == null ? null : Number(r.min_ms),
         max_ms: r.max_ms == null ? null : Number(r.max_ms),
@@ -434,25 +474,25 @@ const PAGE = `<!DOCTYPE html>
 <style>
   :root { --bg:#0f1115; --card:#1a1d24; --line:#2a2f3a; --txt:#e6e8ec; --mut:#9aa3b0; --accent:#5b9dff; --good:#3ecf8e; --warn:#f5a623; --bad:#ef5b5b; }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); font-size:14px; }
-  header { position:sticky; top:0; z-index:10; background:var(--card); border-bottom:1px solid var(--line); padding:14px 20px; }
+  body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--txt); font-size:13px; }
+  header { position:sticky; top:0; z-index:10; background:var(--card); border-bottom:1px solid var(--line); padding:12px 16px; }
   .row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-  h1 { font-size:16px; margin:0; font-weight:600; }
-  select { background:var(--bg); color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:14px; min-width:280px; }
-  .meta { color:var(--mut); font-size:13px; }
-  .chips { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
-  .chip { background:var(--bg); border:1px solid var(--line); border-radius:999px; padding:4px 12px; font-size:12px; color:var(--mut); }
+  h1 { font-size:15px; margin:0; font-weight:600; }
+  select { background:var(--bg); color:var(--txt); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px; min-width:260px; }
+  .meta { color:var(--mut); font-size:12px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:7px; }
+  .chip { background:var(--bg); border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:11px; color:var(--mut); }
   .chip b { color:var(--txt); }
-  main { padding:16px 20px 60px; }
-  .sec { margin:22px 0 8px; font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); font-weight:600; }
+  main { padding:14px 16px 48px; }
+  .sec { margin:18px 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); font-weight:600; }
   table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
-  th,td { padding:8px 10px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th,td { padding:6px 7px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap; font-size:12px; }
   th:first-child,td:first-child,th:nth-child(2),td:nth-child(2) { text-align:left; }
   th { background:#20242d; color:var(--mut); font-weight:600; cursor:pointer; user-select:none; position:sticky; top:0; z-index:2; }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:#20242d; }
-  .key { font-family:ui-monospace,monospace; font-size:12px; }
-  .fmt { color:var(--mut); font-size:11px; }
+  .key { font-family:ui-monospace,monospace; font-size:11px; }
+  .fmt { color:var(--mut); font-size:10px; }
   .bar { display:inline-block; height:8px; border-radius:4px; vertical-align:middle; margin-left:6px; }
   .pct { font-variant-numeric:tabular-nums; }
   .muted { color:var(--mut); }
@@ -522,15 +562,18 @@ function renderChips(meta, rows){
 
 const COLS = [
   {k:'question_key', label:'Question', txt:true},
-  {k:'difficulty_level', label:'Diff.'},
-  {k:'presented', label:'Présentée (n)'},
-  {k:'presentation_rate', label:'% présentée', pct:true, kind:'good'},
-  {k:'unanswered_rate', label:'% non répondue', pct:true, kind:'bad'},
-  {k:'correct_rate', label:'% bonnes', pct:true, kind:'good'},
-  {k:'answered', label:'n répondues'},
-  {k:'avg_ms', label:'Temps moyen', time:true},
+  {k:'difficulty_level', label:'Niv.'},
+  {k:'presented', label:'n'},
+  {k:'presentation_rate', label:'% vu', pct:true, kind:'good'},
+  {k:'unanswered_rate', label:'% NR', pct:true, kind:'bad'},
+  {k:'correct_rate', label:'% ok', pct:true, kind:'good'},
+  {k:'answered', label:'n rep'},
+  {k:'avg_ms', label:'Moy.', time:true},
   {k:'min_ms', label:'Min', time:true},
   {k:'max_ms', label:'Max', time:true},
+  {k:'lost_10_rate', label:'-10%', pct:true, kind:'bad'},
+  {k:'lost_20_rate', label:'-20%', pct:true, kind:'bad'},
+  {k:'lost_30_rate', label:'-30%', pct:true, kind:'bad'},
 ];
 
 function render(){
@@ -559,7 +602,7 @@ function render(){
           html += '<td><span class="key">'+v+'</span> <span class="fmt">'+r.question_format+'</span></td>';
         } else if(c.pct){
           const col = colorFor(v, c.kind);
-          const w = Math.round(v*60);
+          const w = Math.round(v*34);
           html += '<td class="pct" style="color:'+col+'">'+pct(v)+'<span class="bar" style="width:'+w+'px;background:'+col+'"></span></td>';
         } else if(c.time){
           html += '<td class="muted">'+ms(v)+'</td>';
@@ -583,12 +626,13 @@ loadTests();
 
 // --- Edit Users --------------------------------------------------------------
 function euEsc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function euResultUrl(token){ return token ? '${APP_BASE_URL || ""}/iq/results/'+encodeURIComponent(token) : ''; }
 
 async function openEditUsers(){
   const sel=document.getElementById('testSel');
   document.getElementById('euTitle').textContent=sel.options[sel.selectedIndex]?.text.split(' \u2014')[0]??'';
   document.getElementById('euMsg').textContent='';
-  document.getElementById('euList').innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--mut)">Chargement...</td></tr>';
+  document.getElementById('euList').innerHTML='<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--mut)">Chargement...</td></tr>';
   document.getElementById('euOverlay').style.display='flex';
   try {
     const resp = await fetch('api/users?testId='+encodeURIComponent(sel.value));
@@ -599,18 +643,19 @@ async function openEditUsers(){
     document.getElementById('euAll').checked=false;
     document.getElementById('euAll').indeterminate=false;
     if(!users.length){
-      tbody.innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--mut)">Aucun utilisateur pour ce test.</td></tr>';
+      tbody.innerHTML='<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--mut)">Aucun utilisateur pour ce test.</td></tr>';
     } else {
       tbody.innerHTML=users.map(u=>
         '<tr style="border-top:1px solid var(--line)">'+
         '<td style="padding:8px 10px"><input type="checkbox" class="eu-cb" data-key="'+euEsc(u.user_key)+'" onchange="euUpdateCount()"></td>'+
         '<td style="padding:8px 10px;font-size:13px">'+euEsc(u.email)+'</td>'+
         '<td style="padding:8px 10px;font-size:13px;color:var(--mut)">'+euEsc(u.name??'')+'</td>'+
-        '<td style="padding:8px 10px;font-size:13px;text-align:right">'+u.attempt_count+'</td></tr>'
+        '<td style="padding:8px 10px;font-size:13px;text-align:right">'+u.attempt_count+'</td>'+
+        '<td style="padding:8px 10px;text-align:right">'+(u.latest_attempt_token ? '<a href="'+euEsc(euResultUrl(u.latest_attempt_token))+'" target="_blank" rel="noreferrer" style="color:var(--accent);text-decoration:none;font-size:12px">Ouvrir</a>' : '<span style="color:var(--mut);font-size:12px">—</span>')+'</td></tr>'
       ).join('');
     }
   } catch(err) {
-    document.getElementById('euList').innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--bad)">Erreur de chargement : '+euEsc(err.message ?? err)+'</td></tr>';
+  document.getElementById('euList').innerHTML='<tr><td colspan="5" style="padding:16px;text-align:center;color:var(--bad)">Erreur de chargement : '+euEsc(err.message ?? err)+'</td></tr>';
   }
   euUpdateCount();
 }
@@ -664,6 +709,7 @@ document.addEventListener('DOMContentLoaded',()=>{
           <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Email</th>
           <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Nom</th>
           <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);">Tentatives</th>
+          <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);">Résultat</th>
         </tr></thead>
         <tbody id="euList"></tbody>
       </table>
