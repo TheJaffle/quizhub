@@ -387,7 +387,7 @@ const PAGE = `<!DOCTYPE html>
   table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
   th,td { padding:8px 10px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap; }
   th:first-child,td:first-child,th:nth-child(2),td:nth-child(2) { text-align:left; }
-  th { background:#20242d; color:var(--mut); font-weight:600; cursor:pointer; user-select:none; position:sticky; top:64px; }
+  th { background:#20242d; color:var(--mut); font-weight:600; cursor:pointer; user-select:none; position:sticky; top:var(--header-h,64px); }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:#20242d; }
   .key { font-family:ui-monospace,monospace; font-size:12px; }
@@ -457,6 +457,7 @@ function renderChips(meta, rows){
     '<span class="chip">Questions : <b>'+totalQ+'</b></span>'+
     '<span class="chip">% bonnes (moyen) : <b>'+pct(avgCorrect)+'</b></span>'+
     '<span class="chip">Questions sous-presentees (&lt;95%) : <b class="flag">'+flagged+'</b></span>';
+  updateHeaderHeight();
 }
 
 const COLS = [
@@ -519,43 +520,20 @@ function render(){
 }
 
 loadTests();
-</script>
+updateHeaderHeight();
 
-<!-- Modal Edit Users -->
-<div id="euOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;">
-  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:82vh;display:flex;flex-direction:column;gap:14px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <h2 style="margin:0;font-size:16px;">Edit Users &mdash; <span id="euTitle" style="color:var(--accent)"></span></h2>
-      <button onclick="euClose()" style="background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
-    </div>
-    <p style="margin:0;font-size:13px;color:var(--mut);">Coche les utilisateurs dont tu veux supprimer les résultats pour ce test. Si l'utilisateur n'a plus aucun autre test, il sera aussi supprimé de la base.</p>
-    <div style="overflow-y:auto;flex:1;border:1px solid var(--line);border-radius:8px;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead><tr style="background:#20242d;position:sticky;top:0;">
-          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);width:36px;"><input type="checkbox" id="euAll" onchange="euToggleAll(this)"></th>
-          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Email</th>
-          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Nom</th>
-          <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);">Tentatives</th>
-        </tr></thead>
-        <tbody id="euList"></tbody>
-      </table>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;">
-      <span id="euCount" style="font-size:13px;color:var(--mut);">0 sélectionné(s)</span>
-      <div style="display:flex;gap:10px;">
-        <button onclick="euClose()" style="background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;">Annuler</button>
-        <button id="euBtn" onclick="euDelete()" style="background:var(--bad);color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;font-weight:600;" disabled>Mettre à jour BD</button>
-      </div>
-    </div>
-    <div id="euMsg" style="font-size:13px;min-height:18px;"></div>
-  </div>
-</div>
-<script>
+function updateHeaderHeight(){
+  const h = document.querySelector('header')?.offsetHeight ?? 64;
+  document.documentElement.style.setProperty('--header-h', h+'px');
+}
+window.addEventListener('resize', updateHeaderHeight);
+
+// --- Edit Users --------------------------------------------------------------
 function euEsc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 async function openEditUsers(){
   const sel=document.getElementById('testSel');
-  document.getElementById('euTitle').textContent=sel.options[sel.selectedIndex]?.text.split(' —')[0]??'';
+  document.getElementById('euTitle').textContent=sel.options[sel.selectedIndex]?.text.split(' \u2014')[0]??'';
   document.getElementById('euMsg').textContent='';
   document.getElementById('euList').innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--mut)">Chargement...</td></tr>';
   document.getElementById('euOverlay').style.display='flex';
@@ -607,8 +585,40 @@ async function euDelete(){
     document.getElementById('euBtn').disabled=false;
   }
 }
-document.getElementById('euOverlay').addEventListener('click',function(e){if(e.target===this)euClose();});
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('euOverlay').addEventListener('click',function(e){if(e.target===this)euClose();});
+});
 </script>
+
+<!-- Modal Edit Users -->
+<div id="euOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:82vh;display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <h2 style="margin:0;font-size:16px;">Edit Users &mdash; <span id="euTitle" style="color:var(--accent)"></span></h2>
+      <button onclick="euClose()" style="background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
+    </div>
+    <p style="margin:0;font-size:13px;color:var(--mut);">Coche les utilisateurs dont tu veux supprimer les résultats pour ce test. Si l'utilisateur n'a plus aucun autre test, il sera aussi supprimé de la base.</p>
+    <div style="overflow-y:auto;flex:1;border:1px solid var(--line);border-radius:8px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:#20242d;">
+          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);width:36px;"><input type="checkbox" id="euAll" onchange="euToggleAll(this)"></th>
+          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Email</th>
+          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Nom</th>
+          <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);">Tentatives</th>
+        </tr></thead>
+        <tbody id="euList"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;">
+      <span id="euCount" style="font-size:13px;color:var(--mut);">0 sélectionné(s)</span>
+      <div style="display:flex;gap:10px;">
+        <button onclick="euClose()" style="background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;">Annuler</button>
+        <button id="euBtn" onclick="euDelete()" style="background:var(--bad);color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;font-weight:600;" disabled>Mettre à jour BD</button>
+      </div>
+    </div>
+    <div id="euMsg" style="font-size:13px;min-height:18px;"></div>
+  </div>
+</div>
 </body></html>`;
 
 // --- Page de garde (login) ---------------------------------------------------
