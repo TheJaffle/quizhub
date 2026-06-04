@@ -485,11 +485,12 @@ function render(){
   const idx = {};
   for(const r of rows){ if(!(r.section_key in idx)){ idx[r.section_key]=sections.length; sections.push({key:r.section_key, title:r.section_title, rows:[]}); } sections[idx[r.section_key]].rows.push(r); }
 
+  const stickyTop = (document.querySelector('header')?.offsetHeight ?? 64)+'px';
   let html='';
   for(const sec of sections){
     html += '<div class="sec">'+sec.title+' ('+sec.key+') — '+sec.rows.length+' questions</div>';
     html += '<table><thead><tr>';
-    for(const c of COLS){ html += '<th data-k="'+c.k+'">'+c.label+'</th>'; }
+    for(const c of COLS){ html += '<th data-k="'+c.k+'" style="top:'+stickyTop+'">'+c.label+'</th>'; }
     html += '</tr></thead><tbody>';
     for(const r of sec.rows){
       html += '<tr>';
