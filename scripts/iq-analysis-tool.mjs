@@ -567,7 +567,7 @@ function euUpdateCount(){
 async function euDelete(){
   const userIds=[...document.querySelectorAll('.eu-cb:checked')].map(c=>Number(c.dataset.id));
   const testId=document.getElementById('testSel').value;
-  if(!confirm('Supprimer les données de '+userIds.length+' utilisateur(s) pour ce test ?\nCette action est irréversible.')) return;
+  if(!confirm('Supprimer les données de '+userIds.length+' utilisateur(s) pour ce test ?\\nCette action est irréversible.')) return;
   document.getElementById('euBtn').disabled=true;
   document.getElementById('euMsg').style.color='var(--mut)';
   document.getElementById('euMsg').textContent='Suppression en cours...';
