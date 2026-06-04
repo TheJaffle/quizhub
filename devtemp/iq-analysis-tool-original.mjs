@@ -231,56 +231,6 @@ async function listTests() {
   });
 }
 
-// --- Liste des users ayant complété un test ----------------------------------
-async function listUsersForTest(testId) {
-  return withConnection(async (c) => {
-    const [rows] = await c.query(
-      `SELECT u.id, u.email, u.name,
-              COUNT(a.id) AS attempt_count
-       FROM users u
-       INNER JOIN iq_attempts a ON a.user_id = u.id
-       WHERE a.test_id = ? AND a.status = 'completed'
-       GROUP BY u.id, u.email, u.name
-       ORDER BY u.email`,
-      [testId]
-    );
-    return rows;
-  });
-}
-
-// --- Suppression des tentatives d'un test pour une liste de users ------------
-async function deleteUserAttempts(testId, userIds) {
-  return withConnection(async (c) => {
-    await c.beginTransaction();
-    try {
-      const deletedUsers = [];
-      for (const userId of userIds) {
-        const [attempts] = await c.query(
-          "SELECT id FROM iq_attempts WHERE test_id = ? AND user_id = ?",
-          [testId, userId]
-        );
-        const attemptIds = attempts.map((a) => a.id);
-        if (attemptIds.length === 0) continue;
-        await c.query("DELETE FROM iq_attempt_answers WHERE attempt_id IN (?)", [attemptIds]);
-        await c.query("DELETE FROM iq_attempts WHERE id IN (?)", [attemptIds]);
-        const [[{ cnt }]] = await c.query(
-          "SELECT COUNT(*) AS cnt FROM iq_attempts WHERE user_id = ?",
-          [userId]
-        );
-        if (Number(cnt) === 0) {
-          await c.query("DELETE FROM users WHERE id = ?", [userId]);
-          deletedUsers.push(userId);
-        }
-      }
-      await c.commit();
-      return { ok: true, deletedUsers };
-    } catch (err) {
-      await c.rollback();
-      throw err;
-    }
-  });
-}
-
 // --- Analyse agregee par question pour un test -------------------------------
 async function analyzeTest(testId) {
   return withConnection(async (c) => {
@@ -404,8 +354,7 @@ const PAGE = `<!DOCTYPE html>
     <h1>Analyse des reponses IQ</h1>
     <select id="testSel"><option>Chargement...</option></select>
     <span class="meta" id="dbInfo"></span>
-    <button onclick="openEditUsers()" style="margin-left:auto;background:var(--card);color:var(--accent);border:1px solid var(--line);border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;">Edit Users</button>
-    <a class="meta" href="logout" style="color:var(--accent);text-decoration:none">Deconnexion</a>
+    <a class="meta" href="logout" style="margin-left:auto;color:var(--accent);text-decoration:none">Deconnexion</a>
   </div>
   <div class="chips" id="chips"></div>
 </header>
@@ -519,95 +468,6 @@ function render(){
 }
 
 loadTests();
-</script>
-
-<!-- Modal Edit Users -->
-<div id="euOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;">
-  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:82vh;display:flex;flex-direction:column;gap:14px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <h2 style="margin:0;font-size:16px;">Edit Users &mdash; <span id="euTitle" style="color:var(--accent)"></span></h2>
-      <button onclick="euClose()" style="background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
-    </div>
-    <p style="margin:0;font-size:13px;color:var(--mut);">Coche les utilisateurs dont tu veux supprimer les résultats pour ce test. Si l'utilisateur n'a plus aucun autre test, il sera aussi supprimé de la base.</p>
-    <div style="overflow-y:auto;flex:1;border:1px solid var(--line);border-radius:8px;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead><tr style="background:#20242d;position:sticky;top:0;">
-          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);width:36px;"><input type="checkbox" id="euAll" onchange="euToggleAll(this)"></th>
-          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Email</th>
-          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Nom</th>
-          <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);">Tentatives</th>
-        </tr></thead>
-        <tbody id="euList"></tbody>
-      </table>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;">
-      <span id="euCount" style="font-size:13px;color:var(--mut);">0 sélectionné(s)</span>
-      <div style="display:flex;gap:10px;">
-        <button onclick="euClose()" style="background:var(--bg);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;">Annuler</button>
-        <button id="euBtn" onclick="euDelete()" style="background:var(--bad);color:#fff;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;font-weight:600;" disabled>Mettre à jour BD</button>
-      </div>
-    </div>
-    <div id="euMsg" style="font-size:13px;min-height:18px;"></div>
-  </div>
-</div>
-<script>
-function euEsc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-async function openEditUsers(){
-  const sel=document.getElementById('testSel');
-  document.getElementById('euTitle').textContent=sel.options[sel.selectedIndex]?.text.split(' —')[0]??'';
-  document.getElementById('euMsg').textContent='';
-  document.getElementById('euList').innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--mut)">Chargement...</td></tr>';
-  document.getElementById('euOverlay').style.display='flex';
-  const data=await(await fetch('api/users?testId='+encodeURIComponent(sel.value))).json();
-  const users=data.users??[];
-  const tbody=document.getElementById('euList');
-  document.getElementById('euAll').checked=false;
-  document.getElementById('euAll').indeterminate=false;
-  if(!users.length){
-    tbody.innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--mut)">Aucun utilisateur pour ce test.</td></tr>';
-  } else {
-    tbody.innerHTML=users.map(u=>
-      '<tr style="border-top:1px solid var(--line)">'+
-      '<td style="padding:8px 10px"><input type="checkbox" class="eu-cb" data-id="'+u.id+'" onchange="euUpdateCount()"></td>'+
-      '<td style="padding:8px 10px;font-size:13px">'+euEsc(u.email)+'</td>'+
-      '<td style="padding:8px 10px;font-size:13px;color:var(--mut)">'+euEsc(u.name??'')+'</td>'+
-      '<td style="padding:8px 10px;font-size:13px;text-align:right">'+u.attempt_count+'</td></tr>'
-    ).join('');
-  }
-  euUpdateCount();
-}
-function euClose(){ document.getElementById('euOverlay').style.display='none'; }
-function euToggleAll(cb){ document.querySelectorAll('.eu-cb').forEach(c=>c.checked=cb.checked); euUpdateCount(); }
-function euUpdateCount(){
-  const n=document.querySelectorAll('.eu-cb:checked').length, t=document.querySelectorAll('.eu-cb').length;
-  document.getElementById('euCount').textContent=n+' sélectionné(s) sur '+t;
-  document.getElementById('euBtn').disabled=n===0;
-  document.getElementById('euAll').checked=t>0&&n===t;
-  document.getElementById('euAll').indeterminate=n>0&&n<t;
-}
-async function euDelete(){
-  const userIds=[...document.querySelectorAll('.eu-cb:checked')].map(c=>Number(c.dataset.id));
-  const testId=document.getElementById('testSel').value;
-  if(!confirm('Supprimer les données de '+userIds.length+' utilisateur(s) pour ce test ?\nCette action est irréversible.')) return;
-  document.getElementById('euBtn').disabled=true;
-  document.getElementById('euMsg').style.color='var(--mut)';
-  document.getElementById('euMsg').textContent='Suppression en cours...';
-  try {
-    const data=await(await fetch('api/users/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testId:Number(testId),userIds})})).json();
-    if(data.ok){
-      document.getElementById('euMsg').style.color='var(--good)';
-      document.getElementById('euMsg').textContent=userIds.length+' tentative(s) supprimée(s).'+(data.deletedUsers?.length?' '+data.deletedUsers.length+' utilisateur(s) supprimé(s) de la base.':'');
-      await openEditUsers();
-      loadAnalysis(testId);
-    } else throw new Error(data.error??'Erreur inconnue');
-  } catch(err){
-    document.getElementById('euMsg').style.color='var(--bad)';
-    document.getElementById('euMsg').textContent='Erreur : '+err.message;
-    document.getElementById('euBtn').disabled=false;
-  }
-}
-document.getElementById('euOverlay').addEventListener('click',function(e){if(e.target===this)euClose();});
 </script>
 </body></html>`;
 
@@ -734,30 +594,6 @@ const server = http.createServer(async (req, res) => {
       const data = await analyzeTest(testId);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
       res.end(JSON.stringify(data));
-      return;
-    }
-
-    if (url.pathname === "/api/users" && method === "GET") {
-      const testId = Number(url.searchParams.get("testId"));
-      const users = await listUsersForTest(testId);
-      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-      res.end(JSON.stringify({ users }));
-      return;
-    }
-
-    if (url.pathname === "/api/users/delete" && method === "POST") {
-      const body = await readBody(req);
-      const params = JSON.parse(body);
-      const testId = Number(params.testId);
-      const userIds = (params.userIds ?? []).map(Number).filter(Boolean);
-      if (!testId || userIds.length === 0) {
-        res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
-        res.end(JSON.stringify({ error: "Paramètres manquants." }));
-        return;
-      }
-      const result = await deleteUserAttempts(testId, userIds);
-      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-      res.end(JSON.stringify(result));
       return;
     }
 
