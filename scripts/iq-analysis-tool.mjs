@@ -250,14 +250,16 @@ async function listUsersForTest(testId) {
          WHERE result_type = 'iq'
          GROUP BY result_token
        ) rel ON rel.result_token = a.attempt_token
-       WHERE a.test_id = ? AND a.status = 'completed'
+       WHERE a.test_id = ?
+         AND a.status = 'completed'
+         AND (u.email IS NOT NULL OR rel.email IS NOT NULL)
+         AND COALESCE(u.email, rel.email) <> ''
        GROUP BY CASE
                   WHEN a.user_id IS NOT NULL THEN CONCAT('user:', a.user_id)
                   ELSE CONCAT('guest:', COALESCE(rel.email, ''))
                 END,
                 COALESCE(u.email, rel.email),
                 COALESCE(u.pseudo, '')
-       HAVING COALESCE(u.email, rel.email) IS NOT NULL AND COALESCE(u.email, rel.email) <> ''
        ORDER BY COALESCE(u.email, rel.email)`,
       [testId]
     );
