@@ -457,6 +457,9 @@ async function analyzeTest(testId) {
         lost_10_rate: answered > 0 ? lost10 / answered : 0,
         lost_20_rate: answered > 0 ? lost20 / answered : 0,
         lost_30_rate: answered > 0 ? lost30 / answered : 0,
+        keep_10_rate: answered > 0 ? (answered - lost10) / answered : 0,
+        keep_20_rate: answered > 0 ? (answered - lost20) / answered : 0,
+        keep_30_rate: answered > 0 ? (answered - lost30) / answered : 0,
         avg_ms: r.avg_ms == null ? null : Number(r.avg_ms),
         min_ms: r.min_ms == null ? null : Number(r.min_ms),
         max_ms: r.max_ms == null ? null : Number(r.max_ms),
@@ -571,9 +574,9 @@ const COLS = [
   {k:'avg_ms', label:'Moy.', time:true},
   {k:'min_ms', label:'Min', time:true},
   {k:'max_ms', label:'Max', time:true},
-  {k:'lost_10_rate', label:'-10%', pct:true, kind:'bad'},
-  {k:'lost_20_rate', label:'-20%', pct:true, kind:'bad'},
-  {k:'lost_30_rate', label:'-30%', pct:true, kind:'bad'},
+  {k:'keep_10_rate', label:'R -10%', pct:true, kind:'good'},
+  {k:'keep_20_rate', label:'R -20%', pct:true, kind:'good'},
+  {k:'keep_30_rate', label:'R -30%', pct:true, kind:'good'},
 ];
 
 function render(){
