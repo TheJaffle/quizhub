@@ -235,7 +235,10 @@ async function listTests() {
 async function listUsersForTest(testId) {
   return withConnection(async (c) => {
     const [rows] = await c.query(
-      `SELECT CASE WHEN u.id IS NOT NULL THEN u.id ELSE -MIN(a.id) END AS id,
+      `SELECT CASE
+                WHEN a.user_id IS NOT NULL THEN CONCAT('user:', a.user_id)
+                ELSE CONCAT('guest:', COALESCE(rel.email, ''))
+              END AS user_key,
               COALESCE(u.email, rel.email) AS email,
               COALESCE(u.pseudo, '') AS name,
               COUNT(a.id) AS attempt_count
@@ -248,7 +251,12 @@ async function listUsersForTest(testId) {
          GROUP BY result_token
        ) rel ON rel.result_token = a.attempt_token
        WHERE a.test_id = ? AND a.status = 'completed'
-       GROUP BY u.id, COALESCE(u.email, rel.email), COALESCE(u.pseudo, '')
+       GROUP BY CASE
+                  WHEN a.user_id IS NOT NULL THEN CONCAT('user:', a.user_id)
+                  ELSE CONCAT('guest:', COALESCE(rel.email, ''))
+                END,
+                COALESCE(u.email, rel.email),
+                COALESCE(u.pseudo, '')
        HAVING COALESCE(u.email, rel.email) IS NOT NULL AND COALESCE(u.email, rel.email) <> ''
        ORDER BY COALESCE(u.email, rel.email)`,
       [testId]
@@ -258,16 +266,18 @@ async function listUsersForTest(testId) {
 }
 
 // --- Suppression des tentatives d'un test pour une liste de users ------------
-async function deleteUserAttempts(testId, userIds) {
+async function deleteUserAttempts(testId, userKeys) {
   return withConnection(async (c) => {
     await c.beginTransaction();
     try {
       const deletedUsers = [];
-      for (const userId of userIds) {
+      for (const userKey of userKeys) {
         let attempts = [];
         let userEmail = null;
 
-        if (Number(userId) > 0) {
+        if (typeof userKey === "string" && userKey.startsWith("user:")) {
+          const userId = Number(userKey.slice(5));
+          if (!Number.isInteger(userId) || userId <= 0) continue;
           const [userRows] = await c.query("SELECT email FROM users WHERE id = ? LIMIT 1", [userId]);
           userEmail = userRows[0]?.email ?? null;
           const [rows] = await c.query(
@@ -275,22 +285,8 @@ async function deleteUserAttempts(testId, userIds) {
             [testId, userId]
           );
           attempts = rows;
-        } else {
-          const [guestRows] = await c.query(
-            `SELECT COALESCE(u.email, rel.email) AS email
-             FROM iq_attempts a
-             LEFT JOIN users u ON u.id = a.user_id
-             LEFT JOIN (
-               SELECT result_token, MIN(email) AS email
-               FROM result_email_links
-               WHERE result_type = 'iq'
-               GROUP BY result_token
-             ) rel ON rel.result_token = a.attempt_token
-             WHERE a.id = ? AND a.test_id = ? AND a.status = 'completed'
-             LIMIT 1`,
-            [Math.abs(Number(userId)), testId]
-          );
-          userEmail = guestRows[0]?.email ?? null;
+        } else if (typeof userKey === "string" && userKey.startsWith("guest:")) {
+          userEmail = userKey.slice(6).trim();
           if (!userEmail) continue;
           const [rows] = await c.query(
             `SELECT a.id
@@ -305,6 +301,8 @@ async function deleteUserAttempts(testId, userIds) {
             [testId, userEmail]
           );
           attempts = rows;
+        } else {
+          continue;
         }
 
         const attemptIds = attempts.map((a) => a.id);
@@ -321,7 +319,8 @@ async function deleteUserAttempts(testId, userIds) {
             [userEmail]
           );
         }
-        if (Number(userId) > 0) {
+        if (typeof userKey === "string" && userKey.startsWith("user:")) {
+          const userId = Number(userKey.slice(5));
           const [[{ cnt }]] = await c.query(
             "SELECT COUNT(*) AS cnt FROM iq_attempts WHERE user_id = ?",
             [userId]
@@ -447,7 +446,7 @@ const PAGE = `<!DOCTYPE html>
   table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
   th,td { padding:8px 10px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap; }
   th:first-child,td:first-child,th:nth-child(2),td:nth-child(2) { text-align:left; }
-  th { background:#20242d; color:var(--mut); font-weight:600; cursor:pointer; user-select:none; position:sticky; top:var(--header-h,64px); }
+  th { background:#20242d; color:var(--mut); font-weight:600; cursor:pointer; user-select:none; position:sticky; top:0; z-index:2; }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:#20242d; }
   .key { font-family:ui-monospace,monospace; font-size:12px; }
@@ -517,7 +516,6 @@ function renderChips(meta, rows){
     '<span class="chip">Questions : <b>'+totalQ+'</b></span>'+
     '<span class="chip">% bonnes (moyen) : <b>'+pct(avgCorrect)+'</b></span>'+
     '<span class="chip">Questions sous-presentees (&lt;95%) : <b class="flag">'+flagged+'</b></span>';
-  updateHeaderHeight();
 }
 
 const COLS = [
@@ -545,12 +543,11 @@ function render(){
   const idx = {};
   for(const r of rows){ if(!(r.section_key in idx)){ idx[r.section_key]=sections.length; sections.push({key:r.section_key, title:r.section_title, rows:[]}); } sections[idx[r.section_key]].rows.push(r); }
 
-  const stickyTop = (document.querySelector('header .row')?.offsetHeight ?? 64)+'px';
   let html='';
   for(const sec of sections){
     html += '<div class="sec">'+sec.title+' ('+sec.key+') — '+sec.rows.length+' questions</div>';
     html += '<table><thead><tr>';
-    for(const c of COLS){ html += '<th data-k="'+c.k+'" style="top:'+stickyTop+'">'+c.label+'</th>'; }
+    for(const c of COLS){ html += '<th data-k="'+c.k+'">'+c.label+'</th>'; }
     html += '</tr></thead><tbody>';
     for(const r of sec.rows){
       html += '<tr>';
@@ -581,13 +578,6 @@ function render(){
 }
 
 loadTests();
-updateHeaderHeight();
-
-function updateHeaderHeight(){
-  const h = document.querySelector('header .row')?.offsetHeight ?? 64;
-  document.documentElement.style.setProperty('--header-h', h+'px');
-}
-window.addEventListener('resize', updateHeaderHeight);
 
 // --- Edit Users --------------------------------------------------------------
 function euEsc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -598,21 +588,27 @@ async function openEditUsers(){
   document.getElementById('euMsg').textContent='';
   document.getElementById('euList').innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--mut)">Chargement...</td></tr>';
   document.getElementById('euOverlay').style.display='flex';
-  const data=await(await fetch('api/users?testId='+encodeURIComponent(sel.value))).json();
-  const users=data.users??[];
-  const tbody=document.getElementById('euList');
-  document.getElementById('euAll').checked=false;
-  document.getElementById('euAll').indeterminate=false;
-  if(!users.length){
-    tbody.innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--mut)">Aucun utilisateur pour ce test.</td></tr>';
-  } else {
-    tbody.innerHTML=users.map(u=>
-      '<tr style="border-top:1px solid var(--line)">'+
-      '<td style="padding:8px 10px"><input type="checkbox" class="eu-cb" data-id="'+u.id+'" onchange="euUpdateCount()"></td>'+
-      '<td style="padding:8px 10px;font-size:13px">'+euEsc(u.email)+'</td>'+
-      '<td style="padding:8px 10px;font-size:13px;color:var(--mut)">'+euEsc(u.name??'')+'</td>'+
-      '<td style="padding:8px 10px;font-size:13px;text-align:right">'+u.attempt_count+'</td></tr>'
-    ).join('');
+  try {
+    const resp = await fetch('api/users?testId='+encodeURIComponent(sel.value));
+    const data = await resp.json();
+    if(!resp.ok) throw new Error(data.error ?? ('HTTP '+resp.status));
+    const users=data.users??[];
+    const tbody=document.getElementById('euList');
+    document.getElementById('euAll').checked=false;
+    document.getElementById('euAll').indeterminate=false;
+    if(!users.length){
+      tbody.innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--mut)">Aucun utilisateur pour ce test.</td></tr>';
+    } else {
+      tbody.innerHTML=users.map(u=>
+        '<tr style="border-top:1px solid var(--line)">'+
+        '<td style="padding:8px 10px"><input type="checkbox" class="eu-cb" data-key="'+euEsc(u.user_key)+'" onchange="euUpdateCount()"></td>'+
+        '<td style="padding:8px 10px;font-size:13px">'+euEsc(u.email)+'</td>'+
+        '<td style="padding:8px 10px;font-size:13px;color:var(--mut)">'+euEsc(u.name??'')+'</td>'+
+        '<td style="padding:8px 10px;font-size:13px;text-align:right">'+u.attempt_count+'</td></tr>'
+      ).join('');
+    }
+  } catch(err) {
+    document.getElementById('euList').innerHTML='<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--bad)">Erreur de chargement : '+euEsc(err.message ?? err)+'</td></tr>';
   }
   euUpdateCount();
 }
@@ -626,17 +622,17 @@ function euUpdateCount(){
   document.getElementById('euAll').indeterminate=n>0&&n<t;
 }
 async function euDelete(){
-  const userIds=[...document.querySelectorAll('.eu-cb:checked')].map(c=>Number(c.dataset.id));
+  const userKeys=[...document.querySelectorAll('.eu-cb:checked')].map(c=>String(c.dataset.key??'')).filter(Boolean);
   const testId=document.getElementById('testSel').value;
-  if(!confirm('Supprimer les données de '+userIds.length+' utilisateur(s) pour ce test ?\\nCette action est irréversible.')) return;
+  if(!confirm('Supprimer les données de '+userKeys.length+' utilisateur(s) pour ce test ?\\nCette action est irréversible.')) return;
   document.getElementById('euBtn').disabled=true;
   document.getElementById('euMsg').style.color='var(--mut)';
   document.getElementById('euMsg').textContent='Suppression en cours...';
   try {
-    const data=await(await fetch('api/users/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testId:Number(testId),userIds})})).json();
+    const data=await(await fetch('api/users/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({testId:Number(testId),userKeys})})).json();
     if(data.ok){
       document.getElementById('euMsg').style.color='var(--good)';
-      document.getElementById('euMsg').textContent=userIds.length+' tentative(s) supprimée(s).'+(data.deletedUsers?.length?' '+data.deletedUsers.length+' utilisateur(s) supprimé(s) de la base.':'');
+      document.getElementById('euMsg').textContent=userKeys.length+' tentative(s) supprimée(s).'+(data.deletedUsers?.length?' '+data.deletedUsers.length+' utilisateur(s) supprimé(s) de la base.':'');
       await openEditUsers();
       loadAnalysis(testId);
     } else throw new Error(data.error??'Erreur inconnue');
@@ -820,13 +816,13 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       const params = JSON.parse(body);
       const testId = Number(params.testId);
-      const userIds = (params.userIds ?? []).map(Number).filter(Boolean);
-      if (!testId || userIds.length === 0) {
+      const userKeys = (params.userKeys ?? []).map(String).filter(Boolean);
+      if (!testId || userKeys.length === 0) {
         res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
         res.end(JSON.stringify({ error: "Paramètres manquants." }));
         return;
       }
-      const result = await deleteUserAttempts(testId, userIds);
+      const result = await deleteUserAttempts(testId, userKeys);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
       res.end(JSON.stringify(result));
       return;
