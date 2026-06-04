@@ -400,6 +400,22 @@ async function analyzeTest(testId) {
                  AND aa.response_time_ms > q.time_limit_seconds * 1000 * 0.7
                 THEN 1 ELSE 0 END) AS lost_30,
           SUM(CASE
+                WHEN q.time_limit_seconds IS NOT NULL
+                 AND q.time_limit_seconds > 0
+                 AND aa.response_time_ms IS NOT NULL
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms > q.time_limit_seconds * 1000 * 0.6
+                THEN 1 ELSE 0 END) AS lost_40,
+          SUM(CASE
+                WHEN q.time_limit_seconds IS NOT NULL
+                 AND q.time_limit_seconds > 0
+                 AND aa.response_time_ms IS NOT NULL
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms <> ?
+                 AND aa.response_time_ms > q.time_limit_seconds * 1000 * 0.5
+                THEN 1 ELSE 0 END) AS lost_50,
+          SUM(CASE
                 WHEN (overlay.question_id IS NOT NULL AND aa.selected_position IS NOT NULL AND overlay.correct_position IS NOT NULL AND aa.selected_position = overlay.correct_position)
                   OR (overlay.question_id IS NULL AND aa.selected_option_id IS NOT NULL AND correct.id IS NOT NULL AND aa.selected_option_id = correct.id)
                 THEN 1 ELSE 0 END) AS correct
@@ -421,6 +437,8 @@ async function analyzeTest(testId) {
         NOT_PRESENTED_MS, UNANSWERED_MS,
         NOT_PRESENTED_MS, UNANSWERED_MS,
         NOT_PRESENTED_MS, UNANSWERED_MS,
+        NOT_PRESENTED_MS, UNANSWERED_MS,
+        NOT_PRESENTED_MS, UNANSWERED_MS,
         testId,
       ]
     );
@@ -433,6 +451,8 @@ async function analyzeTest(testId) {
       const lost10 = Number(r.lost_10) || 0;
       const lost20 = Number(r.lost_20) || 0;
       const lost30 = Number(r.lost_30) || 0;
+      const lost40 = Number(r.lost_40) || 0;
+      const lost50 = Number(r.lost_50) || 0;
       const presented = answered + unanswered; // affichee a l'utilisateur
       return {
         section_key: r.section_key,
@@ -451,15 +471,21 @@ async function analyzeTest(testId) {
         lost_10: lost10,
         lost_20: lost20,
         lost_30: lost30,
+        lost_40: lost40,
+        lost_50: lost50,
         presentation_rate: completed > 0 ? presented / completed : 0,
         unanswered_rate: presented > 0 ? unanswered / presented : 0,
         correct_rate: answered > 0 ? correct / answered : 0,
         lost_10_rate: answered > 0 ? lost10 / answered : 0,
         lost_20_rate: answered > 0 ? lost20 / answered : 0,
         lost_30_rate: answered > 0 ? lost30 / answered : 0,
+        lost_40_rate: answered > 0 ? lost40 / answered : 0,
+        lost_50_rate: answered > 0 ? lost50 / answered : 0,
         keep_10_rate: answered > 0 ? (answered - lost10) / answered : 0,
         keep_20_rate: answered > 0 ? (answered - lost20) / answered : 0,
         keep_30_rate: answered > 0 ? (answered - lost30) / answered : 0,
+        keep_40_rate: answered > 0 ? (answered - lost40) / answered : 0,
+        keep_50_rate: answered > 0 ? (answered - lost50) / answered : 0,
         avg_ms: r.avg_ms == null ? null : Number(r.avg_ms),
         min_ms: r.min_ms == null ? null : Number(r.min_ms),
         max_ms: r.max_ms == null ? null : Number(r.max_ms),
@@ -577,6 +603,8 @@ const COLS = [
   {k:'keep_10_rate', label:'R -10%', pct:true, kind:'good'},
   {k:'keep_20_rate', label:'R -20%', pct:true, kind:'good'},
   {k:'keep_30_rate', label:'R -30%', pct:true, kind:'good'},
+  {k:'keep_40_rate', label:'R -40%', pct:true, kind:'good'},
+  {k:'keep_50_rate', label:'R -50%', pct:true, kind:'good'},
 ];
 
 function render(){

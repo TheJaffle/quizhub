@@ -139,7 +139,7 @@ export function IqResultPage({ result, error, emailToken }: IqResultPageProps) {
               <Progress value={cognitiveScore} className="mt-4 h-2 [&>div]:bg-[#802E7B]" />
               <p className="mt-3 text-sm font-semibold text-[#3B3B3B]">{getProfileLabel(cognitiveScore)}</p>
               <p className="mt-1 text-xs text-slate-500">
-                {result.answeredQuestions}/{result.totalQuestions} questions repondues
+                {result.answeredQuestions}/{result.totalQuestions} questions répondues
               </p>
             </div>
           </div>
@@ -175,7 +175,7 @@ export function IqResultPage({ result, error, emailToken }: IqResultPageProps) {
                 </Badge>
               ))}
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">Les categories ou vous avez le mieux performe.</p>
+            <p className="mt-2 text-xs text-muted-foreground">Les catégories où vous avez le plus assuré</p>
           </CardContent>
         </Card>
       </div>

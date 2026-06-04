@@ -70,11 +70,11 @@ function formatOptionAnswer(optionKey: string | null, optionText: string | null)
 
 function formatAnswer(question: ReviewQuestion, kind: "selected" | "correct") {
   if (kind === "selected" && isQuestionUnanswered(question)) {
-    return "Non repondue";
+    return "Non répondue";
   }
 
   if (kind === "selected" && isQuestionErroneousWithoutSelection(question)) {
-    return "Reponse erronee";
+    return "Réponse incorrecte";
   }
 
   const optionKey = kind === "selected" ? question.selectedOptionKey : question.correctOptionKey;
@@ -133,7 +133,7 @@ function getErrorText(error?: "not-found" | "load-error") {
     return "Impossible de charger ce sondage pour le moment.";
   }
 
-  return "Aucun sondage complete n'a ete trouve pour cette adresse email.";
+  return "Aucun sondage complété n'a été trouvé pour cette adresse email.";
 }
 
 function getOptionLabel(option: ReviewQuestion["options"][number]) {
@@ -240,8 +240,8 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
               <Search className="mr-1 h-3.5 w-3.5" />
               Relecture sondage
             </Badge>
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Revoir les reponses d&apos;un sondage</h1>
-            <p className="mt-2 text-muted-foreground">Entrez l&apos;adresse mail d&apos;un participant pour afficher, categorie par categorie, les questions auxquelles il a repondu.</p>
+            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Revoir les réponses d&apos;un sondage</h1>
+            <p className="mt-2 text-muted-foreground">Entrez l&apos;adresse mail d&apos;un participant pour afficher, catégorie par catégorie, les questions auxquelles il a répondu.</p>
           </div>
 
           <Card className="border-0 shadow-sm">
@@ -273,7 +273,7 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
             <h2 className="text-2xl font-bold">Relecture terminee</h2>
             <p className="text-muted-foreground">
               {review.userPseudo ? `${review.userPseudo} ` : ""}
-              a maintenant toutes ses reponses relues.
+              a maintenant toutes ses réponses relues.
             </p>
             <Button onClick={handleAdvance}>Recommencer depuis le debut</Button>
           </CardContent>
@@ -281,12 +281,12 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
       ) : currentSection && questionIndex < 0 ? (
         <Card className="border-0 shadow-xl">
           <CardHeader className="pb-2 md:pb-3">
-            <Badge className="w-fit bg-slate-900 text-white hover:bg-slate-900">Categorie {currentSection.label}</Badge>
+            <Badge className="w-fit bg-slate-900 text-white hover:bg-slate-900">Catégorie {currentSection.label}</Badge>
             <CardTitle className="text-2xl font-black tracking-tight md:text-4xl">{currentSection.label}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 p-4 md:space-y-6 md:p-8">
             <p className="text-sm text-muted-foreground md:text-base">
-              {currentSection.questions.length} question{currentSection.questions.length > 1 ? "s" : ""} repondue{currentSection.questions.length > 1 ? "s" : ""} dans cette categorie.
+              Vous avez répondu à {currentSection.questions.length} question{currentSection.questions.length > 1 ? "s" : ""} dans cette catégorie.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button variant="outline" onClick={handleBack}>
@@ -427,10 +427,10 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                     <div className="rounded-xl border border-green-200 bg-green-50 p-2 text-green-800 md:p-4">
                       <div className="mb-1 flex items-center gap-1.5 text-xs font-bold md:text-base">
                         <CheckCircle2 className="h-3.5 w-3.5 md:h-5 md:w-5" />
-                        Bonne reponse !!!
+                        Bonne réponse
                       </div>
                       <p className="text-xs md:text-base">
-                        Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span>
+                        Votre réponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span>
                       </p>
                     </div>
                   ) : (
@@ -438,21 +438,21 @@ export function IqSondageReviewPage({ initialEmail, review, error, hideLookupFor
                       <div className="mb-1 flex items-center gap-1.5 text-xs font-bold md:text-base">
                         <XCircle className="h-3.5 w-3.5 md:h-5 md:w-5" />
                         {isQuestionUnanswered(currentQuestion)
-                          ? "Non repondue"
+                          ? "Non répondue"
                           : isQuestionErroneousWithoutSelection(currentQuestion)
-                            ? "Reponse erronee"
-                            : "Reponse incorrecte"}
+                            ? "Réponse incorrecte"
+                            : "Réponse incorrecte"}
                       </div>
                       {shouldShowSelectedAnswer(currentQuestion) ? (
                         <p className="text-xs md:text-base">
-                          Votre reponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span> :(
+                          Votre réponse : <span className="font-semibold">{formatAnswer(currentQuestion, "selected")}</span>
                         </p>
                       ) : null}
                     </div>
                   )}
 
                   <div className="rounded-xl border bg-slate-50 p-2 md:p-4">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 md:text-sm">Il fallait repondre</p>
+                    <p className="text-[10px] font-semibold tracking-wide text-slate-500 md:text-sm">Il fallait répondre</p>
                     <p className="mt-1 text-xs font-semibold text-slate-950 md:mt-2 md:text-lg">{formatAnswer(currentQuestion, "correct")}</p>
                   </div>
                 </div>
