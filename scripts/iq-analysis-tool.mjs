@@ -775,6 +775,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("Not found");
   } catch (error) {
+    console.error("[500]", req.method, req.url, error);
     res.writeHead(500, { "Content-Type": "application/json; charset=utf-8" });
     res.end(JSON.stringify({ error: error?.message ?? String(error) }));
   }
