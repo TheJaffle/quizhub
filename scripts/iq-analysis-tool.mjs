@@ -235,13 +235,22 @@ async function listTests() {
 async function listUsersForTest(testId) {
   return withConnection(async (c) => {
     const [rows] = await c.query(
-      `SELECT u.id, u.email, u.name,
+      `SELECT CASE WHEN u.id IS NOT NULL THEN u.id ELSE -MIN(a.id) END AS id,
+              COALESCE(u.email, rel.email) AS email,
+              COALESCE(u.pseudo, '') AS name,
               COUNT(a.id) AS attempt_count
-       FROM users u
-       INNER JOIN iq_attempts a ON a.user_id = u.id
+       FROM iq_attempts a
+       LEFT JOIN users u ON u.id = a.user_id
+       LEFT JOIN (
+         SELECT result_token, MIN(email) AS email
+         FROM result_email_links
+         WHERE result_type = 'iq'
+         GROUP BY result_token
+       ) rel ON rel.result_token = a.attempt_token
        WHERE a.test_id = ? AND a.status = 'completed'
-       GROUP BY u.id, u.email, u.name
-       ORDER BY u.email`,
+       GROUP BY u.id, COALESCE(u.email, rel.email), COALESCE(u.pseudo, '')
+       HAVING COALESCE(u.email, rel.email) IS NOT NULL AND COALESCE(u.email, rel.email) <> ''
+       ORDER BY COALESCE(u.email, rel.email)`,
       [testId]
     );
     return rows;
@@ -255,21 +264,72 @@ async function deleteUserAttempts(testId, userIds) {
     try {
       const deletedUsers = [];
       for (const userId of userIds) {
-        const [attempts] = await c.query(
-          "SELECT id FROM iq_attempts WHERE test_id = ? AND user_id = ?",
-          [testId, userId]
-        );
+        let attempts = [];
+        let userEmail = null;
+
+        if (Number(userId) > 0) {
+          const [userRows] = await c.query("SELECT email FROM users WHERE id = ? LIMIT 1", [userId]);
+          userEmail = userRows[0]?.email ?? null;
+          const [rows] = await c.query(
+            "SELECT id FROM iq_attempts WHERE test_id = ? AND user_id = ?",
+            [testId, userId]
+          );
+          attempts = rows;
+        } else {
+          const [guestRows] = await c.query(
+            `SELECT COALESCE(u.email, rel.email) AS email
+             FROM iq_attempts a
+             LEFT JOIN users u ON u.id = a.user_id
+             LEFT JOIN (
+               SELECT result_token, MIN(email) AS email
+               FROM result_email_links
+               WHERE result_type = 'iq'
+               GROUP BY result_token
+             ) rel ON rel.result_token = a.attempt_token
+             WHERE a.id = ? AND a.test_id = ? AND a.status = 'completed'
+             LIMIT 1`,
+            [Math.abs(Number(userId)), testId]
+          );
+          userEmail = guestRows[0]?.email ?? null;
+          if (!userEmail) continue;
+          const [rows] = await c.query(
+            `SELECT a.id
+             FROM iq_attempts a
+             LEFT JOIN (
+               SELECT result_token, MIN(email) AS email
+               FROM result_email_links
+               WHERE result_type = 'iq'
+               GROUP BY result_token
+             ) rel ON rel.result_token = a.attempt_token
+             WHERE a.test_id = ? AND a.status = 'completed' AND a.user_id IS NULL AND rel.email = ?`,
+            [testId, userEmail]
+          );
+          attempts = rows;
+        }
+
         const attemptIds = attempts.map((a) => a.id);
         if (attemptIds.length === 0) continue;
         await c.query("DELETE FROM iq_attempt_answers WHERE attempt_id IN (?)", [attemptIds]);
         await c.query("DELETE FROM iq_attempts WHERE id IN (?)", [attemptIds]);
-        const [[{ cnt }]] = await c.query(
-          "SELECT COUNT(*) AS cnt FROM iq_attempts WHERE user_id = ?",
-          [userId]
-        );
-        if (Number(cnt) === 0) {
-          await c.query("DELETE FROM users WHERE id = ?", [userId]);
-          deletedUsers.push(userId);
+        if (userEmail) {
+          await c.query(
+            `DELETE rel
+             FROM result_email_links rel
+             WHERE rel.result_type = 'iq'
+               AND rel.email = ?
+               AND rel.result_token NOT IN (SELECT attempt_token FROM iq_attempts WHERE attempt_token IS NOT NULL)`,
+            [userEmail]
+          );
+        }
+        if (Number(userId) > 0) {
+          const [[{ cnt }]] = await c.query(
+            "SELECT COUNT(*) AS cnt FROM iq_attempts WHERE user_id = ?",
+            [userId]
+          );
+          if (Number(cnt) === 0) {
+            await c.query("DELETE FROM users WHERE id = ?", [userId]);
+            deletedUsers.push(userId);
+          }
         }
       }
       await c.commit();
@@ -485,7 +545,7 @@ function render(){
   const idx = {};
   for(const r of rows){ if(!(r.section_key in idx)){ idx[r.section_key]=sections.length; sections.push({key:r.section_key, title:r.section_title, rows:[]}); } sections[idx[r.section_key]].rows.push(r); }
 
-  const stickyTop = (document.querySelector('header')?.offsetHeight ?? 64)+'px';
+  const stickyTop = (document.querySelector('header .row')?.offsetHeight ?? 64)+'px';
   let html='';
   for(const sec of sections){
     html += '<div class="sec">'+sec.title+' ('+sec.key+') — '+sec.rows.length+' questions</div>';
@@ -524,7 +584,7 @@ loadTests();
 updateHeaderHeight();
 
 function updateHeaderHeight(){
-  const h = document.querySelector('header')?.offsetHeight ?? 64;
+  const h = document.querySelector('header .row')?.offsetHeight ?? 64;
   document.documentElement.style.setProperty('--header-h', h+'px');
 }
 window.addEventListener('resize', updateHeaderHeight);

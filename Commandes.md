@@ -86,7 +86,15 @@ git push origin main
 
 ##### &#x20;    Reconciliation
 
-&#x09;git stash pop Là gestion des problemes si y en a 
+&#x09;git stash pop Là gestion des problemes si y en a
+
+
+
+##### PULL GIT en LOCAL
+
+
+
+&#x09;git pull origin main
 
 
 
@@ -204,5 +212,15 @@ mariadb -h "$QUIZHUB\_DB\_HOST" -P "$QUIZHUB\_DB\_PORT" -u "$QUIZHUB\_DB\_USER" 
 
 
 
+#### Lancer l outil d analyse si demarre pas 
 
+
+
+sudo cp deploy/iq-analysis.socket  /etc/systemd/system/
+
+sudo cp deploy/iq-analysis.service /etc/systemd/system/
+
+sudo systemctl daemon-reload
+
+sudo systemctl enable --now iq-analysis.socket
 
