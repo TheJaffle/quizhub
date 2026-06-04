@@ -34,7 +34,7 @@
   },
   {
     "questionKey": "quantitative-002",
-    "questionText": "Dans un groupe le ratio hommes/femmes est 3:2. Il y a 20 femmes. Combien y'a-t-il d’hommes ?  ",
+    "questionText": "Dans un groupe le ratio hommes/femmes est 3:2. Il y a 20 femmes. Combien y a-t-il d’hommes ?  ",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
@@ -151,7 +151,7 @@
   },
   {
     "questionKey": "quantitative-006",
-    "questionText": "Si on colore 50% des carrés grisés, combien de carrés seront colorés ?",
+    "questionText": "20% des cubes sont rouges. Si on colore en rouge 50% des carrés grisés, quel sera le % de carrés rouge au final ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,

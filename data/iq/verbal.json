@@ -32,38 +32,22 @@
       }
     ]
   },
-  {
-    "questionKey": "verbal-002",
-    "questionText": "Fragile est à solide ce que :",
-    "questionFormat": "text",
-    "difficultyLevel": 1,
-    "weight": 1,
-    "timeLimitSeconds": 45,
-    "stimulusText": null,
-    "questionImageUrl": null,
-    "explanation": "La relation est une opposition. Fragile s’oppose à solide, comme précaire s’oppose à stable.",
-    "options": [
-      {
-        "key": "A",
-        "text": "précaire est à stable",
-        "isCorrect": true
-      },
-      {
-        "key": "B",
-        "text": "faible est à fort",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "mince est à épais",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "léger est à lourd",
-        "isCorrect": false
-      }
-    ]
+   {
+  "questionKey": "verbal-002",
+  "questionText": "Fragile est le contraire de solide, comme précaire est le contraire de :",
+  "questionFormat": "text",
+  "difficultyLevel": 1,
+  "weight": 1,
+  "timeLimitSeconds": 45,
+  "stimulusText": null,
+  "questionImageUrl": null,
+  "explanation": "“Précaire” s’oppose à “stable”.",
+  "options": [
+    { "key": "A", "text": "durable", "isCorrect": false },
+    { "key": "B", "text": "stable", "isCorrect": true },
+    { "key": "C", "text": "fort", "isCorrect": false },
+    { "key": "D", "text": "fiable", "isCorrect": false }
+  ]
   },
   {
     "questionKey": "verbal-003",
@@ -298,7 +282,7 @@
   },
   {
     "questionKey": "verbal-010",
-    "questionText": "Quel mot n’appartient pas au même groupe ?",
+    "questionText": "Cherchez l'intrus",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
@@ -456,43 +440,27 @@
       },
       {
         "key": "D",
-        "text": "intuition",
+        "text": "postulat",
         "isCorrect": false
       }
     ]
   },
   {
     "questionKey": "verbal-015",
-    "questionText": "Langage est à signification ce que symbole est à :",
+    "questionText": "Livre est à lecture ce que radio est à :",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
     "stimulusText": null,
     "questionImageUrl": null,
-    "explanation": "Le langage porte une signification ; un symbole porte une représentation.",
+    "explanation": "On lit un livre, comme on écoute la radio.",
     "options": [
-      {
-        "key": "A",
-        "text": "objet",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "représentation",
-        "isCorrect": true
-      },
-      {
-        "key": "C",
-        "text": "convention",
-        "isCorrect": false
-      },
-      {
-        "key": "D",
-        "text": "signal",
-        "isCorrect": false
-      }
-    ]
+      { "key": "A", "text": "diffusion", "isCorrect": false },
+      { "key": "B", "text": "réception", "isCorrect": false },
+      { "key": "C", "text": "écoute", "isCorrect": true },
+      { "key": "D", "text": "émission", "isCorrect": false }
+  ]
   },
   {
     "questionKey": "verbal-016",
@@ -529,7 +497,7 @@
   },
   {
     "questionKey": "verbal-017",
-    "questionText": "Quel mot est le plus proche de \\\"equivoque\\\" ?",
+    "questionText": "Quel mot est le plus proche de “équivoque“ ?",
     "questionFormat": "text",
     "difficultyLevel": 3,
     "weight": 1,
@@ -725,37 +693,21 @@
       }
     ]
   },
-  {
+    {
     "questionKey": "verbal-023",
-    "questionText": "Partie est à tout ce que fragment est à :",
+    "questionText": "Clair est à obscur ce que visible est à :",
     "questionFormat": "text",
     "difficultyLevel": 1,
     "weight": 1,
     "timeLimitSeconds": 45,
     "stimulusText": null,
     "questionImageUrl": null,
-    "explanation": "Une partie appartient à un tout ; un fragment appartient à une totalité.",
+    "explanation": "“Clair” s’oppose à “obscur”, comme “visible” s’oppose à “invisible”.",
     "options": [
-      {
-        "key": "A",
-        "text": "ensemble",
-        "isCorrect": false
-      },
-      {
-        "key": "B",
-        "text": "unité",
-        "isCorrect": false
-      },
-      {
-        "key": "C",
-        "text": "totalité",
-        "isCorrect": true
-      },
-      {
-        "key": "D",
-        "text": "groupe",
-        "isCorrect": false
-      }
+      { "key": "A", "text": "perceptible", "isCorrect": false },
+      { "key": "B", "text": "décelable", "isCorrect": false },
+      { "key": "C", "text": "invisible", "isCorrect": true },
+      { "key": "D", "text": "distinct", "isCorrect": false }
     ]
   },
   {

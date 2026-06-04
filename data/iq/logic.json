@@ -1,7 +1,7 @@
 [
   {
     "questionKey": "logic-001",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -250,7 +250,7 @@
   },
   {
     "questionKey": "logic-009",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -268,7 +268,7 @@
   },
   {
     "questionKey": "logic-010",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -286,7 +286,7 @@
   },
   {
     "questionKey": "logic-011",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -304,7 +304,7 @@
   },
   {
     "questionKey": "logic-012",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -487,7 +487,7 @@
   },
   {
     "questionKey": "logic-018",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -505,7 +505,7 @@
   },
   {
     "questionKey": "logic-019",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -523,7 +523,7 @@
   },
   {
     "questionKey": "logic-020",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -541,7 +541,7 @@
   },
   {
     "questionKey": "logic-021",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -559,7 +559,7 @@
   },
   {
     "questionKey": "logic-022",
-    "questionText": "Quelle est la figure qui manque ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -577,7 +577,7 @@
   },
   {
     "questionKey": "logic-023",
-    "questionText": "Quelle est la figure manquante ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -595,7 +595,7 @@
   },
   {
     "questionKey": "logic-024",
-    "questionText": "Quelle est la figure manquante ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -613,7 +613,7 @@
   },
   {
     "questionKey": "logic-025",
-    "questionText": "Quelle est la figure manquante ?",
+    "questionText": "Quelle figure manque ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,

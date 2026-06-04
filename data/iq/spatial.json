@@ -1,7 +1,7 @@
 [
   {
     "questionKey": "spatial-001",
-    "questionText": "Quel cube correspond a ce patron ?",
+    "questionText": "Quel cube correspond à ce patron ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -19,7 +19,7 @@
   },
   {
     "questionKey": "spatial-002",
-    "questionText": "Quel cube correspond a ce patron ?",
+    "questionText": "Quel cube correspond à ce patron ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -37,7 +37,7 @@
   },
   {
     "questionKey": "spatial-003",
-    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionText": "Quel cube correspond à ce patron ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -55,7 +55,7 @@
   },
   {
     "questionKey": "spatial-004",
-    "questionText": "Combien de cube y a t il en tout ?",
+    "questionText": "Combien de cubes y a-t-il en tout ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -73,7 +73,7 @@
   },
   {
     "questionKey": "spatial-005",
-    "questionText": "Combien de cube faut il pour former un cube complet ?",
+    "questionText": "Combien de petits cubes pour former un gros cube complet ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -91,7 +91,7 @@
   },
   {
     "questionKey": "spatial-006",
-    "questionText": "Combien de cube voyez vous ?",
+    "questionText": "Combien de cubes voyez-vous réellement ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -109,7 +109,7 @@
   },
   {
     "questionKey": "spatial-007",
-    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionText": "Quelle image correspond à la vue de dessus ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -127,7 +127,7 @@
   },
   {
     "questionKey": "spatial-008",
-    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionText": "Quelle image correspond à la zone manquante ?",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -145,7 +145,7 @@
   },
   {
     "questionKey": "spatial-009",
-    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionText": "Quelle image correspond à une rotation de l'image initiale ?",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -163,7 +163,7 @@
   },
   {
     "questionKey": "spatial-010",
-    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionText": "Quelle figure obtient-on après dépliage ?",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -181,7 +181,7 @@
   },
   {
     "questionKey": "spatial-011",
-    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionText": "Quelle image correspond à la zone manquante ?",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -199,7 +199,7 @@
   },
   {
     "questionKey": "spatial-012",
-    "questionText": "Quelle est la forme qui arriverait en 5eme position ?",
+    "questionText": "Complétez la séquence.",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -217,7 +217,7 @@
   },
   {
     "questionKey": "spatial-013",
-    "questionText": "Quel cube correspond a ce patron ?",
+    "questionText": "Quel cube correspond à ce patron ?",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -235,7 +235,7 @@
   },
   {
     "questionKey": "spatial-014",
-    "questionText": "Quel cube correspond a ce patron ?",
+    "questionText": "Quel cube correspond à ce patron ?",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -253,7 +253,7 @@
   },
   {
     "questionKey": "spatial-015",
-    "questionText": "Quelle figure obtient t on au dépliage",
+    "questionText": "Quelle figure obtient-on après dépliage ?",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
@@ -289,7 +289,7 @@
   },
   {
     "questionKey": "spatial-017",
-    "questionText": "Quelle image correspond à la rotation ou reconstruction correcte ?",
+    "questionText": "Quelles pièces recomposent un grand disque bleu ?",
     "questionFormat": "spatial_overlay",
     "difficultyLevel": 1,
     "weight": 1,
