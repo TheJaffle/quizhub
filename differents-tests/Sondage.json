@@ -346,63 +346,63 @@
         {
           "choices": [
             { "questionKey": "memory-001", "weight": 33 },
-            { "questionKey": "memory-002", "weight": 31 },
+            { "questionKey": "memory-002", "weight": 34 },
             { "questionKey": "memory-003", "weight": 33 }
           ]
         },
         {
           "choices": [
             { "questionKey": "memory-004", "weight": 33 },
-            { "questionKey": "memory-005", "weight": 31 },
+            { "questionKey": "memory-005", "weight": 34 },
             { "questionKey": "memory-006", "weight": 33 }
           ]
         },
         {
           "choices": [
             { "questionKey": "memory-007", "weight": 33 },
-            { "questionKey": "memory-008", "weight": 31 },
+            { "questionKey": "memory-008", "weight": 34 },
             { "questionKey": "memory-009", "weight": 33 }
           ]
         },
         {
           "choices": [
             { "questionKey": "memory-010", "weight": 33 },
-            { "questionKey": "memory-011", "weight": 31 },
+            { "questionKey": "memory-011", "weight": 34 },
             { "questionKey": "memory-012", "weight": 33 }
           ]
         },
         {
           "choices": [
             { "questionKey": "memory-013", "weight": 33 },
-            { "questionKey": "memory-014", "weight": 31 },
+            { "questionKey": "memory-014", "weight": 34 },
             { "questionKey": "memory-015", "weight": 33 }
           ]
         },
         {
           "choices": [
             { "questionKey": "memory-016", "weight": 33 },
-            { "questionKey": "memory-017", "weight": 31 },
+            { "questionKey": "memory-017", "weight": 34 },
             { "questionKey": "memory-018", "weight": 33 }
           ]
         },
        {
           "choices": [
             { "questionKey": "memory-019", "weight": 33 },
-            { "questionKey": "memory-020", "weight": 31 },
+            { "questionKey": "memory-020", "weight": 34 },
             { "questionKey": "memory-021", "weight": 33 }
           ]
         },
        {
           "choices": [
             { "questionKey": "memory-022", "weight": 33 },
-            { "questionKey": "memory-023", "weight": 31 },
+            { "questionKey": "memory-023", "weight": 34 },
             { "questionKey": "memory-024", "weight": 33 }
           ]
         },
         {
           "choices": [
             { "questionKey": "memory-025", "weight": 33 },
-            { "questionKey": "memory-026", "weight": 31 },
+            { "questionKey": "memory-026", "weight": 34 },
             { "questionKey": "memory-027", "weight": 33 }
           ]
         }
