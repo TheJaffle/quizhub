@@ -679,10 +679,10 @@ async function openEditUsers(){
       tbody.innerHTML=users.map(u=>
         '<tr style="border-top:1px solid var(--line)">'+
         '<td style="padding:8px 10px"><input type="checkbox" class="eu-cb" data-key="'+euEsc(u.user_key)+'" onchange="euUpdateCount()"></td>'+
-        '<td style="padding:8px 10px;font-size:13px">'+euEsc(u.email)+'</td>'+
-        '<td style="padding:8px 10px;font-size:13px;color:var(--mut)">'+euEsc(u.name??'')+'</td>'+
+        '<td style="padding:8px 10px;font-size:13px;overflow-wrap:anywhere;word-break:break-word">'+euEsc(u.email)+'</td>'+
+        '<td style="padding:8px 10px;font-size:13px;color:var(--mut);overflow-wrap:anywhere;word-break:break-word">'+euEsc(u.name??'')+'</td>'+
         '<td style="padding:8px 10px;font-size:13px;text-align:right">'+u.attempt_count+'</td>'+
-        '<td style="padding:8px 10px;text-align:right">'+(u.latest_attempt_token ? '<a href="'+euEsc(euResultUrl(u.latest_attempt_token))+'" target="_blank" rel="noreferrer" style="color:var(--accent);text-decoration:none;font-size:12px">Ouvrir</a>' : '<span style="color:var(--mut);font-size:12px">—</span>')+'</td></tr>'
+        '<td style="padding:8px 10px;text-align:right;white-space:nowrap">'+(u.latest_attempt_token ? '<a href="'+euEsc(euResultUrl(u.latest_attempt_token))+'" target="_blank" rel="noreferrer" style="color:var(--accent);text-decoration:none;font-size:12px">Ouvrir</a>' : '<span style="color:var(--mut);font-size:12px">—</span>')+'</td></tr>'
       ).join('');
     }
   } catch(err) {
@@ -727,20 +727,20 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <!-- Modal Edit Users -->
 <div id="euOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;">
-  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:82vh;display:flex;flex-direction:column;gap:14px;">
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:760px;max-width:96vw;max-height:82vh;display:flex;flex-direction:column;gap:14px;">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <h2 style="margin:0;font-size:16px;">Edit Users &mdash; <span id="euTitle" style="color:var(--accent)"></span></h2>
       <button onclick="euClose()" style="background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
     </div>
     <p style="margin:0;font-size:13px;color:var(--mut);">Coche les utilisateurs dont tu veux supprimer les résultats pour ce test. Si l'utilisateur n'a plus aucun autre test, il sera aussi supprimé de la base.</p>
     <div style="overflow-y:auto;flex:1;border:1px solid var(--line);border-radius:8px;">
-      <table style="width:100%;border-collapse:collapse;">
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
         <thead><tr style="background:#20242d;">
           <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);width:36px;"><input type="checkbox" id="euAll" onchange="euToggleAll(this)"></th>
-          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Email</th>
-          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);">Nom</th>
-          <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);">Tentatives</th>
-          <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);">Résultat</th>
+          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);width:44%;">Email</th>
+          <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);width:26%;">Nom</th>
+          <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);width:12%;">Tentatives</th>
+          <th style="padding:8px 10px;text-align:right;font-size:12px;color:var(--mut);width:18%;">Résultat</th>
         </tr></thead>
         <tbody id="euList"></tbody>
       </table>
