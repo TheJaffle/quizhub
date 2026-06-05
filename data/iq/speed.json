@@ -1174,12 +1174,12 @@
       {
         "key": "A",
         "text": "Oui",
-        "isCorrect": true
+        "isCorrect": false
       },
       {
         "key": "B",
         "text": "Non",
-        "isCorrect": false
+        "isCorrect": true
       }
     ]
   },
