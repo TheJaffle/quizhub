@@ -726,15 +726,15 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 <!-- Modal Edit Users -->
-<div id="euOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;">
-  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:760px;max-width:96vw;max-height:82vh;display:flex;flex-direction:column;gap:14px;">
+<div id="euOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;padding:12px;">
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;width:min(1280px,98vw);max-width:98vw;max-height:92vh;display:flex;flex-direction:column;gap:14px;">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <h2 style="margin:0;font-size:16px;">Edit Users &mdash; <span id="euTitle" style="color:var(--accent)"></span></h2>
       <button onclick="euClose()" style="background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
     </div>
     <p style="margin:0;font-size:13px;color:var(--mut);">Coche les utilisateurs dont tu veux supprimer les résultats pour ce test. Si l'utilisateur n'a plus aucun autre test, il sera aussi supprimé de la base.</p>
-    <div style="overflow-y:auto;flex:1;border:1px solid var(--line);border-radius:8px;">
-      <table style="width:100%;border-collapse:collapse;table-layout:fixed;">
+    <div style="overflow:auto;flex:1;border:1px solid var(--line);border-radius:8px;">
+      <table style="width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed;">
         <thead><tr style="background:#20242d;">
           <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);width:36px;"><input type="checkbox" id="euAll" onchange="euToggleAll(this)"></th>
           <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--mut);width:44%;">Email</th>
