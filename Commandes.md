@@ -210,6 +210,14 @@ mariadb -h "$QUIZHUB\_DB\_HOST" -P "$QUIZHUB\_DB\_PORT" -u "$QUIZHUB\_DB\_USER" 
 
 
 
+##### Relancer l'outil d'analyse apres modif
+
+
+
+sudo systemctl restart iq-analysis.service
+
+
+
 
 
 #### Lancer l outil d analyse si demarre pas 
@@ -223,4 +231,30 @@ sudo cp deploy/iq-analysis.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
 sudo systemctl enable --now iq-analysis.socket
+
+
+
+
+
+##### Resynchro de la base avec les JSON Question
+
+
+
+cd /var/www/quizhub
+
+set -a
+
+. ./.env.local
+
+set +a
+
+npm run sync:iq-content
+
+
+
+##### Visualiser le .env sur OVH
+
+
+
+cat .env.local
 

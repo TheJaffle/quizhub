@@ -18,10 +18,10 @@ const dbConfig = {
 };
 
 const testDefinitions = [
-  { slug: "test-qi-complet", title: "Test", file: "Test.json" },
-  { slug: "sondage", title: "Sondage", file: "Sondage.json" },
-  { slug: "basic", title: "Basic", file: "Basic.json" },
-  { slug: "premium", title: "Premium", file: "Premium.json" },
+  { slug: "test-qi-complet", title: "Test", file: "differents-tests/Test.json" },
+  { slug: "sondage", title: "Sondage", file: "differents-tests/Sondage.json" },
+  { slug: "basic", title: "Basic", file: "differents-tests/Basic.json" },
+  { slug: "premium", title: "Premium", file: "differents-tests/Premium.json" },
 ];
 
 function normalizeLongMemoryPrompt(question) {
