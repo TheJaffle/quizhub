@@ -91,7 +91,7 @@
   },
   {
     "questionKey": "spatial-006",
-    "questionText": "Combien de cubes voyez-vous réellement ?",
+    "questionText": "Combien de cubes voyez-vous ?",
     "questionFormat": "visual_overlay",
     "difficultyLevel": 1,
     "weight": 1,
