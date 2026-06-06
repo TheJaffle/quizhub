@@ -27,6 +27,8 @@ const testDefinitions = [
   
 ];
 
+const primaryTestDefinition = testDefinitions[0];
+
 function normalizeLongMemoryPrompt(question) {
   return question.answerPromptText ?? question.answer_prompt_text ?? null;
 }
@@ -82,12 +84,14 @@ async function ensureTests(connection) {
   const [[bankRow]] = await connection.query(
     `SELECT id
      FROM iq_tests
-     WHERE slug = 'test-qi-complet'
+     WHERE slug = ?
      LIMIT 1`
+    ,
+    [primaryTestDefinition.slug]
   );
 
   if (!bankRow?.id) {
-    throw new Error("Le test principal 'test-qi-complet' est introuvable.");
+    throw new Error(`Le test principal '${primaryTestDefinition.slug}' est introuvable.`);
   }
 
   const bankId = Number(bankRow.id);
@@ -121,7 +125,7 @@ async function syncTestSequences(connection, bankId) {
     const sequenceDefinition = fs.readFileSync(path.join(rootDir, testDefinition.file), "utf8");
     JSON.parse(sequenceDefinition);
 
-    if (testDefinition.slug === "test-qi-complet") {
+    if (testDefinition.slug === primaryTestDefinition.slug) {
       await connection.query(
         `UPDATE iq_tests
          SET sequence_definition = ?, question_bank_test_id = ?, updated_at = NOW()
