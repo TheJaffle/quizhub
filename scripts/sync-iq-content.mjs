@@ -20,7 +20,7 @@ const dbConfig = {
 const testDefinitions = [
   { slug: "test-qi-complet", title: "Test", file: "differents-tests/Test.json" },
   { slug: "sondage", title: "Sondage", file: "differents-tests/Sondage.json" },
-  { slug: "sondage", title: "Sondage-light", file: "differents-tests/Sondage-light.json" },
+  { slug: "sondage-light", title: "Sondage-light", file: "differents-tests/Sondage-light.json" },
   { slug: "basic", title: "Basic", file: "differents-tests/Basic.json" },
   { slug: "premium", title: "Premium", file: "differents-tests/Premium.json" },
 ];
