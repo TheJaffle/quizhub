@@ -70,267 +70,378 @@
   },
   "steps": [
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-001", "weight": 50 },
-    { "questionKey": "logic-002", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-001",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-001", "weight": 50 },
-    { "questionKey": "verbal-002", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-001",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-003", "weight": 50 },
-    { "questionKey": "logic-004", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-002",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-003", "weight": 50 },
-    { "questionKey": "verbal-004", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-002",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-005", "weight": 50 },
-    { "questionKey": "logic-006", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-003",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-005", "weight": 50 },
-    { "questionKey": "verbal-006", "weight": 50}
-    ]
-    },
-     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-007", "weight": 50 },
-    { "questionKey": "logic-008", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-003",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-007", "weight": 50 },
-    { "questionKey": "verbal-008", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-004",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-009", "weight": 50 },
-    { "questionKey": "logic-010", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-004",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-009", "weight": 50 },
-    { "questionKey": "verbal-010", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-005",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "spatial-001", "weight": 50 },
-    { "questionKey": "spatial-002", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-005",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-011", "weight": 50 },
-    { "questionKey": "verbal-012", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-006",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-011", "weight": 50 },
-    { "questionKey": "logic-012", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-006",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-013", "weight": 50 },
-    { "questionKey": "verbal-014", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-007",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "spatial-003", "weight": 50 },
-    { "questionKey": "spatial-004", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-007",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-013", "weight": 50 },
-    { "questionKey": "logic-014", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-008",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-015", "weight": 50 },
-    { "questionKey": "verbal-016", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-008",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "spatial-005", "weight": 50 },
-    { "questionKey": "spatial-006", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-009",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-015", "weight": 50 },
-    { "questionKey": "logic-016", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-009",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "spatial-007", "weight": 50 },
-    { "questionKey": "spatial-006", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "spatial-001",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "quantitative-001", "weight": 50 },
-    { "questionKey": "quantitative-002", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-010",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "spatial-008", "weight": 50 },
-    { "questionKey": "spatial-009", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-010",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-017", "weight": 50 },
-    { "questionKey": "logic-018", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-011",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-017", "weight": 50 },
-    { "questionKey": "verbal-018", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "spatial-002",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "quantitative-003", "weight": 50 },
-    { "questionKey": "quantitative-004", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-012",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "spatial-010", "weight": 50 },
-    { "questionKey": "spatial-011", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-011",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-019", "weight": 50 },
-    { "questionKey": "verbal-020", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-013",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-019", "weight": 50 },
-    { "questionKey": "logic-020", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "spatial-003",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "quantitative-005", "weight": 50 },
-    { "questionKey": "quantitative-006", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-014",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-021", "weight": 50 },
-    { "questionKey": "verbal-022", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-012",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "spatial-013", "weight": 50 },
-    { "questionKey": "spatial-014", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "verbal-015",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "verbal-023", "weight": 50 },
-    { "questionKey": "verbal-024", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "spatial-004",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-021", "weight": 50 },
-    { "questionKey": "logic-022", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-013",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "quantitative-007", "weight": 50 },
-    { "questionKey": "quantitative-008", "weight": 50}
-    ]
-    },
-        {
-    "type": "question",
-    "choices": [
-    { "questionKey": "logic-023", "weight": 50 },
-    { "questionKey": "logic-024", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "spatial-005",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "quantitative-009", "weight": 50 },
-    { "questionKey": "quantitative-010", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "logic-014",
+      "timeLimitSeconds": 45
     },
     {
-    "type": "question",
-    "choices": [
-    { "questionKey": "spatial-015", "weight": 50 },
-    { "questionKey": "spatial-016", "weight": 50}
-    ]
+      "type": "question",
+      "questionKey": "spatial-006",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-015",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-007",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-016",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-001",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-008",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-017",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-016",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-002",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-009",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-017",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-018",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-018",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-010",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-019",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-003",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-020",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-004",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-019",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-005",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-011",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-021",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-020",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-022",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-012",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-023",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-021",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "verbal-024",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-013",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-006",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-022",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-007",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-014",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-008",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-023",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-015",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "logic-024",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "spatial-016",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-009",
+      "timeLimitSeconds": 45
     },
     {
       "type": "question",
       "questionKey": "logic-025",
+      "timeLimitSeconds": 45
+    },
+    {
+      "type": "question",
+      "questionKey": "quantitative-010",
       "timeLimitSeconds": 45
     },
     {
@@ -345,67 +456,83 @@
       "items": [
         {
           "choices": [
-            { "questionKey": "memory-001", "weight": 33 },
-            { "questionKey": "memory-002", "weight": 34 },
-            { "questionKey": "memory-003", "weight": 33 }
+            { "questionKey": "memory-001", "weight": 50 },
+            { "questionKey": "memory-002", "weight": 50 }
           ]
         },
         {
           "choices": [
-            { "questionKey": "memory-004", "weight": 33 },
-            { "questionKey": "memory-005", "weight": 34 },
-            { "questionKey": "memory-006", "weight": 33 }
+            { "questionKey": "memory-003", "weight": 50 },
+            { "questionKey": "memory-004", "weight": 50 }
           ]
         },
         {
           "choices": [
-            { "questionKey": "memory-007", "weight": 33 },
-            { "questionKey": "memory-008", "weight": 34 },
-            { "questionKey": "memory-009", "weight": 33 }
+            { "questionKey": "memory-005", "weight": 50 },
+            { "questionKey": "memory-006", "weight": 50 }
           ]
         },
         {
           "choices": [
-            { "questionKey": "memory-010", "weight": 33 },
-            { "questionKey": "memory-011", "weight": 34 },
-            { "questionKey": "memory-012", "weight": 33 }
+            { "questionKey": "memory-007", "weight": 50 },
+            { "questionKey": "memory-008", "weight": 50 }
           ]
         },
         {
           "choices": [
-            { "questionKey": "memory-013", "weight": 33 },
-            { "questionKey": "memory-014", "weight": 34 },
-            { "questionKey": "memory-015", "weight": 33 }
+            { "questionKey": "memory-009", "weight": 50 },
+            { "questionKey": "memory-010", "weight": 50 }
           ]
         },
         {
           "choices": [
-            { "questionKey": "memory-016", "weight": 33 },
-            { "questionKey": "memory-017", "weight": 34 },
-            { "questionKey": "memory-018", "weight": 33 }
-          ]
-        },
-       {
-          "choices": [
-            { "questionKey": "memory-019", "weight": 33 },
-            { "questionKey": "memory-020", "weight": 34 },
-            { "questionKey": "memory-021", "weight": 33 }
-          ]
-        },
-       {
-          "choices": [
-            { "questionKey": "memory-022", "weight": 33 },
-            { "questionKey": "memory-023", "weight": 34 },
-            { "questionKey": "memory-024", "weight": 33 }
+            { "questionKey": "memory-011", "weight": 50 },
+            { "questionKey": "memory-012", "weight": 50 }
           ]
         },
         {
           "choices": [
-            { "questionKey": "memory-025", "weight": 33 },
-            { "questionKey": "memory-026", "weight": 34 },
-            { "questionKey": "memory-027", "weight": 33 }
+            { "questionKey": "memory-013", "weight": 50 },
+            { "questionKey": "memory-014", "weight": 50 }
           ]
-        }
+        },
+        {
+          "choices": [
+            { "questionKey": "memory-015", "weight": 50 },
+            { "questionKey": "memory-016", "weight": 50 }
+          ]
+        },
+        {
+          "choices": [
+            { "questionKey": "memory-017", "weight": 50 },
+            { "questionKey": "memory-018", "weight": 50 }
+          ]
+        },
+        {
+          "choices": [
+            { "questionKey": "memory-019", "weight": 50 },
+            { "questionKey": "memory-020", "weight": 50 }
+          ]
+        },
+        {
+          "choices": [
+            { "questionKey": "memory-021", "weight": 50 },
+            { "questionKey": "memory-022", "weight": 50 }
+          ]
+        },
+        {
+          "choices": [
+            { "questionKey": "memory-023", "weight": 50 },
+            { "questionKey": "memory-024", "weight": 50 }
+          ]
+        },
+        {
+          "choices": [
+            { "questionKey": "memory-025", "weight": 50 },
+            { "questionKey": "memory-026", "weight": 50 }
+          ]
+        },
+        { "questionKey": "memory-027" }
       ]
     },
     {
