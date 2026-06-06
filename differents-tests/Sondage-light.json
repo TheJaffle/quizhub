@@ -2,7 +2,7 @@
   "version": 1,
   "meta": {
     "introTitle": "Sondage-light",
-    "introBadge": "Test QI",
+    "introBadge": "Test avec nombre de questions restreint",
     "introText": "Test de 30 minutes. Installez-vous au calme et avancez sans revenir en arrière.",
     "estimatedDurationMinutes": 30
   },

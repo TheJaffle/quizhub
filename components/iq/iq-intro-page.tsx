@@ -48,8 +48,8 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
   const [startError, setStartError] = useState<string | null>(null);
   const [birthYear, setBirthYear] = useState("");
   const [gender, setGender] = useState("");
-  const isSurveyIntro = test?.slug === "sondage";
-  const introBadge = test?.introBadge ?? (isSurveyIntro ? "Calibration" : "Test QI");
+  const isSurveyIntro = test?.slug?.startsWith("sondage") ?? false;
+  const introBadge = test?.introBadge ?? (isSurveyIntro ? null : "Test QI");
   const introTitle = test?.introTitle ?? test?.title ?? "";
   const introText =
     test?.introText ??
@@ -133,7 +133,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
             ) : null}
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/90 via-indigo-900/75 to-blue-900/80" />
             <div className="relative z-10 flex h-full flex-col justify-end p-4 md:justify-start md:p-8">
-              <Badge className="mb-2 w-fit bg-white/15 text-white hover:bg-white/20">{introBadge}</Badge>
+              {introBadge ? <Badge className="mb-2 w-fit bg-white/15 text-white hover:bg-white/20">{introBadge}</Badge> : null}
               <h1 className="max-w-xl text-2xl font-bold tracking-tight md:text-4xl">{introTitle}</h1>
               <p className="mt-2 max-w-xl text-sm text-white/80 md:text-base">{introText}</p>
             </div>
