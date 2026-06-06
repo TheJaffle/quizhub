@@ -49,7 +49,13 @@ export async function POST(request: Request, { params }: CreateIqAttemptRoutePro
           gender: typeof (body as { gender?: unknown }).gender === "string" ? (body as { gender: string }).gender : "",
         }
       : null;
-  const result = await createIqAttempt(slug, safeUserId, demographics);
+  const tracking =
+    body && typeof body === "object"
+      ? {
+          pubSource: typeof (body as { pubSource?: unknown }).pubSource === "string" ? (body as { pubSource: string }).pubSource : null,
+        }
+      : null;
+  const result = await createIqAttempt(slug, safeUserId, demographics, tracking);
 
   if (result.error) {
     return NextResponse.json({ error: result.error, resultUrl: result.blockedResultUrl }, { status: 400 });

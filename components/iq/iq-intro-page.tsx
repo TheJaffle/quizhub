@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Brain, Loader2, Play } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
@@ -32,8 +32,17 @@ const GENDER_OPTIONS = [
   { value: "male", label: "Homme" },
 ];
 
+function normalizePubSource(value: string | null) {
+  if (!value) return null;
+
+  const normalizedValue = value.trim();
+
+  return /^[a-zA-Z0-9_-]{1,80}$/.test(normalizedValue) ? normalizedValue : null;
+}
+
 export function IqIntroPage({ test, error }: IqIntroPageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   useBlockTestBackNavigation();
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
@@ -62,6 +71,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
         body: JSON.stringify({
           birthDate: `${birthYear}-01-01`,
           gender,
+          pubSource: normalizePubSource(searchParams.get("pub")),
         }),
       });
       const payload = await response.json();
