@@ -37,6 +37,10 @@ export type CreateIqAttemptDemographics = {
   gender: string;
 };
 
+export type CreateIqAttemptTracking = {
+  pubSource: string | null;
+};
+
 export type IqPhaseOption = {
   id: number;
   key: string;
@@ -2419,6 +2423,14 @@ export async function getIqTestIntroBySlug(slug: string): Promise<IqTestIntroRes
 
 const ALLOWED_IQ_GENDERS = new Set(["female", "male"]);
 
+function normalizeIqPubSource(value: unknown) {
+  if (typeof value !== "string") return null;
+
+  const normalizedValue = value.trim();
+
+  return /^[a-zA-Z0-9_-]{1,80}$/.test(normalizedValue) ? normalizedValue : null;
+}
+
 function isValidBirthDate(value: string) {
   if (!/^\d{4}-01-01$/.test(value)) return false;
 
@@ -2504,13 +2516,15 @@ export async function getCompletedIqAttemptForUser(userId: number, slug?: string
 export async function createIqAttempt(
   slug: string,
   userId?: number | null,
-  demographics?: CreateIqAttemptDemographics | null
+  demographics?: CreateIqAttemptDemographics | null,
+  tracking?: CreateIqAttemptTracking | null
 ): Promise<CreateIqAttemptResult> {
   let connection: mysql.Connection | undefined;
 
   try {
     const birthDate = demographics?.birthDate ?? "";
     const gender = demographics?.gender ?? "";
+    const pubSource = normalizeIqPubSource(tracking?.pubSource);
 
     if (!isValidBirthDate(birthDate) || !ALLOWED_IQ_GENDERS.has(gender)) {
       return { attemptToken: null, nextUrl: null, error: "Veuillez renseigner votre annÃ©e de naissance et votre genre." };
@@ -2589,6 +2603,7 @@ export async function createIqAttempt(
          user_id,
          birth_date,
          gender,
+         pub_source,
          attempt_token,
          resolved_sequence_definition,
          long_memory_state,
@@ -2596,12 +2611,13 @@ export async function createIqAttempt(
          started_at,
          total_questions
        )
-       VALUES (?, ?, ?, ?, ?, ?, ?, 'started', NOW(), ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'started', NOW(), ?)`,
       [
         test.id,
         safeUserId,
         birthDate,
         gender,
+        pubSource,
         attemptToken,
         JSON.stringify(resolvedSequenceDefinition),
         initialLongMemoryState ? JSON.stringify(initialLongMemoryState) : null,
@@ -4304,4 +4320,3 @@ export async function getIqResultByTokenForEmail(token: string): Promise<IqResul
     await connection?.end();
   }
 }
-
