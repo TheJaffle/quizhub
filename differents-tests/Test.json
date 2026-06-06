@@ -1,5 +1,11 @@
 {
   "version": 1,
+  "meta": {
+    "introTitle": "Test",
+    "introBadge": "Test QI",
+    "introText": "Test rapide de debuggage. Utilisation Interne",
+    "estimatedDurationMinutes": 30
+  },
   "longMemory": {
     "enabled": true,
     "introTitle": "Memoire longue",

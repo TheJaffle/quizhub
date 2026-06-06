@@ -17,6 +17,10 @@ export type IqTestIntro = {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  introTitle: string | null;
+  introBadge: string | null;
+  introText: string | null;
+  estimatedDurationMinutes: number | null;
   totalTimeLimitSeconds: number | null;
   mainQuestionCount: number;
   mainTimeLimitSeconds: number;
@@ -98,6 +102,13 @@ export type IqAttemptPhase = {
 export type IqAttemptPhaseResult =
   | { data: IqAttemptPhase; error?: undefined }
   | { data: null; error: string };
+
+type ParsedIqTestMeta = {
+  introTitle: string | null;
+  introBadge: string | null;
+  introText: string | null;
+  estimatedDurationMinutes: number | null;
+};
 
 export type SaveIqAttemptAnswerPayload = {
   questionId: number;
@@ -825,6 +836,48 @@ function mapSection(row: IqSectionRow): IqIntroSection {
     timeLimitSeconds: row.time_limit_seconds,
     questionCount: row.question_count,
   };
+}
+
+function parseIqTestMeta(sequenceDefinition: string | null | undefined): ParsedIqTestMeta {
+  if (!sequenceDefinition) {
+    return {
+      introTitle: null,
+      introBadge: null,
+      introText: null,
+      estimatedDurationMinutes: null,
+    };
+  }
+
+  try {
+    const parsed = JSON.parse(sequenceDefinition) as {
+      meta?: {
+        introTitle?: unknown;
+        introBadge?: unknown;
+        introText?: unknown;
+        estimatedDurationMinutes?: unknown;
+      };
+    };
+    const meta = parsed.meta;
+
+    return {
+      introTitle: typeof meta?.introTitle === "string" && meta.introTitle.trim() ? meta.introTitle.trim() : null,
+      introBadge: typeof meta?.introBadge === "string" && meta.introBadge.trim() ? meta.introBadge.trim() : null,
+      introText: typeof meta?.introText === "string" && meta.introText.trim() ? meta.introText.trim() : null,
+      estimatedDurationMinutes:
+        typeof meta?.estimatedDurationMinutes === "number" &&
+        Number.isInteger(meta.estimatedDurationMinutes) &&
+        meta.estimatedDurationMinutes > 0
+          ? meta.estimatedDurationMinutes
+          : null,
+    };
+  } catch {
+    return {
+      introTitle: null,
+      introBadge: null,
+      introText: null,
+      estimatedDurationMinutes: null,
+    };
+  }
 }
 
 function parseTestSequenceDefinition(sequenceDefinition: string | null | undefined): TestSequenceDefinition {
@@ -2346,6 +2399,7 @@ export async function getIqTestIntroBySlug(slug: string): Promise<IqTestIntroRes
     }
 
     const questionBankTestId = test.question_bank_test_id ?? test.id;
+    const introMeta = parseIqTestMeta(test.sequence_definition);
     const sequencePlan = buildSequencePlan(parseTestSequenceDefinition(test.sequence_definition));
 
     const [sectionRows] = await connection.execute<mysql.RowDataPacket[]>(
@@ -2399,6 +2453,10 @@ export async function getIqTestIntroBySlug(slug: string): Promise<IqTestIntroRes
         slug: test.slug,
         description: test.description,
         imageUrl: test.image_url,
+        introTitle: introMeta.introTitle,
+        introBadge: introMeta.introBadge,
+        introText: introMeta.introText,
+        estimatedDurationMinutes: introMeta.estimatedDurationMinutes,
         totalTimeLimitSeconds: test.total_time_limit_seconds,
         mainQuestionCount: firstQuestionBlockCount,
         mainTimeLimitSeconds: firstQuestionBlockCount * 15,
