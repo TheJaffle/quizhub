@@ -77,6 +77,7 @@
   "steps": [
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-001", "weight": 50 },
     { "questionKey": "logic-002", "weight": 50}
@@ -84,6 +85,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-001", "weight": 50 },
     { "questionKey": "verbal-002", "weight": 50}
@@ -91,6 +93,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-003", "weight": 50 },
     { "questionKey": "logic-004", "weight": 50}
@@ -98,6 +101,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-003", "weight": 50 },
     { "questionKey": "verbal-004", "weight": 50}
@@ -105,6 +109,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-005", "weight": 50 },
     { "questionKey": "logic-006", "weight": 50}
@@ -112,6 +117,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-005", "weight": 50 },
     { "questionKey": "verbal-006", "weight": 50}
@@ -119,6 +125,7 @@
     },
      {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-007", "weight": 50 },
     { "questionKey": "logic-008", "weight": 50}
@@ -126,6 +133,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-007", "weight": 50 },
     { "questionKey": "verbal-008", "weight": 50}
@@ -133,6 +141,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-009", "weight": 50 },
     { "questionKey": "logic-010", "weight": 50}
@@ -140,6 +149,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-009", "weight": 50 },
     { "questionKey": "verbal-010", "weight": 50}
@@ -147,6 +157,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "spatial-001", "weight": 50 },
     { "questionKey": "spatial-002", "weight": 50}
@@ -154,6 +165,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-011", "weight": 50 },
     { "questionKey": "verbal-012", "weight": 50}
@@ -161,6 +173,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-011", "weight": 50 },
     { "questionKey": "logic-012", "weight": 50}
@@ -168,6 +181,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-013", "weight": 50 },
     { "questionKey": "verbal-014", "weight": 50}
@@ -175,6 +189,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "spatial-003", "weight": 50 },
     { "questionKey": "spatial-004", "weight": 50}
@@ -182,6 +197,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-013", "weight": 50 },
     { "questionKey": "logic-014", "weight": 50}
@@ -189,6 +205,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-015", "weight": 50 },
     { "questionKey": "verbal-016", "weight": 50}
@@ -196,6 +213,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "spatial-005", "weight": 50 },
     { "questionKey": "spatial-006", "weight": 50}
@@ -203,6 +221,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-015", "weight": 50 },
     { "questionKey": "logic-016", "weight": 50}
@@ -210,6 +229,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "spatial-007", "weight": 50 },
     { "questionKey": "spatial-006", "weight": 50}
@@ -217,6 +237,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "quantitative-001", "weight": 50 },
     { "questionKey": "quantitative-002", "weight": 50}
@@ -224,6 +245,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "spatial-008", "weight": 50 },
     { "questionKey": "spatial-009", "weight": 50}
@@ -231,6 +253,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-017", "weight": 50 },
     { "questionKey": "logic-018", "weight": 50}
@@ -238,6 +261,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-017", "weight": 50 },
     { "questionKey": "verbal-018", "weight": 50}
@@ -245,6 +269,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "quantitative-003", "weight": 50 },
     { "questionKey": "quantitative-004", "weight": 50}
@@ -252,6 +277,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "spatial-010", "weight": 50 },
     { "questionKey": "spatial-011", "weight": 50}
@@ -259,6 +285,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-019", "weight": 50 },
     { "questionKey": "verbal-020", "weight": 50}
@@ -266,6 +293,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-019", "weight": 50 },
     { "questionKey": "logic-020", "weight": 50}
@@ -273,6 +301,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "quantitative-005", "weight": 50 },
     { "questionKey": "quantitative-006", "weight": 50}
@@ -280,6 +309,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-021", "weight": 50 },
     { "questionKey": "verbal-022", "weight": 50}
@@ -287,6 +317,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "spatial-013", "weight": 50 },
     { "questionKey": "spatial-014", "weight": 50}
@@ -294,6 +325,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "verbal-023", "weight": 50 },
     { "questionKey": "verbal-024", "weight": 50}
@@ -301,6 +333,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-021", "weight": 50 },
     { "questionKey": "logic-022", "weight": 50}
@@ -308,6 +341,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "quantitative-007", "weight": 50 },
     { "questionKey": "quantitative-008", "weight": 50}
@@ -315,6 +349,7 @@
     },
         {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "logic-023", "weight": 50 },
     { "questionKey": "logic-024", "weight": 50}
@@ -322,6 +357,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "quantitative-009", "weight": 50 },
     { "questionKey": "quantitative-010", "weight": 50}
@@ -329,6 +365,7 @@
     },
     {
     "type": "question",
+    "timeLimitSeconds": 45,
     "choices": [
     { "questionKey": "spatial-015", "weight": 50 },
     { "questionKey": "spatial-016", "weight": 50}
@@ -336,11 +373,13 @@
     },
     {
       "type": "question",
+      "timeLimitSeconds": 45,
       "questionKey": "logic-025",
       "timeLimitSeconds": 45
     },
     {
       "type": "question",
+      "timeLimitSeconds": 45,
       "questionKey": "spatial-017",
       "timeLimitSeconds": 45
     },

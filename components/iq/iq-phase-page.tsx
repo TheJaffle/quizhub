@@ -142,7 +142,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   const currentQuestion = questions[currentQuestionIndex] ?? null;
   const isGuestAttempt = !data?.attempt.userId;
   const currentQuestionTimeLimitSeconds = currentQuestion?.timeLimitSeconds ?? DEFAULT_MAIN_QUESTION_SECONDS;
-  const isMainPhase = data?.phase === "main";
+  const usesQuestionTimer = data?.phase === "main" || data?.phase === "memory";
   const timeProgress = Math.max(0, Math.min(100, (timeRemaining / currentQuestionTimeLimitSeconds) * 100));
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   const sectionBadge = currentQuestion ? getSectionBadge(currentQuestion.sectionKey) : null;
@@ -182,7 +182,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
   }, [currentQuestion, data?.nextUrl, isGuestAttempt, router]);
 
   useEffect(() => {
-    if (!isMainPhase || !currentQuestion || isSaving || savedAnswer) return;
+    if (!usesQuestionTimer || !currentQuestion || isSaving || savedAnswer) return;
 
     if (timeRemaining <= 0) {
       void saveAnswer({ questionId: currentQuestion.id, responseTimeMs: currentQuestionTimeLimitSeconds * 1000 });
@@ -194,7 +194,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isMainPhase, currentQuestion, currentQuestionTimeLimitSeconds, timeRemaining, isSaving, savedAnswer]);
+  }, [usesQuestionTimer, currentQuestion, currentQuestionTimeLimitSeconds, timeRemaining, isSaving, savedAnswer]);
 
   useEffect(() => {
     return () => {
@@ -401,7 +401,7 @@ export function IqPhasePage({ data, error }: IqPhasePageProps) {
             {sectionBadge.label}
           </Badge>
         ) : <div />}
-        {currentQuestion && isMainPhase ? (
+        {currentQuestion && usesQuestionTimer ? (
           <div className="ml-auto flex items-center gap-2">
             <div className="w-[110px] md:w-[140px]">
               <TimeProgressBar value={timeProgress} />

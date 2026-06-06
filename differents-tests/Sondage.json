@@ -2,7 +2,7 @@
   "version": 1,
     "meta": {
     "introTitle": "Sondage",
-    "introBadge": "Test QI",
+    "introBadge": "Test avec les 8 catégories",
     "introText": "Test de 45 minutes. Installez-vous au calme et avancez sans revenir en arrière.",
     "estimatedDurationMinutes": 30
   },
@@ -14,61 +14,61 @@
     "items": [
       {
         "questionKey": "long-memory-001",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-002",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-003",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-004",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-005",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-006",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-007",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-008",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-009",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       },
       {
         "questionKey": "long-memory-010",
-        "displayTimeSeconds": 10,
+        "displayTimeSeconds": 12,
         "timeLimitSeconds": 45,
         "minDelaySeconds": 60
       }
@@ -613,7 +613,7 @@
         "audio-memory-006",
         "audio-memory-007"
       ],
-      "timeLimitSeconds": 40
+      "timeLimitSeconds": 45
     }
   ]
 }
