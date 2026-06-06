@@ -22,8 +22,9 @@ const testDefinitions = [
   { slug: "sondage", title: "Sondage", file: "differents-tests/Sondage.json" },
   { slug: "sondage-light", title: "Sondage-light", file: "differents-tests/Sondage-light.json" },
   { slug: "basic", title: "Basic", file: "differents-tests/Basic.json" },
-  
+
   { slug: "premium", title: "Premium", file: "differents-tests/Premium.json" },
+  
 ];
 
 function normalizeLongMemoryPrompt(question) {
