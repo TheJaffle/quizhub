@@ -18,13 +18,6 @@ type IqIntroPageProps = {
   error?: string;
 };
 
-function formatDuration(totalSeconds: number | null) {
-  if (!totalSeconds) return "Temps indicatif a confirmer";
-
-  const minutes = Math.ceil(totalSeconds / 60);
-  return `${minutes} min environ`;
-}
-
 const CURRENT_YEAR = new Date().getFullYear();
 const BIRTH_YEARS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, index) => CURRENT_YEAR - index);
 const GENDER_OPTIONS = [
@@ -48,18 +41,9 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
   const [startError, setStartError] = useState<string | null>(null);
   const [birthYear, setBirthYear] = useState("");
   const [gender, setGender] = useState("");
-  const isSurveyIntro = test?.slug?.startsWith("sondage") ?? false;
-  const introBadge = test?.introBadge ?? (isSurveyIntro ? null : "Test QI");
+  const introBadge = test?.introBadge ?? null;
   const introTitle = test?.introTitle ?? test?.title ?? "";
-  const introText =
-    test?.introText ??
-    (isSurveyIntro
-      ? "Quelques questions pour calibrer le futur test."
-      : "Test de 45 minutes. Installez-vous au calme et avancez sans revenir en arrière.");
-  const displayedDurationSeconds =
-    test?.estimatedDurationMinutes && test.estimatedDurationMinutes > 0
-      ? test.estimatedDurationMinutes * 60
-      : test?.mainTimeLimitSeconds || test?.totalTimeLimitSeconds || null;
+  const introText = test?.introText ?? "Test de 45 minutes. Installez-vous au calme et avancez sans revenir en arrière.";
 
   const handleStart = async () => {
     if (!test) return;
@@ -122,15 +106,13 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
       <Card className="overflow-hidden border-0 shadow-xl">
         <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="relative min-h-[145px] bg-indigo-950 text-white md:min-h-[220px]">
-            {isSurveyIntro || test.imageUrl ? (
-              <Image
-                src="/iq/fond.png"
-                alt={isSurveyIntro ? "Sondage de calibration" : "Test de logique complet"}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover opacity-60"
-              />
-            ) : null}
+            <Image
+              src="/iq/fond.png"
+              alt="Test de logique"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover opacity-60"
+            />
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/90 via-indigo-900/75 to-blue-900/80" />
             <div className="relative z-10 flex h-full flex-col justify-end p-4 md:justify-start md:p-8">
               {introBadge ? <Badge className="mb-2 w-fit bg-white/15 text-white hover:bg-white/20">{introBadge}</Badge> : null}
@@ -140,46 +122,19 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
           </div>
 
           <CardContent className="space-y-3 p-4 md:space-y-5 md:p-8">
-            {isSurveyIntro ? (
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Brain className="h-4 w-4 text-indigo-500" />
-                    <h2 className="font-semibold">Avant de commencer</h2>
-                  </div>
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>Installez-vous au calme.</p>
-                    <p>Répondez naturellement, sans aide extérieure.</p>
-                    <p>Allez au bout du parcours.</p>
-                  </div>
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-indigo-500" />
+                  <h2 className="font-semibold">Avant de commencer</h2>
+                </div>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p>Installez-vous au calme.</p>
+                  <p>Répondez naturellement, sans aide extérieure.</p>
+                  <p>Allez au bout du parcours.</p>
                 </div>
               </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-lg border bg-background p-3">
-                    <p className="text-xs text-muted-foreground">Questions</p>
-                    <p className="mt-1 text-2xl font-bold">{test.mainQuestionCount}</p>
-                  </div>
-                  <div className="rounded-lg border bg-background p-3">
-                    <p className="text-xs text-muted-foreground">Durée</p>
-                    <p className="mt-1 text-xl font-bold">{formatDuration(displayedDurationSeconds)}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Brain className="h-4 w-4 text-indigo-500" />
-                    <h2 className="font-semibold">À retenir</h2>
-                  </div>
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>Mettez-vous dans un endroit calme.</p>
-                    <p>Ne répondez pas au hasard si vous ne savez pas.</p>
-                    <p>Mémoire, son et rapidité arrivent ensuite.</p>
-                  </div>
-                </div>
-              </>
-            )}
+            </div>
 
             {startError ? <p className="text-sm text-destructive">{startError}</p> : null}
 
@@ -227,7 +182,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
 
             <Button className="w-full" size="lg" onClick={handleStart} disabled={isStarting}>
               {isStarting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
-              {isSurveyIntro ? "Commencer le sondage" : "Commencer le test"}
+              Commencer le test
             </Button>
 
             <p className="text-center text-xs text-muted-foreground">Résultat indicatif, sans valeur de diagnostic médical.</p>
