@@ -12,7 +12,7 @@ set -a
 
 set +a
 
-mariadb-dump -h "$QUIZHUB\_DB\_HOST" -P "$QUIZHUB\_DB\_PORT" -u "$QUIZHUB\_DB\_USER" -p"$QUIZHUB\_DB\_PASSWORD" --default-character-set=utf8mb4 --single-transaction "$QUIZHUB\_DB\_NAME" > /tmp/quizhub-ovh-dump.sql
+mysqldump -h "$QUIZHUB\_DB\_HOST" -P "$QUIZHUB\_DB\_PORT" -u "$QUIZHUB\_DB\_USER" -p"$QUIZHUB\_DB\_PASSWORD" --default-character-set=utf8mb4 "$QUIZHUB\_DB\_NAME" > dump-ovh.sql
 
 exit
 
@@ -28,7 +28,7 @@ PWD MDB : ddGSTaaeFIOH3zyx
 
 
 
-scp ubuntu@51.255.82.201:/tmp/quizhub-ovh-dump.sql C:\\Users\\bruno\\quizhub\\quizhub-ovh-dump.sql
+scp ubuntu@51.255.82.201:/tmp/quizhub-ovh-dump.sql C:\\Users\\bruno\\quizhub\\dump-ovh.sql
 
 
 
@@ -249,6 +249,10 @@ set -a
 set +a
 
 npm run sync:iq-content
+
+npm run build
+
+pm2 restart all
 
 
 
