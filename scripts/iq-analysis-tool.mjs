@@ -496,6 +496,79 @@ async function analyzeTest(testId) {
   });
 }
 
+async function getQuestionPreview(testId, questionKey) {
+  return withConnection(async (c) => {
+    const [[row]] = await c.query(
+      `SELECT q.id,
+              q.question_key,
+              s.section_key,
+              s.title AS section_title,
+              q.question_text,
+              q.answer_prompt_text,
+              q.stimulus_text,
+              q.question_format,
+              q.difficulty_level,
+              q.time_limit_seconds,
+              COALESCE(overlay.question_image_url, q.question_image_url) AS question_image_url,
+              overlay.answers_image_url,
+              overlay.answer_count,
+              overlay.correct_position,
+              audio.prompt_audio_url
+       FROM iq_questions q
+       INNER JOIN iq_sections s ON s.id = q.section_id
+       LEFT JOIN iq_spatial_overlay_questions overlay ON overlay.question_id = q.id AND overlay.is_active = 1
+       LEFT JOIN iq_audio_memory_questions audio ON audio.question_id = q.id
+       WHERE q.question_key = ?
+         AND EXISTS (
+           SELECT 1
+           FROM iq_attempt_answers aa
+           INNER JOIN iq_attempts a ON a.id = aa.attempt_id
+           WHERE aa.question_id = q.id
+             AND a.test_id = ?
+             AND a.status = 'completed'
+         )
+       LIMIT 1`,
+      [questionKey, testId]
+    );
+
+    if (!row) return null;
+
+    const [optionRows] = await c.query(
+      `SELECT option_key, option_text, option_image_url, position, is_correct
+       FROM iq_question_options
+       WHERE question_id = ?
+         AND is_active = 1
+       ORDER BY position`,
+      [row.id]
+    );
+
+    return {
+      id: Number(row.id),
+      question_key: row.question_key,
+      section_key: row.section_key,
+      section_title: row.section_title,
+      question_text: row.question_text,
+      answer_prompt_text: row.answer_prompt_text,
+      stimulus_text: row.stimulus_text,
+      question_format: row.question_format,
+      difficulty_level: row.difficulty_level == null ? null : Number(row.difficulty_level),
+      time_limit_seconds: row.time_limit_seconds == null ? null : Number(row.time_limit_seconds),
+      question_image_url: row.question_image_url,
+      answers_image_url: row.answers_image_url,
+      answer_count: row.answer_count == null ? null : Number(row.answer_count),
+      correct_position: row.correct_position == null ? null : Number(row.correct_position),
+      prompt_audio_url: row.prompt_audio_url,
+      options: optionRows.map((opt) => ({
+        key: opt.option_key,
+        text: opt.option_text,
+        image_url: opt.option_image_url,
+        position: Number(opt.position),
+        is_correct: Number(opt.is_correct) === 1,
+      })),
+    };
+  });
+}
+
 // --- Page HTML ---------------------------------------------------------------
 const PAGE = `<!DOCTYPE html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -527,6 +600,28 @@ const PAGE = `<!DOCTYPE html>
   .muted { color:var(--mut); }
   .loading { color:var(--mut); padding:40px; text-align:center; }
   .flag { color:var(--warn); }
+  .q-link { color:var(--txt); text-decoration:none; border:0; background:none; padding:0; font:inherit; cursor:pointer; }
+  .q-link:hover { color:var(--accent); }
+  .qp-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr); gap:16px; }
+  .qp-card { background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:14px; }
+  .qp-label { color:var(--mut); font-size:11px; text-transform:uppercase; letter-spacing:.04em; margin:0 0 10px; }
+  .qp-title { margin:0; font-size:14px; line-height:1.45; }
+  .qp-sub { margin:10px 0 0; color:var(--mut); font-size:12px; line-height:1.5; }
+  .qp-img { display:block; width:100%; max-width:100%; border:1px solid var(--line); border-radius:10px; background:#fff; }
+  .qp-audio { width:100%; margin-top:10px; }
+  .qp-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .qp-opt { border:1px solid var(--line); border-radius:12px; background:var(--bg); padding:12px; min-height:92px; }
+  .qp-opt.ok { border-color:rgba(62,207,142,.7); background:rgba(62,207,142,.08); }
+  .qp-opt-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+  .qp-opt-key { color:var(--accent); font-weight:700; font-size:14px; }
+  .qp-opt-pos { color:var(--mut); font-size:11px; }
+  .qp-opt-text { font-size:13px; line-height:1.45; }
+  .qp-opt-img { display:block; max-width:100%; max-height:180px; margin-top:10px; border-radius:8px; background:#fff; }
+  .qp-note { margin-top:12px; color:var(--mut); font-size:12px; }
+  @media (max-width: 980px) {
+    .qp-grid { grid-template-columns:1fr; }
+    .qp-options { grid-template-columns:1fr; }
+  }
 </style></head>
 <body>
 <header>
@@ -549,6 +644,12 @@ function ms(x){ return x==null ? '—' : (x>=1000 ? (x/1000).toFixed(1)+' s' : x
 function colorFor(rate, kind){
   if(kind==='good') return rate>=0.66?'var(--good)':rate>=0.33?'var(--warn)':'var(--bad)';
   return rate>=0.33?'var(--bad)':rate>=0.1?'var(--warn)':'var(--good)'; // pour non-repondue: bas = bon
+}
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function assetUrl(url){
+  if(!url) return '';
+  if(/^https?:\\/\\//i.test(url)) return url;
+  return '${APP_BASE_URL || ""}'+url;
 }
 
 async function loadTests(){
@@ -630,7 +731,7 @@ function render(){
       for(const c of COLS){
         let v = r[c.k];
         if(c.txt){
-          html += '<td><span class="key">'+v+'</span> <span class="fmt">'+r.question_format+'</span></td>';
+          html += '<td><button class="q-link" data-qk="'+esc(v)+'" onclick="openQuestionPreview(this.dataset.qk)"><span class="key">'+esc(v)+'</span></button> <span class="fmt">'+esc(r.question_format)+'</span></td>';
         } else if(c.pct){
           const col = colorFor(v, c.kind);
           const w = Math.round(v*34);
@@ -654,6 +755,69 @@ function render(){
 }
 
 loadTests();
+
+// --- Preview question --------------------------------------------------------
+async function openQuestionPreview(questionKey){
+  const testId = document.getElementById('testSel').value;
+  document.getElementById('qpTitle').textContent = questionKey;
+  document.getElementById('qpBody').innerHTML = '<div class="loading">Chargement...</div>';
+  document.getElementById('qpOverlay').style.display = 'flex';
+  try {
+    const resp = await fetch('api/question?testId='+encodeURIComponent(testId)+'&questionKey='+encodeURIComponent(questionKey));
+    const data = await resp.json();
+    if(!resp.ok) throw new Error(data.error ?? ('HTTP '+resp.status));
+    if(!data.question) throw new Error('Question introuvable.');
+    renderQuestionPreview(data.question);
+  } catch(err){
+    document.getElementById('qpBody').innerHTML = '<div class="loading" style="color:var(--bad)">Erreur : '+esc(err.message ?? err)+'</div>';
+  }
+}
+function closeQuestionPreview(){
+  document.getElementById('qpOverlay').style.display = 'none';
+}
+function renderQuestionPreview(q){
+  document.getElementById('qpTitle').textContent = q.question_key;
+  const badges = [
+    q.section_title ? '<span class="chip"><b>'+esc(q.section_title)+'</b></span>' : '',
+    q.question_format ? '<span class="chip">'+esc(q.question_format)+'</span>' : '',
+    q.answer_count != null ? '<span class="chip">answer_count: <b>'+q.answer_count+'</b></span>' : '',
+    q.time_limit_seconds != null ? '<span class="chip">temps: <b>'+q.time_limit_seconds+' s</b></span>' : '',
+    q.correct_position != null ? '<span class="chip">bonne position: <b>'+q.correct_position+'</b></span>' : '',
+  ].filter(Boolean).join('');
+
+  const questionText = q.question_text ? '<h3 class="qp-title">'+esc(q.question_text)+'</h3>' : '';
+  const promptText = q.answer_prompt_text ? '<p class="qp-sub">'+esc(q.answer_prompt_text)+'</p>' : '';
+  const stimulusText = q.stimulus_text ? '<p class="qp-sub">'+esc(q.stimulus_text)+'</p>' : '';
+  const questionImage = q.question_image_url ? '<img class="qp-img" src="'+esc(assetUrl(q.question_image_url))+'" alt="Question">' : '';
+  const answersImage = q.answers_image_url ? '<img class="qp-img" src="'+esc(assetUrl(q.answers_image_url))+'" alt="Reponses">' : '';
+  const promptAudio = q.prompt_audio_url ? '<audio class="qp-audio" controls src="'+esc(assetUrl(q.prompt_audio_url))+'"></audio>' : '';
+
+  const options = (q.options ?? []).map((opt) => {
+    const media = opt.image_url ? '<img class="qp-opt-img" src="'+esc(assetUrl(opt.image_url))+'" alt="'+esc(opt.key)+'">' : '';
+    const text = opt.text ? '<div class="qp-opt-text">'+esc(opt.text)+'</div>' : '';
+    return '<div class="qp-opt'+(opt.is_correct?' ok':'')+'">'+
+      '<div class="qp-opt-head"><span class="qp-opt-key">'+esc(opt.key)+'</span><span class="qp-opt-pos">pos '+opt.position+'</span></div>'+
+      text + media +
+    '</div>';
+  }).join('');
+
+  const optionsBlock = options
+    ? '<div class="qp-card"><div class="qp-label">Reponses</div><div class="qp-options">'+options+'</div></div>'
+    : '';
+  const overlayNote = !options && q.correct_position != null
+    ? '<div class="qp-note">Bonne reponse stockee : position '+q.correct_position+'.</div>'
+    : '';
+
+  document.getElementById('qpBody').innerHTML =
+    '<div class="chips" style="margin:0 0 12px">'+badges+'</div>'+
+    '<div class="qp-grid">'+
+      '<div class="qp-card"><div class="qp-label">Question</div>'+questionText+promptText+stimulusText+questionImage+promptAudio+overlayNote+'</div>'+
+      '<div style="display:flex;flex-direction:column;gap:16px">'+
+        (answersImage ? '<div class="qp-card"><div class="qp-label">Visuel des reponses</div>'+answersImage+'</div>' : '')+
+        optionsBlock+
+      '</div>'+
+    '</div>';
+}
 
 // --- Edit Users --------------------------------------------------------------
 function euEsc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -722,8 +886,20 @@ async function euDelete(){
 }
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('euOverlay').addEventListener('click',function(e){if(e.target===this)euClose();});
+  document.getElementById('qpOverlay').addEventListener('click',function(e){if(e.target===this)closeQuestionPreview();});
 });
 </script>
+
+<!-- Modal Question Preview -->
+<div id="qpOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:95;align-items:center;justify-content:center;padding:14px;">
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;width:min(1180px,96vw);max-height:90vh;overflow:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+      <h2 style="margin:0;font-size:16px;">Preview question - <span id="qpTitle" style="color:var(--accent)"></span></h2>
+      <button onclick="closeQuestionPreview()" style="background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;padding:0 4px;">&times;</button>
+    </div>
+    <div id="qpBody"></div>
+  </div>
+</div>
 
 <!-- Modal Edit Users -->
 <div id="euOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;padding:12px;">
@@ -880,6 +1056,20 @@ const server = http.createServer(async (req, res) => {
       const data = await analyzeTest(testId);
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
       res.end(JSON.stringify(data));
+      return;
+    }
+
+    if (url.pathname === "/api/question" && method === "GET") {
+      const testId = Number(url.searchParams.get("testId"));
+      const questionKey = String(url.searchParams.get("questionKey") ?? "").trim();
+      if (!testId || !questionKey) {
+        res.writeHead(400, { "Content-Type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ error: "Parametres manquants." }));
+        return;
+      }
+      const question = await getQuestionPreview(testId, questionKey);
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      res.end(JSON.stringify({ question }));
       return;
     }
 
