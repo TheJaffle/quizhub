@@ -791,7 +791,7 @@ function renderQuestionPreview(q){
   const questionImage = q.question_image_url ? '<img class="qp-img" src="'+esc(assetUrl(q.question_image_url))+'" alt="Question">' : '';
   const answersImage = q.answers_image_url ? '<img class="qp-img" src="'+esc(assetUrl(q.answers_image_url))+'" alt="Reponses">' : '';
   const promptAudio = q.prompt_audio_url ? '<audio class="qp-audio" controls src="'+esc(assetUrl(q.prompt_audio_url))+'"></audio>' : '';
-  const isAudioFile = (url) => /\\.(wav|mp3|ogg|m4a|aac)$/i.test(String(url ?? ''));
+  const isAudioFile = (url) => /\.(wav|mp3|ogg|m4a|aac)$/i.test(String(url ?? ''));
   const overlayCount = Number(q.answer_count ?? 0);
   const overlayLabels = Array.from({length: overlayCount || 0}, (_, i) => String.fromCharCode(65 + i));
 
@@ -821,11 +821,14 @@ function renderQuestionPreview(q){
   const optionsBlock = options
     ? '<div class="qp-card"><div class="qp-label">Reponses</div><div class="qp-options">'+options+'</div></div>'
     : '';
-  const overlayBlock = overlayOptions
-    ? '<div class="qp-card"><div class="qp-label">Reponses</div><div class="qp-options">'+overlayOptions+'</div></div>'
-    : '';
   const overlayNote = !options && !overlayOptions && q.correct_position != null
     ? '<div class="qp-note">Bonne reponse stockee : position '+q.correct_position+'.</div>'
+    : '';
+  const answersPanel = (answersImage || overlayOptions)
+    ? '<div class="qp-card"><div class="qp-label">Visuel des reponses</div>'+
+        (overlayOptions ? '<div class="qp-options" style="margin-bottom:12px">'+overlayOptions+'</div>' : '')+
+        (answersImage || '')+
+      '</div>'
     : '';
 
   document.getElementById('qpBody').innerHTML =
@@ -833,8 +836,7 @@ function renderQuestionPreview(q){
     '<div class="qp-grid">'+
       '<div class="qp-card"><div class="qp-label">Question</div>'+questionText+promptText+stimulusText+questionImage+promptAudio+overlayNote+'</div>'+
       '<div style="display:flex;flex-direction:column;gap:16px">'+
-        (answersImage ? '<div class="qp-card"><div class="qp-label">Visuel des reponses</div>'+answersImage+'</div>' : '')+
-        overlayBlock+
+        answersPanel+
         optionsBlock+
       '</div>'+
     '</div>';
