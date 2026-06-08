@@ -791,9 +791,16 @@ function renderQuestionPreview(q){
   const questionImage = q.question_image_url ? '<img class="qp-img" src="'+esc(assetUrl(q.question_image_url))+'" alt="Question">' : '';
   const answersImage = q.answers_image_url ? '<img class="qp-img" src="'+esc(assetUrl(q.answers_image_url))+'" alt="Reponses">' : '';
   const promptAudio = q.prompt_audio_url ? '<audio class="qp-audio" controls src="'+esc(assetUrl(q.prompt_audio_url))+'"></audio>' : '';
+  const isAudioFile = (url) => /\\.(wav|mp3|ogg|m4a|aac)$/i.test(String(url ?? ''));
+  const overlayCount = Number(q.answer_count ?? 0);
+  const overlayLabels = Array.from({length: overlayCount || 0}, (_, i) => String.fromCharCode(65 + i));
 
   const options = (q.options ?? []).map((opt) => {
-    const media = opt.image_url ? '<img class="qp-opt-img" src="'+esc(assetUrl(opt.image_url))+'" alt="'+esc(opt.key)+'">' : '';
+    const media = opt.image_url
+      ? (isAudioFile(opt.image_url)
+          ? '<audio class="qp-audio" controls src="'+esc(assetUrl(opt.image_url))+'"></audio>'
+          : '<img class="qp-opt-img" src="'+esc(assetUrl(opt.image_url))+'" alt="'+esc(opt.key)+'">')
+      : '';
     const text = opt.text ? '<div class="qp-opt-text">'+esc(opt.text)+'</div>' : '';
     return '<div class="qp-opt'+(opt.is_correct?' ok':'')+'">'+
       '<div class="qp-opt-head"><span class="qp-opt-key">'+esc(opt.key)+'</span><span class="qp-opt-pos">pos '+opt.position+'</span></div>'+
@@ -801,10 +808,23 @@ function renderQuestionPreview(q){
     '</div>';
   }).join('');
 
+  const overlayOptions = overlayLabels.length
+    ? overlayLabels.map((label, index) => {
+        const pos = index + 1;
+        return '<div class="qp-opt'+(q.correct_position === pos ? ' ok' : '')+'">'+
+          '<div class="qp-opt-head"><span class="qp-opt-key">'+label+'</span><span class="qp-opt-pos">pos '+pos+'</span></div>'+
+          '<div class="qp-opt-text">'+(q.correct_position === pos ? 'Bonne réponse' : 'Réponse possible')+'</div>'+
+        '</div>';
+      }).join('')
+    : '';
+
   const optionsBlock = options
     ? '<div class="qp-card"><div class="qp-label">Reponses</div><div class="qp-options">'+options+'</div></div>'
     : '';
-  const overlayNote = !options && q.correct_position != null
+  const overlayBlock = overlayOptions
+    ? '<div class="qp-card"><div class="qp-label">Reponses</div><div class="qp-options">'+overlayOptions+'</div></div>'
+    : '';
+  const overlayNote = !options && !overlayOptions && q.correct_position != null
     ? '<div class="qp-note">Bonne reponse stockee : position '+q.correct_position+'.</div>'
     : '';
 
@@ -814,6 +834,7 @@ function renderQuestionPreview(q){
       '<div class="qp-card"><div class="qp-label">Question</div>'+questionText+promptText+stimulusText+questionImage+promptAudio+overlayNote+'</div>'+
       '<div style="display:flex;flex-direction:column;gap:16px">'+
         (answersImage ? '<div class="qp-card"><div class="qp-label">Visuel des reponses</div>'+answersImage+'</div>' : '')+
+        overlayBlock+
         optionsBlock+
       '</div>'+
     '</div>';
