@@ -18,12 +18,6 @@ exit
 
 
 
-Pwd : ddGSTaaeFIOH3zyw
-
-PWD MDB : ddGSTaaeFIOH3zyx
-
-
-
 #### Recuperation Dump OVH sur PC
 
 
@@ -104,15 +98,17 @@ git push origin main
 
 ssh ubuntu@51.255.82.201
 
-PWD : ddGSTaaeFIOH3zyw
-
 cd /var/www/quizhub
+
+git fetch origin
+
+git checkout main
 
 git pull origin main
 
 
 
-##### &#x20;    Si reconstruction Base / JSON :
+##### &#x20;    Si modification dans differents-tests/*.json :
 
 &#x09;set -a
 
@@ -126,7 +122,37 @@ git pull origin main
 
 npm run build
 
-pm2 restart all
+pm2 restart quizhub
+
+
+
+##### Important Nginx / HTTPS
+
+Ne pas recopier de fichier Nginx depuis GitHub pendant un deploiement normal.
+
+Les configurations Nginx actives restent uniquement sur le serveur :
+
+&#x09;/etc/nginx/sites-available/quizhub
+
+&#x09;/etc/nginx/sites-available/boquiz.com
+
+Les mises a jour de quizhub doivent toucher :
+
+&#x09;/var/www/quizhub
+
+et relancer uniquement :
+
+&#x09;pm2 restart quizhub
+
+Ne pas utiliser :
+
+&#x09;pm2 restart all
+
+Ne pas utiliser pendant un deploiement normal :
+
+&#x09;sudo cp deploy/nginx-quizhub.conf /etc/nginx/sites-enabled/quizhub
+
+&#x09;sudo nginx -t && sudo systemctl reload nginx
 
 
 
@@ -135,8 +161,6 @@ pm2 restart all
 
 
 ssh ubuntu@51.255.82.201
-
-PWD : ddGSTaaeFIOH3zyw
 
 cd /var/www/quizhub
 
@@ -252,7 +276,7 @@ npm run sync:iq-content
 
 npm run build
 
-pm2 restart all
+pm2 restart quizhub
 
 
 
@@ -261,4 +285,3 @@ pm2 restart all
 
 
 cat .env.local
-

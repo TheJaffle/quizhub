@@ -90,13 +90,23 @@ Le service est inactif au repos (normal), il démarre à la première requête.
 
 ## nginx
 
-Vhost complet : `deploy/nginx-quizhub.conf` (contient un bloc
-`location /iq-analyse/` proxifiant vers `127.0.0.1:4555` ; le `/` final retire le
-préfixe, les appels client sont relatifs). Installation :
+La configuration nginx active n'est pas versionnée avec le code applicatif.
+Elle reste sur le serveur, par exemple dans :
 
 ```
-sudo cp deploy/nginx-quizhub.conf /etc/nginx/sites-enabled/quizhub
-sudo nginx -t && sudo systemctl reload nginx
+/etc/nginx/sites-available/quizhub
+```
+
+Les déploiements Git de quizhub ne doivent pas recopier de fichier nginx, afin de
+ne pas écraser les domaines, certificats HTTPS ou réglages ajoutés par Certbot.
+
+Si le proxy `/iq-analyse/` doit être réparé ou installé, modifier manuellement le
+vhost serveur `quizhub` et ajouter un bloc qui proxifie vers `127.0.0.1:4555`,
+puis vérifier et recharger nginx :
+
+```
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
 Important : ne jamais laisser de fichier `.bak` dans `/etc/nginx/sites-enabled/`
