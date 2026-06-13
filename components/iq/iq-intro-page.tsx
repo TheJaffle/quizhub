@@ -10,7 +10,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Brain, CheckCircle2, ChevronRight, Gauge, Loader2, Play, ShieldCheck, Sparkles, Trophy } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { rememberIqBackRedirectUrl, useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
@@ -262,46 +261,6 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
                   <span>Test entièrement gratuit. Aucun achat, abonnement ou paiement en ligne n'est proposé.</span>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-white px-4 py-10 sm:px-6 lg:px-8">
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <p className="text-sm font-semibold text-cyan-700">Comment ça marche</p>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Une expérience simple, comme un jeu de réflexion.</h2>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {["Observez", "Déduisez", "Validez"].map((label, index) => (
-                <div key={label} className="rounded-md border border-slate-200 bg-slate-50 p-5">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-sm font-bold text-white">{index + 1}</span>
-                  <h3 className="mt-4 font-semibold text-slate-950">{label}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {index === 0 ? "Repérez les formes, les suites et les détails importants." : index === 1 ? "Choisissez la réponse qui respecte la logique du problème." : "Avancez jusqu'au bout pour obtenir votre résultat indicatif."}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-slate-100 px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-slate-600 md:flex-row md:items-center md:justify-between">
-            <p>Besoin d'informations avant de commencer ?</p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" asChild>
-                <Link href="/mentions-legales">Mentions légales</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/conditions-generales-utilisation">CGU</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/politique-confidentialite">Confidentialité</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link href="/cookies">Cookies</Link>
-              </Button>
             </div>
           </div>
         </section>
