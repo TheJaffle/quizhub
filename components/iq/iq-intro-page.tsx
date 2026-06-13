@@ -28,11 +28,12 @@ const GENDER_OPTIONS = [
 ];
 const SONDAGE_LIGHT_SLUG = "sondage-light";
 const SONDAGE_LIGHT_FEATURES = [
-  { icon: Brain, title: "Défis visuels", text: "Repérez les formes, les suites et les indices." },
-  { icon: Gauge, title: "Rythme fluide", text: "Des questions courtes, une progression claire." },
-  { icon: Trophy, title: "Score final", text: "Un résultat indicatif à découvrir à la fin." },
+  { icon: Brain, title: "Défis visuels", text: "Formes, suites et indices.", color: "bg-cyan-500 text-slate-950" },
+  { icon: Gauge, title: "Rythme fluide", text: "Des questions courtes.", color: "bg-amber-300 text-slate-950" },
+  { icon: Trophy, title: "Score final", text: "Un résultat indicatif.", color: "bg-rose-400 text-white" },
 ];
 const SONDAGE_LIGHT_STEPS = ["Choisissez votre année de naissance", "Indiquez votre genre", "Lancez le test et jouez jusqu'au bout"];
+const SONDAGE_LIGHT_SHAPES = ["circle", "triangle", "diamond", "unknown"];
 
 function normalizePubSource(value: string | null) {
   if (!value) return null;
@@ -123,11 +124,14 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
             sizes="100vw"
             className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-50/95 via-cyan-50/82 to-cyan-50/15" />
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-50/98 via-cyan-50/78 to-cyan-50/5" />
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
+          <div className="absolute left-[8%] top-[16%] hidden h-10 w-10 rotate-12 rounded-md bg-rose-400/90 shadow-lg shadow-rose-500/30 sm:block motion-safe:animate-bounce" />
+          <div className="absolute left-[36%] top-[12%] hidden h-8 w-8 rounded-full bg-amber-300/90 shadow-lg shadow-amber-500/30 md:block motion-safe:animate-pulse" />
+          <div className="absolute bottom-[16%] left-[12%] hidden h-12 w-12 rotate-45 rounded-md bg-emerald-400/80 shadow-lg shadow-emerald-500/25 lg:block motion-safe:animate-bounce" />
 
-          <div className="relative z-10 mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-7 px-4 py-7 sm:px-6 md:py-10 lg:grid-cols-[0.98fr_0.82fr] lg:px-8">
-            <div className="max-w-3xl space-y-5">
+          <div className="relative z-10 mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-7 px-4 py-6 sm:px-6 md:py-10 lg:grid-cols-[0.98fr_0.82fr] lg:px-8">
+            <div className="max-w-3xl space-y-4 sm:space-y-5">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge className="bg-cyan-500 text-slate-950 shadow-sm hover:bg-cyan-500">
                   <Sparkles className="mr-1 h-3.5 w-3.5" />
@@ -138,20 +142,46 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
 
               <div className="space-y-4">
                 <h1 className="max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">Jouez avec votre logique.</h1>
-                <p className="max-w-2xl text-base font-medium leading-8 text-slate-700 sm:text-lg">
+                <p className="max-w-2xl text-base font-semibold leading-8 text-slate-700 sm:text-lg">
                   Un parcours gratuit façon casse-tête : observez, déduisez, choisissez la bonne piste et découvrez votre score à la fin.
                 </p>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="max-w-xl rounded-md border border-white/80 bg-white/90 p-3 shadow-xl shadow-cyan-950/10 backdrop-blur sm:p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wide text-cyan-700">Mini défi</p>
+                    <p className="text-sm font-semibold text-slate-700">Trouvez la suite logique</p>
+                  </div>
+                  <div className="rounded-full bg-slate-950 px-3 py-1 text-xs font-bold text-white">Niveau 1</div>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {SONDAGE_LIGHT_SHAPES.map((shape, index) => (
+                    <div key={shape} className="flex aspect-square items-center justify-center rounded-md bg-slate-100 shadow-inner">
+                      {shape === "circle" ? <span className="h-8 w-8 rounded-full bg-cyan-500 shadow-md shadow-cyan-500/25" /> : null}
+                      {shape === "triangle" ? (
+                        <span className="h-0 w-0 border-x-[18px] border-b-[32px] border-x-transparent border-b-amber-300 drop-shadow-md" />
+                      ) : null}
+                      {shape === "diamond" ? <span className="h-8 w-8 rotate-45 rounded-sm bg-rose-400 shadow-md shadow-rose-500/25" /> : null}
+                      {shape === "unknown" ? <span className="text-3xl font-black text-slate-400">?</span> : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-3">
                 {SONDAGE_LIGHT_FEATURES.map((feature) => {
                   const Icon = feature.icon;
 
                   return (
-                    <div key={feature.title} className="rounded-md border border-white/80 bg-white/85 p-4 shadow-lg shadow-cyan-950/10 backdrop-blur">
-                      <Icon className="h-5 w-5 text-cyan-600" />
-                      <h2 className="mt-3 text-sm font-bold text-slate-950">{feature.title}</h2>
-                      <p className="mt-1 text-xs font-medium leading-5 text-slate-600">{feature.text}</p>
+                    <div key={feature.title} className="flex items-center gap-3 rounded-md border border-white/80 bg-white/85 p-3 shadow-lg shadow-cyan-950/10 backdrop-blur">
+                      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md ${feature.color}`}>
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0">
+                        <h2 className="text-sm font-black text-slate-950">{feature.title}</h2>
+                        <p className="mt-0.5 text-xs font-semibold leading-5 text-slate-600">{feature.text}</p>
+                      </span>
                     </div>
                   );
                 })}
