@@ -16,8 +16,8 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "brainspark | Quiz, défis et classements",
-  description: "Choisissez une catégorie, jouez aux quiz, suivez vos scores et défiez vos amis sur brainspark.",
+  title: "Free Logic Test | Quiz, défis et classements",
+  description: "Choisissez une catégorie, jouez aux quiz, suivez vos scores et défiez vos amis sur Free Logic Test.",
 };
 
 const SHOW_HERO = true;

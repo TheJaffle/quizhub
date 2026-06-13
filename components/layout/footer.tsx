@@ -2,7 +2,7 @@ import { BookOpen, Mail, MapPin } from "lucide-react";
 import Link from "next/link";
 
 const footerConfig = {
-  brandName: "brainspark",
+  brandName: "Free Logic Test",
   companyName: "Wildspark",
   description: "Des quiz et tests gratuits pour s'entrainer, apprendre et suivre sa progression.",
   address: "7 Allee des Hormets, 69890 La Tour-de-Salvagny, France",
@@ -104,7 +104,7 @@ export function Footer() {
             <p className="text-slate-500 dark:text-slate-400">
               © {new Date().getFullYear()} {footerConfig.companyName}. Tous droits réservés.
             </p>
-            <p className="text-slate-500 dark:text-slate-400">brainspark est gratuit et ne propose aucun achat en ligne.</p>
+            <p className="text-slate-500 dark:text-slate-400">Free Logic Test est gratuit et ne propose aucun achat en ligne.</p>
           </div>
         </div>
       </div>

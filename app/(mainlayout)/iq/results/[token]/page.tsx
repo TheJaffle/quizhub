@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: IqResultRouteProps) {
   const { token } = await params;
 
   return {
-    title: "Résultat de logique | brainspark",
+    title: "Résultat de logique | Free Logic Test",
     description: `Résultat indicatif du test de logique ${token}.`,
   };
 }

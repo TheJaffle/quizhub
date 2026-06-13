@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getIqAuditSections } from "@/lib/iq-audit";
 
 export const metadata: Metadata = {
-  title: "Audit IQ | brainspark",
+  title: "Audit IQ | Free Logic Test",
   description: "Vue desktop d'audit des questions IQ et des reponses connues par la base.",
 };
 

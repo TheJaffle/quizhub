@@ -21,7 +21,7 @@ export type BrevoSendEmailResult = {
 function getBrevoConfig() {
   const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.BREVO_SENDER_EMAIL;
-  const senderName = process.env.BREVO_SENDER_NAME ?? "brainspark";
+  const senderName = process.env.BREVO_SENDER_NAME ?? "Free Logic Test";
   const replyTo = process.env.BREVO_REPLY_TO ?? "resultats@brainspark.fr";
 
   if (!apiKey || !senderEmail) return null;

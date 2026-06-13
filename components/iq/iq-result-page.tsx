@@ -103,7 +103,7 @@ export function IqResultPage({ result, error, emailToken }: IqResultPageProps) {
             <Brain className="mr-1 h-3.5 w-3.5" />
             Resultat indicatif
           </Badge>
-          <h1 className="text-3xl font-bold tracking-tight">Votre resultat brainspark</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Votre résultat Free Logic Test</h1>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           {correctionUrl ? (
@@ -131,7 +131,7 @@ export function IqResultPage({ result, error, emailToken }: IqResultPageProps) {
             <div className="rounded-2xl bg-white p-5 text-[#3B3B3B]">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-slate-500">Score brainspark</p>
+                  <p className="text-sm font-semibold text-slate-500">Score Free Logic Test</p>
                   <p className="mt-1 text-5xl font-black">{cognitiveScore}</p>
                 </div>
                 <Gauge className="h-10 w-10 text-[#802E7B]" />

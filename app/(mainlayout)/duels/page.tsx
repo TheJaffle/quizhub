@@ -9,7 +9,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Mes duels | brainspark",
+  title: "Mes duels | Free Logic Test",
   description: "Consultez les résultats de vos défis privés.",
 };
 

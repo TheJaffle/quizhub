@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const metadata = {
-  title: "Mon compte | brainspark",
+  title: "Mon compte | Free Logic Test",
   description: "Gérez vos informations personnelles et vos préférences",
 };
 

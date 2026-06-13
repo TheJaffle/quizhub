@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export const metadata = {
-  title: "Mes statistiques | brainspark",
+  title: "Mes statistiques | Free Logic Test",
   description: "Consultez vos résultats et votre progression",
 };
 

@@ -218,14 +218,14 @@ export async function canAccessResultWithEmailToken(payload: {
 export async function sendResultEmail(link: ResultEmailLink, baseUrl: string) {
   const accessUrl = new URL(`/result-access/${link.emailToken}`, baseUrl).toString();
   const label = link.resultType === "iq" ? "votre résultat indicatif de logique" : "votre résultat de quiz";
-  const subject = "Votre résultat brainspark";
-  const text = `Bonjour,\n\nVoici le lien pour consulter ${label} :\n${accessUrl}\n\nCe lien expire dans ${EMAIL_LINK_TTL_HOURS} heures.\n\nbrainspark`;
+  const subject = "Votre résultat Free Logic Test";
+  const text = `Bonjour,\n\nVoici le lien pour consulter ${label} :\n${accessUrl}\n\nCe lien expire dans ${EMAIL_LINK_TTL_HOURS} heures.\n\nFree Logic Test`;
   const html = `
     <p>Bonjour,</p>
     <p>Voici le lien pour consulter ${label} :</p>
     <p><a href="${accessUrl}">${accessUrl}</a></p>
     <p>Ce lien expire dans ${EMAIL_LINK_TTL_HOURS} heures.</p>
-    <p>brainspark</p>
+    <p>Free Logic Test</p>
   `;
   const delivery = await sendBrevoEmail({
     to: link.email,

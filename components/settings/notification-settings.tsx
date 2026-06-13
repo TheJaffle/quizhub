@@ -70,7 +70,7 @@ export function NotificationSettings({ user }: NotificationSettingsProps) {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium">Préférences de contact</h3>
-        <p className="text-sm text-muted-foreground">Choisissez simplement ce que vous acceptez de recevoir de brainspark.</p>
+        <p className="text-sm text-muted-foreground">Choisissez simplement ce que vous acceptez de recevoir de Free Logic Test.</p>
       </div>
 
       <Card>

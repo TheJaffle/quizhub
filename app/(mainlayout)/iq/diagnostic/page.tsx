@@ -7,7 +7,7 @@ import { Fragment } from "react";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Diagnostic QI | brainspark",
+  title: "Diagnostic QI | Free Logic Test",
   robots: {
     index: false,
     follow: false,

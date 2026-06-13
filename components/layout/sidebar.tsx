@@ -8,7 +8,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { useSidebar } from "./sidebar-context";
 
-const BRAND_NAME = "brainspark";
+const BRAND_NAME = "Free Logic Test";
 
 export function AppSidebar() {
   const pathname = usePathname();

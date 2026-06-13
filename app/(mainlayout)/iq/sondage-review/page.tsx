@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata() {
   return {
-    title: "Relecture sondage | brainspark",
+    title: "Relecture sondage | Free Logic Test",
     description: "Relecture question par question des reponses d'un participant au sondage IQ.",
   };
 }

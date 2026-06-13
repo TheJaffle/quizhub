@@ -41,11 +41,11 @@ export async function POST(request: Request) {
 
   const delivery = await sendBrevoEmail({
     to: testTo,
-    subject: "Test envoi mail Brevo - brainspark",
+    subject: "Test envoi mail Brevo - Free Logic Test",
     textContent:
-      "Bonjour,\n\nCeci est un email de test envoye depuis l'API transactionnelle Brevo de brainspark.\n\nSi vous le recevez, la connexion API fonctionne.",
+      "Bonjour,\n\nCeci est un email de test envoye depuis l'API transactionnelle Brevo de Free Logic Test.\n\nSi vous le recevez, la connexion API fonctionne.",
     htmlContent:
-      "<p>Bonjour,</p><p>Ceci est un email de test envoye depuis l'API transactionnelle Brevo de brainspark.</p><p>Si vous le recevez, la connexion API fonctionne.</p>",
+      "<p>Bonjour,</p><p>Ceci est un email de test envoye depuis l'API transactionnelle Brevo de Free Logic Test.</p><p>Si vous le recevez, la connexion API fonctionne.</p>",
   });
 
   if (!delivery.sent) {

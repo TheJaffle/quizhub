@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "Politique de confidentialité | brainspark",
-  description: "Politique de confidentialité du site brainspark.",
+  title: "Politique de confidentialité | Free Logic Test",
+  description: "Politique de confidentialité du site Free Logic Test.",
 };
 
 export default function PolitiqueConfidentialitePage() {
@@ -22,7 +22,7 @@ export default function PolitiqueConfidentialitePage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-semibold">Données pouvant être traitées</h2>
-          <p>Selon votre utilisation du site, brainspark peut traiter des données de compte, des réponses aux quiz, des scores, des durées de passage, des préférences et des données techniques nécessaires au fonctionnement du service.</p>
+          <p>Selon votre utilisation du site, Free Logic Test peut traiter des données de compte, des réponses aux quiz, des scores, des durées de passage, des préférences et des données techniques nécessaires au fonctionnement du service.</p>
         </section>
 
         <section className="space-y-3">
@@ -32,7 +32,7 @@ export default function PolitiqueConfidentialitePage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-semibold">Base légale</h2>
-          <p>Les traitements reposent principalement sur l'exécution du service demandé, l'intérêt légitime de Wildspark à sécuriser et améliorer brainspark, et le consentement lorsque celui-ci est requis.</p>
+          <p>Les traitements reposent principalement sur l'exécution du service demandé, l'intérêt légitime de Wildspark à sécuriser et améliorer Free Logic Test, et le consentement lorsque celui-ci est requis.</p>
         </section>
 
         <section className="space-y-3">

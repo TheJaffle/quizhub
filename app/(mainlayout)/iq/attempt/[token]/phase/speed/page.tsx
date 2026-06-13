@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
 
   return {
     title: `Rapidite | ${data.attempt.testTitle} | QuizHub`,
-    description: "Phase rapidite du test de logique brainspark.",
+    description: "Phase rapidite du test de logique Free Logic Test.",
   };
 }
 

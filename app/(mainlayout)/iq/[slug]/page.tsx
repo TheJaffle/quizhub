@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: IqTestPageProps) {
 
   return {
     title: `${test.title} | QuizHub`,
-    description: test.description ?? "Démarrez votre test de logique sur brainspark.",
+    description: test.description ?? "Démarrez votre test de logique sur Free Logic Test.",
   };
 }
 

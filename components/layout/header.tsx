@@ -12,7 +12,7 @@ import ChatDrawer from "../header/ChatDrawer";
 import NotificationDrawer from "../header/NotificationDrawer";
 import { useSidebar } from "./sidebar-context";
 
-const BRAND_NAME = "brainspark";
+const BRAND_NAME = "Free Logic Test";
 const SHOW_HEADER_COMMUNICATIONS = false;
 
 export function Header({ showSidebar = true }: { showSidebar?: boolean }) {
