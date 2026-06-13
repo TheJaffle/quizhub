@@ -33,6 +33,12 @@ const SONDAGE_LIGHT_FEATURES = [
 ];
 const SONDAGE_LIGHT_STEPS = ["Choisissez votre année de naissance", "Indiquez votre genre", "Lancez le test et jouez jusqu'au bout"];
 const SONDAGE_LIGHT_SHAPES = ["circle", "triangle", "diamond", "unknown"];
+const SONDAGE_LIGHT_FLOATING_SHAPES = [
+  "left-[8%] top-[16%] h-10 w-10 rotate-12 rounded-md bg-rose-400/90 shadow-rose-500/30 [animation-delay:-0.5s]",
+  "left-[36%] top-[12%] h-8 w-8 rounded-full bg-amber-300/90 shadow-amber-500/30 [animation-delay:-1.7s]",
+  "bottom-[16%] left-[12%] h-12 w-12 rotate-45 rounded-md bg-emerald-400/80 shadow-emerald-500/25 [animation-delay:-2.8s]",
+  "right-[18%] top-[18%] h-9 w-9 rounded-md bg-cyan-400/80 shadow-cyan-500/25 [animation-delay:-3.6s]",
+];
 
 function normalizePubSource(value: string | null) {
   if (!value) return null;
@@ -125,9 +131,24 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-50/98 via-cyan-50/78 to-cyan-50/5" />
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
-          <div className="absolute left-[8%] top-[16%] hidden h-10 w-10 rotate-12 rounded-md bg-rose-400/90 shadow-lg shadow-rose-500/30 sm:block motion-safe:animate-bounce" />
-          <div className="absolute left-[36%] top-[12%] hidden h-8 w-8 rounded-full bg-amber-300/90 shadow-lg shadow-amber-500/30 md:block motion-safe:animate-pulse" />
-          <div className="absolute bottom-[16%] left-[12%] hidden h-12 w-12 rotate-45 rounded-md bg-emerald-400/80 shadow-lg shadow-emerald-500/25 lg:block motion-safe:animate-bounce" />
+          <style jsx>{`
+            @keyframes sondage-float {
+              0%,
+              100% {
+                transform: translate3d(0, 0, 0) rotate(var(--shape-rotate, 0deg));
+              }
+              50% {
+                transform: translate3d(12px, -18px, 0) rotate(calc(var(--shape-rotate, 0deg) + 10deg));
+              }
+            }
+          `}</style>
+          {SONDAGE_LIGHT_FLOATING_SHAPES.map((shapeClasses, index) => (
+            <div
+              key={shapeClasses}
+              className={`absolute hidden shadow-lg sm:block motion-safe:animate-[sondage-float_5s_ease-in-out_infinite] ${shapeClasses}`}
+              style={{ "--shape-rotate": index === 0 ? "12deg" : index === 2 ? "45deg" : "0deg" } as React.CSSProperties}
+            />
+          ))}
 
           <div className="relative z-10 mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-7 px-4 py-6 sm:px-6 md:py-10 lg:grid-cols-[0.98fr_0.82fr] lg:px-8">
             <div className="max-w-3xl space-y-4 sm:space-y-5">
@@ -136,7 +157,6 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
                   <Sparkles className="mr-1 h-3.5 w-3.5" />
                   Test de logique gratuit
                 </Badge>
-                <span className="rounded-full border border-slate-900/10 bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm">Résultat indicatif</span>
               </div>
 
               <div className="space-y-4">
