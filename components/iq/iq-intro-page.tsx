@@ -34,10 +34,11 @@ const SONDAGE_LIGHT_FEATURES = [
 const SONDAGE_LIGHT_STEPS = ["Choisissez votre année de naissance", "Indiquez votre genre", "Lancez le test et jouez jusqu'au bout"];
 const SONDAGE_LIGHT_SHAPES = ["circle", "triangle", "diamond", "unknown"];
 const SONDAGE_LIGHT_FLOATING_SHAPES = [
-  "left-[8%] top-[16%] h-10 w-10 rotate-12 rounded-md bg-rose-400/90 shadow-rose-500/30 [animation-delay:-0.5s]",
-  "left-[36%] top-[12%] h-8 w-8 rounded-full bg-amber-300/90 shadow-amber-500/30 [animation-delay:-1.7s]",
-  "bottom-[16%] left-[12%] h-12 w-12 rotate-45 rounded-md bg-emerald-400/80 shadow-emerald-500/25 [animation-delay:-2.8s]",
-  "right-[18%] top-[18%] h-9 w-9 rounded-md bg-cyan-400/80 shadow-cyan-500/25 [animation-delay:-3.6s]",
+  "left-[8%] top-[18%] h-9 w-9 rounded-md bg-rose-400/90 shadow-rose-500/30 [--shape-delay:-0.5s] [--shape-rotate:12deg]",
+  "right-[10%] top-[15%] h-8 w-8 rounded-full bg-amber-300/90 shadow-amber-500/30 [--shape-delay:-1.7s] [--shape-rotate:0deg]",
+  "bottom-[25%] left-[9%] h-11 w-11 rounded-md bg-emerald-400/80 shadow-emerald-500/25 [--shape-delay:-2.8s] [--shape-rotate:45deg]",
+  "right-[18%] bottom-[18%] h-9 w-9 rounded-md bg-cyan-400/85 shadow-cyan-500/25 [--shape-delay:-3.6s] [--shape-rotate:-12deg]",
+  "left-[48%] top-[8%] h-6 w-6 rounded-full bg-white/90 shadow-cyan-500/20 [--shape-delay:-4.4s] [--shape-rotate:0deg]",
 ];
 
 function normalizePubSource(value: string | null) {
@@ -131,7 +132,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-50/98 via-cyan-50/78 to-cyan-50/5" />
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
-          <style jsx>{`
+          <style jsx global>{`
             @keyframes sondage-float {
               0%,
               100% {
@@ -141,12 +142,23 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
                 transform: translate3d(12px, -18px, 0) rotate(calc(var(--shape-rotate, 0deg) + 10deg));
               }
             }
+
+            .sondage-floating-shape {
+              animation: sondage-float 4.5s ease-in-out infinite;
+              animation-delay: var(--shape-delay, 0s);
+              transform: rotate(var(--shape-rotate, 0deg));
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+              .sondage-floating-shape {
+                animation: none;
+              }
+            }
           `}</style>
-          {SONDAGE_LIGHT_FLOATING_SHAPES.map((shapeClasses, index) => (
+          {SONDAGE_LIGHT_FLOATING_SHAPES.map((shapeClasses) => (
             <div
               key={shapeClasses}
-              className={`absolute hidden shadow-lg sm:block motion-safe:animate-[sondage-float_5s_ease-in-out_infinite] ${shapeClasses}`}
-              style={{ "--shape-rotate": index === 0 ? "12deg" : index === 2 ? "45deg" : "0deg" } as React.CSSProperties}
+              className={`sondage-floating-shape pointer-events-none absolute z-0 shadow-lg ${shapeClasses}`}
             />
           ))}
 
