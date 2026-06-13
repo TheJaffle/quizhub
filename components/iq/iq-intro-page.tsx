@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
+import { rememberIqBackRedirectUrl, useBlockTestBackNavigation } from "@/components/iq/use-block-test-back-navigation";
 
 type IqIntroPageProps = {
   test: IqTestIntro | null;
@@ -28,9 +28,9 @@ const GENDER_OPTIONS = [
 ];
 const SONDAGE_LIGHT_SLUG = "sondage-light";
 const SONDAGE_LIGHT_FEATURES = [
-  { icon: Brain, title: "Logique", text: "Des suites, des formes et des deductions rapides." },
-  { icon: Gauge, title: "Rythme", text: "Un parcours fluide, pense pour rester concentré." },
-  { icon: Trophy, title: "Score", text: "Un résultat indicatif à consulter à la fin du test." },
+  { icon: Brain, title: "Défis visuels", text: "Repérez les formes, les suites et les indices." },
+  { icon: Gauge, title: "Rythme fluide", text: "Des questions courtes, une progression claire." },
+  { icon: Trophy, title: "Score final", text: "Un résultat indicatif à découvrir à la fin." },
 ];
 const SONDAGE_LIGHT_STEPS = ["Choisissez votre année de naissance", "Indiquez votre genre", "Lancez le test et jouez jusqu'au bout"];
 
@@ -66,6 +66,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
       }
 
       clearAllIqDraftSubmissions();
+      rememberIqBackRedirectUrl(`/iq/${test.slug}`);
 
       const response = await fetch(`/api/iq/tests/${test.slug}/attempt`, {
         method: "POST",
@@ -112,32 +113,33 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
 
   if (test.slug === SONDAGE_LIGHT_SLUG) {
     return (
-      <div className="-m-3 bg-slate-950 text-slate-950 md:-m-4 xxl:-m-6">
-        <section className="relative isolate overflow-hidden bg-slate-950 text-white">
+      <div className="-m-3 bg-white text-slate-950 md:-m-4 xxl:-m-6">
+        <section className="relative isolate overflow-hidden bg-cyan-50 text-slate-950">
           <Image
-            src="/iq/fond.png"
+            src="/iq/sondage-light-hero.png"
             alt=""
             fill
             priority
             sizes="100vw"
-            className="object-cover opacity-35"
+            className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(20,184,166,0.25),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.98),rgba(30,41,59,0.86)_48%,rgba(12,74,110,0.82))]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-50/95 via-cyan-50/82 to-cyan-50/15" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
 
-          <div className="relative z-10 mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-10 px-4 py-8 sm:px-6 md:py-10 lg:grid-cols-[1.08fr_0.92fr] lg:px-8">
-            <div className="max-w-3xl space-y-6">
+          <div className="relative z-10 mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-7 px-4 py-7 sm:px-6 md:py-10 lg:grid-cols-[0.98fr_0.82fr] lg:px-8">
+            <div className="max-w-3xl space-y-5">
               <div className="flex flex-wrap items-center gap-3">
-                <Badge className="bg-cyan-400 text-slate-950 hover:bg-cyan-400">
+                <Badge className="bg-cyan-500 text-slate-950 shadow-sm hover:bg-cyan-500">
                   <Sparkles className="mr-1 h-3.5 w-3.5" />
                   Test de logique gratuit
                 </Badge>
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/85">Résultat indicatif</span>
+                <span className="rounded-full border border-slate-900/10 bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm">Résultat indicatif</span>
               </div>
 
               <div className="space-y-4">
-                <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">Mettez votre logique au défi.</h1>
-                <p className="max-w-2xl text-base leading-8 text-slate-100 sm:text-lg">
-                  Un test gratuit, visuel et progressif pour mesurer votre sens de l'observation, votre raisonnement et votre capacité à repérer les bonnes pistes.
+                <h1 className="max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">Jouez avec votre logique.</h1>
+                <p className="max-w-2xl text-base font-medium leading-8 text-slate-700 sm:text-lg">
+                  Un parcours gratuit façon casse-tête : observez, déduisez, choisissez la bonne piste et découvrez votre score à la fin.
                 </p>
               </div>
 
@@ -146,21 +148,21 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
                   const Icon = feature.icon;
 
                   return (
-                    <div key={feature.title} className="rounded-md border border-white/15 bg-white/10 p-4 backdrop-blur">
-                      <Icon className="h-5 w-5 text-cyan-300" />
-                      <h2 className="mt-3 text-sm font-semibold text-white">{feature.title}</h2>
-                      <p className="mt-1 text-xs leading-5 text-slate-200">{feature.text}</p>
+                    <div key={feature.title} className="rounded-md border border-white/80 bg-white/85 p-4 shadow-lg shadow-cyan-950/10 backdrop-blur">
+                      <Icon className="h-5 w-5 text-cyan-600" />
+                      <h2 className="mt-3 text-sm font-bold text-slate-950">{feature.title}</h2>
+                      <p className="mt-1 text-xs font-medium leading-5 text-slate-600">{feature.text}</p>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            <div className="rounded-md border border-white/15 bg-white p-4 text-slate-950 shadow-2xl sm:p-5 lg:p-6">
+            <div className="rounded-md border border-white/80 bg-white/95 p-4 text-slate-950 shadow-2xl shadow-cyan-950/20 backdrop-blur sm:p-5 lg:p-6">
               <div className="space-y-5">
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-cyan-700">Prêt à commencer ?</p>
-                  <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Test de logique gratuit</h2>
+                  <h2 className="text-2xl font-black tracking-tight sm:text-3xl">Entrez dans le jeu.</h2>
                   <p className="text-sm leading-6 text-slate-600">
                     Installez-vous au calme, répondez naturellement et allez au bout du parcours.
                   </p>
@@ -210,7 +212,7 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
                   </div>
                 </div>
 
-                <Button className="h-12 w-full bg-cyan-500 text-base text-slate-950 hover:bg-cyan-400" size="lg" onClick={handleStart} disabled={isStarting}>
+                <Button className="h-12 w-full bg-slate-950 text-base text-white shadow-lg shadow-cyan-700/20 hover:bg-cyan-600" size="lg" onClick={handleStart} disabled={isStarting}>
                   {isStarting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
                   Commencer le test
                   <ChevronRight className="ml-1 h-4 w-4" />
