@@ -8,7 +8,7 @@ import { clearAllIqDraftSubmissions } from "@/components/iq/iq-draft-storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Brain, CheckCircle2, ChevronRight, Gauge, Loader2, Play, ShieldCheck, Sparkles, Trophy } from "lucide-react";
+import { AlertTriangle, Brain, CheckCircle2, ChevronRight, Loader2, Play, ShieldCheck, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -26,11 +26,6 @@ const GENDER_OPTIONS = [
   { value: "male", label: "Homme" },
 ];
 const SONDAGE_LIGHT_SLUG = "sondage-light";
-const SONDAGE_LIGHT_FEATURES = [
-  { icon: Brain, title: "Défis visuels", text: "Formes, suites et indices.", color: "bg-cyan-500 text-slate-950" },
-  { icon: Gauge, title: "Rythme fluide", text: "Des questions courtes.", color: "bg-amber-300 text-slate-950" },
-  { icon: Trophy, title: "Score final", text: "Un résultat indicatif.", color: "bg-rose-400 text-white" },
-];
 const SONDAGE_LIGHT_STEPS = ["Choisissez votre année de naissance", "Indiquez votre genre", "Lancez le test et jouez jusqu'au bout"];
 const SONDAGE_LIGHT_SHAPES = ["circle", "triangle", "diamond", "unknown"];
 const SONDAGE_LIGHT_FLOATING_SHAPES = [
@@ -200,23 +195,6 @@ export function IqIntroPage({ test, error }: IqIntroPageProps) {
                 </div>
               </div>
 
-              <div className="grid gap-2 sm:grid-cols-3">
-                {SONDAGE_LIGHT_FEATURES.map((feature) => {
-                  const Icon = feature.icon;
-
-                  return (
-                    <div key={feature.title} className="flex items-center gap-3 rounded-md border border-white/80 bg-white/85 p-3 shadow-lg shadow-cyan-950/10 backdrop-blur">
-                      <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md ${feature.color}`}>
-                        <Icon className="h-5 w-5" />
-                      </span>
-                      <span className="min-w-0">
-                        <h2 className="text-sm font-black text-slate-950">{feature.title}</h2>
-                        <p className="mt-0.5 text-xs font-semibold leading-5 text-slate-600">{feature.text}</p>
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
 
             <div className="rounded-md border border-white/80 bg-white/95 p-4 text-slate-950 shadow-2xl shadow-cyan-950/20 backdrop-blur sm:p-5 lg:p-6">
